@@ -1,0 +1,903 @@
+/* 1. PENGATURAN UMUM */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Nunito', sans-serif;
+}
+
+body {
+    color: #2b3a4a;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+
+    /* Latar Belakang Utama */
+    background-image: url('assets/vocatune-gameplay\ easy\ mode.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* 2. NAVBAR */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 50px;
+
+    background-color: #ffffff;
+    border-bottom: 2px solid #f0f0f0;
+
+    /* UBAH DARI ABSOLUTE KE FIXED SUPAYA AMAN DARI BUG KLIK */
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1000; /* Ditinggikan agar selalu di atas */
+}
+
+.logo {
+    font-size: 24px;
+    color: #2b3a4a;
+}
+
+/* ========================================== */
+/* MENU NAVIGASI ATAS */
+/* ========================================== */
+.nav-links {
+    list-style: none;
+    /* Menghilangkan titik-titik (bullet) bawaan dari tag ul */
+    display: flex;
+    gap: 30px;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #64748b;
+    font-size: 16px;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+.nav-links a:hover {
+    color: #2b3a4a;
+}
+
+.nav-links a.active {
+    color: #0369A1;
+}
+
+.btn-primary {
+    background-color: #ffd84d;
+    /* Warna kuning khas Vocatune */
+    color: #2b3a4a;
+    border: 2px solid #2b3a4a;
+    padding: 8px 24px;
+    border-radius: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-primary:hover {
+    background-color: #ffcc00;
+}
+
+/* 3. HERO SECTION */
+.hero-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 20px;
+    margin-top: 30px;
+}
+
+.title {
+    font-size: 42px;
+    color: #2b3a4a;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    font-size: 18px;
+    color: #64748b;
+    margin-bottom: 40px;
+}
+
+/* 4. TOMBOL START GAME (BULAT) */
+.btn-start {
+    background-color: #ffd84d;
+    color: #2b3a4a;
+    border: 3px solid #2b3a4a;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    font-size: 24px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-bottom: 30px;
+    box-shadow: 4px 4px 0px #2b3a4a;
+    /* Efek bayangan tegas */
+    transition: transform 0.2s;
+}
+
+.btn-start:hover {
+    transform: scale(1.05);
+    /* Membesar sedikit saat disentuh mouse */
+}
+
+/* 5. PILIHAN MODE (EASY, MEDIUM, HARD) */
+.mode-selection {
+    display: flex;
+    flex-direction: row;
+    /* Mengubah susunan menjadi ke samping */
+    justify-content: center;
+    /* Posisikan di tengah */
+    flex-wrap: wrap;
+    /* Jika layar kekecilan, otomatis turun ke bawah */
+    gap: 15px;
+    /* Memberi jarak antar tombol */
+    margin-top: 20px;
+}
+
+.btn-mode {
+    background-color: #ffffff;
+    color: #2b3a4a;
+    border: 2px solid #2b3a4a;
+    padding: 12px 60px;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* Efek saat mouse MENYENTUH tombol (Hover) */
+.btn-mode:hover {
+    background-color: #ffd84d;
+    transform: translateY(-3px);
+    box-shadow: 0px 4px 0px #2b3a4a;
+}
+
+/* Efek saat tombol benar-benar DIPENCET / DIKLIK (Active) */
+.btn-mode:active {
+    transform: translateY(0px);
+    box-shadow: 0px 0px 0px #2b3a4a;
+}
+
+/* 6. DEKORASI GELOMBANG SUARA (AUDIO WAVE) */
+.start-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    margin-bottom: -5px;
+}
+
+.audio-wave {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.bar {
+    width: 6px;
+    border-radius: 10px;
+    background-color: #aed9f0;
+}
+
+.bar-1 {
+    height: 15px;
+    background-color: #ffd84d;
+}
+
+.bar-2 {
+    height: 25px;
+}
+
+.bar-3 {
+    height: 40px;
+}
+
+/* 7. ANIMASI GELOMBANG (Bouncing) */
+@keyframes soundWave {
+
+    0%,
+    100% {
+        transform: scaleY(1);
+    }
+
+    50% {
+        transform: scaleY(0.4);
+    }
+}
+
+.bar {
+    animation: soundWave 1.2s ease-in-out infinite;
+}
+
+.wave-left .bar-1,
+.wave-right .bar-1 {
+    animation-delay: 0s;
+}
+
+.wave-left .bar-2,
+.wave-right .bar-2 {
+    animation-delay: -0.2s;
+}
+
+.wave-left .bar-3,
+.wave-right .bar-3 {
+    animation-delay: -0.4s;
+}
+
+/* 8. PESAN PILIHAN MODE */
+.mode-message {
+    font-size: 16px;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 15px;
+    min-height: 24px;
+    transition: all 0.3s ease;
+}
+
+/* 9. MASKOT MENGINTIP (PEEKING MASCOT) */
+.start-wrapper {
+    position: relative;
+    /* Agar maskot tetap berada di sekitar tombol */
+    display: inline-block;
+}
+
+.mascot-peek {
+    position: absolute;
+    top: 30px;
+    /* Posisi awal bersembunyi di balik tombol */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: auto;
+    z-index: -1;
+    /* Berada di lapisan belakang (di bawah tombol) */
+
+    /* Animasi membal saat naik-turun */
+    transition: top 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Efek saat mouse mendekati wadah (tombol disentuh) */
+.start-wrapper:hover .mascot-peek {
+    top: -70px;
+    /* Maskot melompat naik ke atas tombol */
+}
+
+/* 10. ORNAMEN NOT BALOK MENGAMBANG */
+.floating-notes {
+    position: fixed;
+    /* Ubah 'absolute' menjadi 'fixed' */
+    top: 0;
+    left: 0;
+    width: 100vw;
+    /* Gunakan vw agar selebar layar */
+    height: 100vh;
+    /* Gunakan vh agar setinggi layar penuh */
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+}
+
+/* Bentuk dasar not balok */
+.note {
+    position: absolute;
+    bottom: -100px;
+    color: #aed9f0;
+    opacity: 1;
+    /* UBAH DI SINI: Angka 1 berarti 100% tebal dan solid */
+    font-weight: bold;
+    /* Membuat bentuk teksnya lebih tebal */
+    text-shadow: 0 0 10px #aed9f0, 0 0 20px #aed9f0;
+    /* Memberikan efek cahaya (glowing) */
+    animation: floatUp linear infinite;
+}
+
+/* Animasi melayang ke atas sambil berputar perlahan */
+@keyframes floatUp {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 1;
+        /* UBAH DI SINI JUGA */
+    }
+
+    90% {
+        opacity: 1;
+        /* UBAH DI SINI JUGA */
+    }
+
+    100% {
+        transform: translateY(-110vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* Mengatur posisi, ukuran, dan kecepatan masing-masing not agar terlihat acak alami */
+.note-1 {
+    left: 15%;
+    animation-duration: 8s;
+    font-size: 50px;
+}
+
+.note-2 {
+    left: 85%;
+    animation-duration: 12s;
+    animation-delay: 2s;
+    font-size: 40px;
+}
+
+.note-3 {
+    left: 25%;
+    animation-duration: 10s;
+    animation-delay: 4s;
+    font-size: 35px;
+}
+
+.note-4 {
+    left: 75%;
+    animation-duration: 9s;
+    animation-delay: 1s;
+    font-size: 45px;
+    color: #ffd84d;
+}
+
+/* Sedikit sentuhan warna kuning! */
+.note-5 {
+    left: 50%;
+    animation-duration: 14s;
+    animation-delay: 6s;
+    font-size: 60px;
+}
+
+/* 11. TOMBOL BACKGROUND MUSIC (BGM) */
+.btn-bgm {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    background-color: #2b3a4a;
+    color: white;
+    border: 2px solid #ffd84d;
+    /* Garis tepi kuning senada dengan tombol Start */
+    border-radius: 50px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Efek saat tombol disentuh mouse */
+.btn-bgm:hover {
+    transform: scale(1.1);
+    background-color: #ffd84d;
+    color: #2b3a4a;
+}
+
+/* --- ORNAMEN BINTANG (MELAYANG & MENGHILANG) --- */
+.floating-stars {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    /* Agar tidak menghalangi klik */
+    z-index: 1;
+}
+
+.star {
+    position: absolute;
+    width: 25px;
+    /* Ukuran bintang */
+    height: 25px;
+    /* Menggunakan animasi baru yang berdurasi 5 detik dan berulang */
+    animation: floatUpAndFade 5s linear infinite;
+    opacity: 0;
+    /* Mulai dari transparan */
+}
+
+/* Mengatur posisi awal dan jeda waktu muncul agar tidak berbarengan */
+.star-1 {
+    bottom: 20%;
+    left: 15%;
+    animation-delay: 0s;
+}
+
+.star-2 {
+    bottom: 30%;
+    left: 80%;
+    animation-delay: 1.5s;
+}
+
+.star-3 {
+    bottom: 10%;
+    left: 50%;
+    animation-delay: 3s;
+}
+
+/* Logika Animasi: Melayang ke atas lalu memudar */
+@keyframes floatUpAndFade {
+    0% {
+        transform: translateY(0) scale(0.8);
+        opacity: 0;
+        /* Muncul perlahan */
+    }
+
+    20% {
+        opacity: 1;
+        /* Terlihat jelas */
+    }
+
+    80% {
+        opacity: 1;
+        /* Masih terlihat jelas */
+    }
+
+    100% {
+        transform: translateY(-150px) scale(1.2);
+        /* Bergerak jauh ke atas & membesar */
+        opacity: 0;
+        /* Menghilang di akhir */
+    }
+}
+
+/* Posisi dan Jeda Waktu Muncul Bintang */
+.star-1 {
+    bottom: 15%;
+    left: 10%;
+    animation-delay: 0s;
+}
+
+.star-2 {
+    bottom: 35%;
+    left: 85%;
+    animation-delay: 1s;
+}
+
+.star-3 {
+    bottom: 50%;
+    left: 45%;
+    animation-delay: 2.5s;
+}
+
+.star-4 {
+    bottom: 20%;
+    left: 70%;
+    animation-delay: 1.5s;
+}
+
+.star-5 {
+    bottom: 40%;
+    left: 20%;
+    animation-delay: 3s;
+}
+
+/* (Bagian @keyframes floatUpAndFade biarkan sama seperti sebelumnya) */
+
+/* ==========================================
+   12. WADAH GAME (GAME CONTAINER)
+   ========================================== */
+#game-container {
+    width: 800px;
+    height: 580px;
+    position: relative;
+    margin: 120px auto 0 auto;
+    /* Menjauhkan jarak dari Navbar atas agar pas di tengah */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+#game-container canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+/* ========================================== */
+/* HALAMAN STATISTIK (DESAIN FINAL) */
+/* ========================================== */
+#statistik-section {
+    display: none;
+    /* 🎯 WAJIB DIUBAH DARI FLEX MENJADI NONE AGAR TERSEMBUNYI DI AWAL */
+    justify-content: center;
+
+    /* KUNCI 1: Memaksa elemen mulai dari atas, bukan dari tengah layar */
+    align-items: flex-start;
+
+    /* KUNCI 2: Padding atas diperbesar menjadi 80px agar tidak mepet atau tertutup menu navigasi */
+    padding: 80px 20px 40px;
+
+    background-color: #f8fafc;
+    min-height: 100vh;
+    width: 100%;
+}
+
+.statistik-container {
+    width: 100%;
+    max-width: 1000px;
+    /* Lebar dibuat maksimal agar menyerupai desain */
+}
+
+.statistik-header h2 {
+    color: #2b3a4a;
+    font-size: 24px;
+    margin-bottom: 5px;
+}
+
+.statistik-header p {
+    color: #64748b;
+    font-size: 14px;
+    margin-bottom: 30px;
+}
+
+.stat-card-wide {
+    background-color: #ffffff;
+    border: 2px solid #2b3a4a;
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.stat-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.stat-card-header h3 {
+    margin: 0;
+    color: #2b3a4a;
+    font-size: 18px;
+    flex-grow: 1;
+    /* Mendorong lencana Total ke ujung kanan */
+}
+
+.stat-subtitle {
+    color: #64748b;
+    font-size: 13px;
+    margin-bottom: 20px;
+}
+
+.stat-info-row {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+}
+
+.stat-item {
+    color: #2b3a4a;
+    font-size: 15px;
+}
+
+.stat-badge {
+    background-color: #FEF3C7;
+    color: #D97706;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 14px;
+    border: 1px solid #FDE68A;
+}
+
+.badge-total {
+    background-color: #E0F2FE;
+    color: #0369A1;
+    padding: 5px 15px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* --- GRID KARTU KOSAKATA --- */
+.kosakata-grid {
+    display: grid;
+    /* Otomatis membuat kolom sesuai ketersediaan ruang */
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 15px;
+}
+
+.kosa-card {
+    border: 1px solid #2b3a4a;
+    border-radius: 12px;
+    padding: 15px;
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.kosa-judul {
+    font-weight: bold;
+    color: #2b3a4a;
+    font-size: 16px;
+}
+
+.kosa-arti {
+    color: #D97706;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.kosa-desc {
+    color: #64748b;
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.statistik-card {
+    background-color: #ffffff;
+    border: 2px solid #2b3a4a;
+    border-radius: 20px;
+    padding: 40px;
+    width: 100%;
+    max-width: 600px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.statistik-card h2 {
+    color: #2b3a4a;
+    font-size: 28px;
+    margin-bottom: 30px;
+}
+
+.skor-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.skor-box {
+    background-color: #E0F2FE;
+    border: 2px solid #2b3a4a;
+    border-radius: 15px;
+    padding: 20px;
+    flex: 1;
+}
+
+.skor-label {
+    font-size: 14px;
+    color: #64748b;
+    font-weight: bold;
+}
+
+.skor-box h3 {
+    font-size: 36px;
+    color: #2b3a4a;
+    margin: 10px 0 0 0;
+}
+
+.kosakata-container {
+    background-color: #f8fafc;
+    border: 2px dashed #cbd5e1;
+    border-radius: 15px;
+    padding: 20px;
+    text-align: left;
+    margin-bottom: 30px;
+}
+
+.kosakata-container h3 {
+    color: #2b3a4a;
+    font-size: 18px;
+    margin-bottom: 15px;
+    margin-top: 0;
+}
+
+#daftarKosakata {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+#daftarKosakata li {
+    padding: 10px 0;
+    border-bottom: 1px solid #e2e8f0;
+    color: #475569;
+}
+
+#daftarKosakata li:last-child {
+    border-bottom: none;
+}
+
+#daftarKosakata li strong {
+    color: #2b3a4a;
+    font-size: 16px;
+}
+
+.statistik-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+/* ========================================== */
+/* MODAL PAUSE */
+/* ========================================== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    /* Latar belakang gelap transparan */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    /* Memastikan kotak selalu berada di lapisan paling atas */
+}
+
+.modal-box {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    border: 2px solid #2b3a4a;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    min-width: 300px;
+}
+
+.modal-box h3 {
+    color: #2b3a4a;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.modal-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* MENGUBAH TOMBOL KEDUA DI DALAM KOTAK PAUSE */
+.modal-buttons .btn-secondary {
+    background-color: #FEF3C7;
+    /* Warna kuning muda / pastel */
+    border: 2px solid #2b3a4a;
+    /* Garis tepi gelap agar serasi dengan tombol utama */
+    color: #2b3a4a;
+    /* Warna teks gelap */
+    border-radius: 50px;
+    /* Bentuk membulat (oval) */
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    /* Efek transisi halus */
+}
+
+/* EFEK SAAT TOMBOL DISENTUH MOUSE */
+.modal-buttons .btn-secondary:hover {
+    background-color: #FDE68A;
+    /* Kuningnya sedikit lebih terang saat disentuh */
+}
+
+/* ========================================== */
+/* TOMBOL PAUSE BULAT PRESISI DI NAVBAR */
+/* ========================================== */
+.btn-pause-circle {
+    width: 38px;
+    height: 38px;
+    background-color: #2b3a4a;
+    /* Biru tua VocaTune */
+    color: #ffd84d !important;
+    /* Warna ikon kuning VocaTune (satu tema) */
+    border-radius: 50%;
+
+    /* Memusatkan SVG persis di tengah mutlak */
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+
+    text-decoration: none;
+    margin-left: 10px;
+    transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Efek saat disentuh: Warna berbalik agar interaktif */
+.btn-pause-circle:hover {
+    transform: scale(1.1);
+    background-color: #ffd84d;
+    color: #2b3a4a !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+#medium-input-overlay {
+    display: none;
+    position: absolute !important;
+
+    /* 👇 INI DIA KUNCI JARAKNYA (265px = Jarak 5px, 270px = Jarak 10px) 👇 */
+    top: 265px !important;
+
+    left: 40px !important;
+    width: 720px !important;
+    background-color: #ffffff;
+    border: 2px solid #2b3a4a;
+    border-radius: 20px;
+    padding: 30px;
+    z-index: 10;
+    box-sizing: border-box;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    text-align: left;
+    margin: 0 !important;
+    transform: none !important;
+}
+
+.input-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    /* Jarak ikon dan teks judul */
+    color: #2b3a4a;
+    font-size: 20px;
+    /* Sedikit lebih besar dan tegas */
+    margin-bottom: 6px;
+    /* Jarak presisi ke sub-judul */
+}
+
+.input-subtext {
+    font-size: 13px;
+    color: #64748b;
+    margin-bottom: 25px;
+    /* Jarak lega memisahkan teks dengan area input */
+    line-height: 1.5;
+}
+
+#inputJawabanMedium {
+    width: 100%;
+    padding: 16px 20px;
+    border: 2px solid #2b3a4a;
+    border-radius: 12px;
+    font-size: 16px;
+    font-family: 'Nunito', sans-serif;
+    color: #2b3a4a;
+    background-color: #f8fafc;
+    /* Warna abu-abu super muda agar kontras dengan putih */
+    outline: none;
+    box-sizing: border-box;
+    /* Mencegah input luber ke kanan */
+    transition: all 0.2s ease;
+}
+
+/* Efek menyala saat kotak sedang diketik */
+#inputJawabanMedium:focus {
+    background-color: #ffffff;
+    border-color: #0369A1;
+    box-shadow: 0 0 0 4px rgba(3, 105, 161, 0.15);
+}
+
+/* Memaksa tombol agar membentang penuh dan proporsional */
+#btnSubmitMedium {
+    width: 100%;
+    /* KUNCI: Agar tombolnya sejajar penuh dengan kotak input */
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    box-sizing: border-box;
+    /* Agar padding tidak merusak lebar 100% */
+    cursor: pointer;
+}

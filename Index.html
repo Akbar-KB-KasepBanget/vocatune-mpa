@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+
+</head>
+<body>
+    <div class="floating-notes">
+        <span class="note note-1">&#9835;</span> <!-- Nada ♫ -->
+        <span class="note note-2">&#9834;</span> <!-- Nada ♪ -->
+        <span class="note note-3">&#9836;</span> <!-- Nada ♬ -->
+        <span class="note note-4">&#9835;</span>
+        <span class="note note-5">&#9834;</span>
+    </div>
+
+    <!-- Ornamen Bintang Mengambang -->
+    <div class="floating-stars">
+        <div class="star star-1">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#F6D365" stroke-width="2">
+                <polygon
+                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+                </polygon>
+            </svg>
+        </div>
+        <div class="star star-2">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#F6D365" stroke-width="2">
+                <polygon
+                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+                </polygon>
+            </svg>
+        </div>
+        <div class="star star-3">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#F6D365" stroke-width="2">
+                <polygon
+                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+                </polygon>
+            </svg>
+        </div>
+        <div class="star star-4">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#F6D365" stroke-width="2">
+                <polygon
+                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+                </polygon>
+            </svg>
+        </div>
+        <div class="star star-5">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#F6D365" stroke-width="2">
+                <polygon
+                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+                </polygon>
+            </svg>
+        </div>
+    </div>
+
+    <!-- 1. NAVIGATION BAR (NAVBAR) -->
+    <nav class="navbar">
+        <div class="logo">
+            <span class="icon">🎙️</span>
+            <strong>VocaTune</strong>
+        </div>
+
+        <!-- 👇 BAGIAN INI YANG KITA PERBAIKI 👇 -->
+        <ul class="nav-links">
+            <li><a href="#" id="navHome" class="active">Home</a></li>
+            <li><a href="#" id="navLeaderboard">Leaderboard</a></li>
+            <!-- 👇 TOMBOL PAUSE PRESISI (SVG) 👇 -->
+            <li>
+                <a href="#" id="navPause" class="btn-pause-circle" style="display: none;">
+                    <svg width="14" height="16" viewBox="0 0 14 16" fill="currentColor">
+                        <rect x="0" y="0" width="4" height="16" rx="1"></rect>
+                        <rect x="10" y="0" width="4" height="16" rx="1"></rect>
+                    </svg>
+                </a>
+            </li>
+        </ul>
+
+        <div class="auth-button">
+            <button id="btnLogin" class="btn-primary">Log In</button>
+            <!-- Tombol Profil untuk Member (Disembunyikan di awal) -->
+            <button id="btnProfile" class="btn-profile" style="display: none;">
+                <span class="icon-user">👤</span> Akbar
+            </button>
+        </div>
+    </nav>
+
+    <!-- 2. HERO SECTION (TAMPILAN UTAMA LANDING PAGE) -->
+    <main class="hero-section">
+        <div class="hero-content">
+            <h1 class="title">READY TO TUNE IN?</h1>
+            <p class="subtitle">VocaTune: A New Music Vocabulary Game!</p>
+            <!-- Tombol Utama Start Game & Dekorasi Gelombang -->
+            <div class="start-container">
+                <!-- Gelombang Kiri -->
+                <div class="audio-wave wave-left">
+                    <div class="bar bar-1"></div>
+                    <div class="bar bar-2"></div>
+                    <div class="bar bar-3"></div>
+                    <div class="bar bar-2"></div>
+                </div>
+
+                <!-- Wadah untuk Tombol Start dan Maskot -->
+                <div class="start-wrapper">
+                    <!-- Gambar Maskot -->
+                    <!-- Gambar Maskot (Warna Kuning) -->
+                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Milo&baseColor=ffd84d" alt="Maskot Vocatune"
+                        class="mascot-peek">
+
+                    <!-- Tombol Start Milikmu -->
+                    <button id="btnStart" class="btn-start">Start Game</button>
+                </div>
+
+                <!-- Gelombang Kanan -->
+                <div class="audio-wave wave-right">
+                    <div class="bar bar-2"></div>
+                    <div class="bar bar-3"></div>
+                    <div class="bar bar-2"></div>
+                    <div class="bar bar-1"></div>
+                </div>
+            </div>
+
+            <!-- Pilihan Mode Permainan -->
+            <!-- Pesan Pilihan Mode (Awalnya Kosong) -->
+            <p id="mode-message" class="mode-message"></p>
+
+            <!-- Pilihan Mode Permainan -->
+            <div class="mode-selection">
+                <button class="btn-mode">Easy</button>
+                <button class="btn-mode">Medium</button>
+                <button class="btn-mode">Hard</button>
+            </div>
+        </div>
+    </main>
+    <!-- Wadah Tombol Menu Bawah -->
+<div id="dashboard-menu-buttons" style="display: flex; justify-content: center; gap: 60px; margin-top: -20px;">
+    
+    <!-- Tombol 1: Runtunan Harian -->
+    <div id="btnRuntunanHarian" style="cursor: pointer; text-align: center; max-width: 180px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+        <div style="width: 65px; height: 65px; border: 2px solid #2b3a4a; border-radius: 16px; display: flex; justify-content: center; align-items: center; margin: 0 auto 12px auto; background-color: #fcfaf8;">
+            <span style="font-size: 28px;">🔥</span> <!-- Bisa diganti dengan tag <img> ikon SVG aslimu -->
+        </div>
+        <h3 style="color: #2b3a4a; font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 800; margin: 0 0 6px 0;">
+            Runtunan harian: <span id="home-streak-value">0 Hari</span>
+        <p style="color: black; font-family: 'Nunito', sans-serif; font-size: 11px; margin: 0; line-height: 1.4;">Keep your streak alive by playing every day to earn bonus points!</p>
+    </div> 
+
+    <!-- Tombol 2: Skor Tertinggi -->
+    <div id="btnSkorTertinggi" style="cursor: pointer; text-align: center; max-width: 180px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+        <div style="width: 65px; height: 65px; border: 2px solid #2b3a4a; border-radius: 16px; display: flex; justify-content: center; align-items: center; margin: 0 auto 12px auto; background-color: #fcfaf8;">
+            <span style="font-size: 28px;">🏆</span> <!-- Bisa diganti dengan tag <img> ikon SVG aslimu -->
+        </div>
+        <h3 style="color: #2b3a4a; font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 800; margin: 0 0 6px 0;">Skor Tertinggi</h3>
+        <p style="color: black; font-family: 'Nunito', sans-serif; font-size: 11px; margin: 0; line-height: 1.4;">Raih skor tertinggi dan buktikan kamu adalah yang terbaik!</p>
+    </div>
+
+</div>
+  <!-- ================= SECTION AUTH (LOG IN & SIGN UP) ================= -->
+    <section id="auth-section" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 999; justify-content: center; align-items: center;">
+        
+        <!-- KOTAK FORM LOGIN -->
+        <div id="form-login" class="auth-card" style="background: white; padding: 30px; border-radius: 12px; width: 350px; text-align: center;">
+            <h2>Log In ke VocaTune</h2>
+            <p id="loginError" style="color: red; display: none; font-size: 14px; margin-bottom: 10px;"></p>
+            
+            <input type="email" id="loginGmail" placeholder="Masukkan Gmail..." style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px;" required>
+          <!-- Bungkus input password dan ikon matanya di dalam satu div -->
+<div style="position: relative; width: 100%; margin-bottom: 15px;">
+    <!-- Pastikan ada padding-right agar teks tidak menabrak ikon mata -->
+    <input type="password" id="loginPassword" placeholder="Masukkan Password" required style="width: 100%; padding-right: 40px;">
+    
+    <!-- Ikon matanya ditaruh di sini -->
+    <span id="toggleLoginPassword" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 18px; user-select: none;">
+        👁️
+    </span>
+</div>
+            <button id="btnSubmitLogin" class="btn-primary" style="width: 100%; padding: 10px; margin-top: 10px;">Log In</button>
+            
+            <p style="margin-top: 15px; font-size: 14px;">Belum punya akun? <span id="linkToSignUp" style="color: #3498DB; cursor: pointer; text-decoration: underline;">Sign Up di sini</span></p>
+        </div>
+
+        <!-- KOTAK FORM SIGN UP -->
+        <div id="form-signup" class="auth-card" style="display: none; background: white; padding: 30px; border-radius: 12px; width: 350px; text-align: center;">
+            <h2>Buat Akun Baru</h2>
+            <p id="signupError" style="color: red; display: none; font-size: 14px; margin-bottom: 10px;"></p>
+            
+            <input type="text" id="signupUsername" placeholder="Buat Username..." style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px;" required>
+            <input type="email" id="signupGmail" placeholder="Masukkan Gmail..." style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px;" required>
+            <input type="password" id="signupPassword" placeholder="Buat Password..." style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px;" required>
+            <button id="btnSubmitSignup" class="btn-primary" style="width: 100%; padding: 10px; margin-top: 10px;">Sign Up</button>
+            
+            <p style="margin-top: 15px; font-size: 14px;">Sudah punya akun? <span id="linkToLogin" style="color: #3498DB; cursor: pointer; text-decoration: underline;">Log In di sini</span></p>
+        </div>
+    </section>
+
+    <!-- Elemen Audio & Tombol BGM -->
+    <audio id="bgmAudio" loop autoplay><source src="assets/bgm/s.mp3" type="audio/mpeg"></audio>
+    <button id="btnBgm" class="btn-bgm">🔊 Play Music</button>
+    <!-- ========================================== -->
+    <!-- SCRIPT UNTUK HALAMAN BERANDA -->
+    <!-- ========================================== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module" src="js/supabase.js"></script>
+    <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/ui.js"></script> <!-- Kode klik BGM ada di sini -->
+</body>
+</html>
