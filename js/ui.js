@@ -1,22 +1,19 @@
-// ==========================================
-// 1. FITUR BGM DI BERANDA
-// ==========================================
 const bgmAudio = document.getElementById('bgmAudio');
-const btnBgm = document.getElementById('btnBgm');
-let isPlaying = false;
+    const btnBgm = document.getElementById('btnBgm');
+    let isPlaying = true; 
 
-if (btnBgm && bgmAudio) {
-    btnBgm.addEventListener('click', () => {
-        if (isPlaying) { 
-            bgmAudio.pause(); 
-            btnBgm.innerHTML = '🔈 Music Off'; 
-        } else { 
-            bgmAudio.play(); 
-            btnBgm.innerHTML = '🔊 Music On'; 
-        }
-        isPlaying = !isPlaying;
-    });
-}
+    if (btnBgm && bgmAudio) {
+        btnBgm.addEventListener('click', () => {
+            if (isPlaying) {
+                bgmAudio.pause();
+                btnBgm.innerText = '🔇 Music Off';
+            } else {
+                bgmAudio.play();
+                btnBgm.innerText = '🔊 Music On';
+            }
+            isPlaying = !isPlaying;
+        });
+    }
 
 // ==========================================
 // 2. PEMILIHAN MODE GAME
@@ -97,3 +94,10 @@ window.addEventListener('DOMContentLoaded', () => {
         if (teksSkor) teksSkor.innerText = skorTertinggi + ' Poin';
     }
 });
+const btnSkorTertinggi = document.getElementById('btnSkorTertinggi');
+
+if (btnSkorTertinggi) {
+    btnSkorTertinggi.addEventListener('click', () => {
+        window.location.href = 'performa.html'; 
+    });
+}

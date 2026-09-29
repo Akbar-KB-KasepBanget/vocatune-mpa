@@ -3,56 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Statistik - VocaTune</title>
+    <title>Performa & Rekor - VocaTune</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
-    
-    <!-- Bagian ini sudah dipaksa muncul dengan display: block -->
-    <section id="statistik-section" style="display: block; padding: 40px 20px;">
+    <section style="display: block; padding: 40px 20px;">
         <div class="statistik-container" style="max-width: 800px; margin: 0 auto;">
             <div class="statistik-header">
-                <h2>KOSAKATA BARU & STATISTIK BELAJAR</h2>
-                <p>Pantau terus perkembangan penguasaan kosakata mu dan pertahankan streak harian!</p>
+                <h2>PERFORMA & REKOR AKUN</h2>
+                <p>Raihlah skor terbaik dalam setiap ronde tebak kosa kata untuk menaiki anak tangga leaderboard global VocaTune!</p>
             </div>
 
-            <div class="stat-card-wide">
-                <div class="stat-card-header">
-                    <span class="icon-bookmark">🔖</span>
-                    <h3>Statistik Bermain</h3>
-                </div>
-                <p class="stat-subtitle">Selamat, kamu berhasil menyelesaikan kuis hari ini! Pertahankan semangatmu.</p>
-                <div class="stat-info-row">
-                    <div class="stat-item">Jawaban Benar: <strong id="jumlahBenarAkhir">0/10</strong></div>
-                    <div class="stat-item" style="color: #F39C12;">Hampir Benar: <strong id="jumlahHampirBenarAkhir">0</strong></div>
-                    <div class="stat-item">Skor Total: <strong id="skorAkhir">0</strong></div>
-                    <div class="stat-badge">🔥 Streak Tertinggi: <span id="streakAkhir">0</span></div>
+            <!-- 4 Kartu Statistik Global -->
+            <div class="stat-card-wide" id="global-performa-section">
+                <div class="global-stats-grid">
+                    <div class="global-stat-item">
+                        <div class="stat-icon">⭐</div>
+                        <div class="stat-text">
+                            <span class="stat-label">Skor Terbaik</span>
+                            <span class="stat-value"><span id="dbHighestScore">0</span> XP</span>
+                        </div>
+                    </div>
+                    <div class="global-stat-item">
+                        <div class="stat-icon">📖</div>
+                        <div class="stat-text">
+                            <span class="stat-label">Streak tertinggi</span>
+                            <span class="stat-value" id="dbHighestStreak">0</span>
+                        </div>
+                    </div>
+                    <div class="global-stat-item">
+                        <div class="stat-icon">🔥</div>
+                        <div class="stat-text">
+                            <span class="stat-label">Total Hari Bermain</span>
+                            <span class="stat-value" id="dbTotalDays">0</span>
+                        </div>
+                    </div>
+                    <div class="global-stat-item">
+                        <div class="stat-icon">🔖</div>
+                        <div class="stat-text">
+                            <span class="stat-label">Total Skor</span>
+                            <span class="stat-value"><span id="dbTotalScore">0</span> XP</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="stat-card-wide">
-                <div class="stat-card-header">
-                    <span class="icon-bookmark">🔖</span>
-                    <h3>Kosakata Baru</h3>
-                    <span class="badge-total">Total Kata</span>
-                </div>
-                <p class="stat-subtitle">Berikut adalah beberapa istilah yang berhasil kamu pelajari dalam kuis terakhirmu.</p>
-                <div id="daftarKosakata" class="kosakata-grid"></div>
-            </div>
-
+            <!-- Tombol Kembali (Pastikan ID-nya persis ini) -->
             <div style="margin-top: 30px; text-align: center;">
-                <button id="btnMainLagi" class="btn-primary">🔄 Main Lagi</button>
-                <button id="btnKembaliHome" class="btn-primary" style="margin-left: 15px;">🏠 Ke Beranda</button>
+                <button id="btnKembaliHome" class="btn-primary" style="background-color: #FFD700; color: #2b3a4a; padding: 10px 30px; border-radius: 20px; font-weight: bold; border: 2px solid #2b3a4a;">🏠 Ke Beranda</button>
             </div>
         </div>
     </section>
 
-    <!-- Elemen Audio & Tombol BGM -->
+    <!-- Tombol BGM -->
+    <button id="btnBgm" class="btn-bgm" style="position: fixed; bottom: 20px; right: 20px; padding: 10px 20px; border-radius: 20px; background: #2b3a4a; color: white; cursor: pointer; z-index: 100;">🔊 Music On</button>
     <audio id="bgmAudio" loop autoplay><source src="assets/bgm/s.mp3" type="audio/mpeg"></audio>
-    <button id="btnBgm" class="btn-bgm">🔊 Play Music</button>
 
-    <!-- SCRIPT UNTUK HALAMAN STATISTIK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script type="module" src="js/supabase.js"></script>
     <script type="module" src="js/performa.js"></script>

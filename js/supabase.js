@@ -5,10 +5,10 @@ export async function simpanSkorKeDatabase(skorBaru, streakBaru) {
     const userId = session.user.id;
 
     try {
-        // 1. Ambil data lama, termasuk last_play_date dan highest_combo yang baru dibuat
+        // 1. Ambil data lama, TAMBAHKAN total_days_played
         const { data: playerData, error: fetchError } = await db
             .from('players')
-            .select('highest_score, total_score, daily_streak, last_play_date, highest_combo')
+            .select('highest_score, total_score, daily_streak, last_play_date, highest_combo, total_days_played')
             .eq('user_id', userId)
             .single();
 
@@ -19,8 +19,9 @@ export async function simpanSkorKeDatabase(skorBaru, streakBaru) {
         let totalSkorBaru = (playerData.total_score || 0) + skorBaru;
         let comboTertinggiBaru = Math.max(playerData.highest_combo || 0, streakBaru);
 
-        // 3. Kalkulasi Logika "Daily Streak" (Login Harian) menggunakan Waktu
+        // 3. Kalkulasi Logika "Daily Streak" dan "Total Hari Bermain"
         let streakHarianBaru = playerData.daily_streak || 0;
+        let totalHariBaru = playerData.total_days_played || 0; // Variabel baru
         
         // Ambil waktu hari ini (jam 00:00:00 agar perbandingan akurat)
         const now = new Date();
@@ -36,13 +37,16 @@ export async function simpanSkorKeDatabase(skorBaru, streakBaru) {
             const selisihHari = Math.round(selisihWaktu / (1000 * 60 * 60 * 24));
 
             if (selisihHari === 1) {
-                streakHarianBaru += 1; // Main di hari berikutnya, tambah streak!
+                streakHarianBaru += 1; 
+                totalHariBaru += 1; // Main di hari baru beruntun, umur akun tambah 1 hari
             } else if (selisihHari > 1) {
-                streakHarianBaru = 1; // Terlewat lebih dari 1 hari, streak hangus kembali ke 1
+                streakHarianBaru = 1; 
+                totalHariBaru += 1; // Main di hari baru tapi bolos, umur akun tetap tambah 1 hari
             }
-            // Jika selisihHari === 0, artinya dia sudah main hari ini, streak tidak ditambah maupun dikurangi
+            // Jika selisihHari === 0 (sudah main hari ini), tidak ada penambahan apa-apa
         } else {
-            streakHarianBaru = 1; // Jika last_play_date NULL (baru pertama kali main), set streak ke 1
+            streakHarianBaru = 1; 
+            totalHariBaru = 1; // Baru pertama kali main
         }
 
         // 4. Kirim semua data terbaru ke Supabase
@@ -53,13 +57,14 @@ export async function simpanSkorKeDatabase(skorBaru, streakBaru) {
                 total_score: totalSkorBaru,
                 highest_combo: comboTertinggiBaru,
                 daily_streak: streakHarianBaru,
-                last_play_date: new Date().toISOString() // Catat waktu bermain detik ini
+                total_days_played: totalHariBaru, // Kirim data total hari
+                last_play_date: new Date().toISOString()
             })
             .eq('user_id', userId);
 
         if (updateError) throw updateError;
         
-        console.log("Skor, Combo, dan Daily Streak berhasil diamankan! 🚀");
+        console.log("Skor, Combo, Umur Akun, dan Daily Streak berhasil diamankan! 🚀");
 
     } catch (error) {
         console.error("Gagal menyimpan data:", error.message);
@@ -67,7 +72,7 @@ export async function simpanSkorKeDatabase(skorBaru, streakBaru) {
 }
 // INISIALISASI SUPABASE
 const SUPABASE_URL = 'https://coqumpuqkbtdqgejytre.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsIn...'; // Pastikan key panjangmu utuh
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNvcXVtcHVxa2J0ZHFnZWp5dHJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5MjA2MTAsImV4cCI6MjEwMzQ5NjYxMH0.mGN98jHAITSigCoJjldmDinQ7pjNqosmBK8OH5p_f34'; 
 
 if (!window.dbInstance) {
     window.dbInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);

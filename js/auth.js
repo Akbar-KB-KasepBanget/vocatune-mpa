@@ -164,17 +164,11 @@ if (btnSubmitLogin) {
             loginError.innerText = '*' + error.message; 
         } else {
             resetPesanError();
-            let userTersimpan = data.user.user_metadata.username;
-
-            authSection.style.display = 'none';
-            if (heroSection) heroSection.style.display = 'flex';
-
-            if (btnLoginNav) btnLoginNav.style.display = 'none';
-            if (btnProfileNav) {
-                btnProfileNav.style.display = 'flex';
-                btnProfileNav.innerHTML = `<span class="icon-user">👤</span> ${userTersimpan}`;
-            }
-            if (memberStats) memberStats.style.display = 'flex';
+            // Taruh di sini HANYA 1 kali saat login sukses
+            localStorage.setItem('vocaTuneUserLoggedIn', 'yes');
+            
+            // Reload halaman agar ui.js langsung membaca status login terbaru
+            window.location.reload(); 
         }
     });
 }
@@ -188,6 +182,10 @@ if (btnProfileNav) {
         let yakinKeluar = confirm("Apakah kamu yakin ingin Log Out?");
         if (yakinKeluar) {
             await db.auth.signOut();
+            // Hapus memori login saat user benar-benar klik OK untuk keluar
+            localStorage.removeItem('vocaTuneUserLoggedIn');
+            
+            // Reload halaman agar UI kembali ke Visit Mode
             window.location.reload();
         }
     });

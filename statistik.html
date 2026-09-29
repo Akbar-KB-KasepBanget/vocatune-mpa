@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hasil Kuis - VocaTune</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <section style="display: block; padding: 40px 20px;">
+        <div class="statistik-container" style="max-width: 800px; margin: 0 auto;">
+            <div class="statistik-header">
+                <h2>KOSAKATA BARU & STATISTIK BELAJAR</h2>
+                <p>Selamat, kamu berhasil menyelesaikan kuis! Pantau terus perkembangan kosakatamu.</p>
+            </div>
+
+            <!-- Kartu Rekap Pertandingan Terakhir -->
+            <div class="stat-card-wide">
+                <div class="stat-card-header">
+                    <span class="icon-bookmark">🔖</span>
+                    <h3>Statistik Kuis Terakhir</h3>
+                </div>
+                <div class="stat-info-row">
+                    <div class="stat-item">Jawaban Benar: <strong id="jumlahBenarAkhir">0/10</strong></div>
+                    <div class="stat-item" style="color: #F39C12;">Hampir Benar: <strong id="jumlahHampirBenarAkhir">0</strong></div>
+                    <div class="stat-item">Skor Ronde Ini: <strong id="skorAkhir">0</strong></div>
+                    <div class="stat-badge">🔥 Streak Sesi Ini: <span id="streakAkhir">0</span></div>
+                </div>
+            </div>
+
+            <!-- Kartu Kosakata Baru -->
+            <div class="stat-card-wide">
+                <div class="stat-card-header">
+                    <span class="icon-bookmark">🔖</span>
+                    <h3>Kosakata Baru</h3>
+                    <span class="badge-total">Total Kata</span>
+                </div>
+                <p class="stat-subtitle">Berikut adalah beberapa istilah yang berhasil kamu pelajari dalam kuis terakhirmu.</p>
+                <div id="daftarKosakata" class="kosakata-grid"></div>
+            </div>
+
+            <div style="margin-top: 30px; text-align: center;">
+                <button id="btnMainLagi" class="btn-primary">🔄 Main Lagi</button>
+                <button id="btnKembaliHome" class="btn-primary" style="margin-left: 15px;">🏠 Ke Beranda</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Elemen Audio & Tombol BGM -->
+    <button id="btnBgm" class="btn-bgm">🔊 Music On</button>
+    <audio id="bgmAudio" loop autoplay><source src="assets/bgm/s.mp3" type="audio/mpeg"></audio>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module" src="js/supabase.js"></script>
+    <script type="module" src="js/statistik.js"></script> <!-- Script khusus rekap game -->
+</body>
+</html>

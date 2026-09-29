@@ -364,29 +364,30 @@ body {
     font-size: 60px;
 }
 
-/* 11. TOMBOL BACKGROUND MUSIC (BGM) */
+
+
+/* 11.TOMBOL BGM GLOBAL */
 .btn-bgm {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
-    padding: 12px 20px;
+    bottom: 30px;
+    right: 30px;
     background-color: #2b3a4a;
-    color: white;
-    border: 2px solid #ffd84d;
-    /* Garis tepi kuning senada dengan tombol Start */
-    border-radius: 50px;
-    font-weight: bold;
+    color: #ffffff;
+    border: 3px solid #F4D03F; /* Warna kuning border */
+    border-radius: 30px; /* Membuat bentuk melengkung seperti pil */
+    padding: 10px 24px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 16px;
     cursor: pointer;
-    z-index: 10;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25); /* Bayangan tombol */
+    z-index: 9999;
+    transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
-/* Efek saat tombol disentuh mouse */
 .btn-bgm:hover {
-    transform: scale(1.1);
-    background-color: #ffd84d;
-    color: #2b3a4a;
+    transform: translateY(-3px);
+    background-color: #384b5e;
 }
 
 /* --- ORNAMEN BINTANG (MELAYANG & MENGHILANG) --- */
@@ -900,4 +901,68 @@ body {
     box-sizing: border-box;
     /* Agar padding tidak merusak lebar 100% */
     cursor: pointer;
+}
+/* ========================================== */
+/* KARTU SKOR TERTINGGI & PERFORMA GLOBAL     */
+/* ========================================== */
+#global-performa-section {
+    margin-bottom: 25px;
+}
+
+.global-header {
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 12px;
+    margin-bottom: 15px;
+}
+
+.subtitle-left {
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.global-stats-grid {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.global-stat-item {
+    flex: 1;
+    min-width: 140px;
+    padding: 15px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background-color: #f8fafc;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Efek saat kursor diarahkan ke kartu */
+.global-stat-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.stat-icon {
+    font-size: 24px;
+}
+
+.stat-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-label {
+    font-size: 11px;
+    color: #64748b;
+    font-weight: 700;
+}
+
+.stat-value {
+    font-size: 16px;
+    font-weight: 900;
+    color: #2b3a4a;
 }

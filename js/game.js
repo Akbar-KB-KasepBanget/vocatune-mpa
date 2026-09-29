@@ -274,7 +274,7 @@ async function akhiriPermainan() {
     
     await simpanSkorKeDatabase(skorSaatIni, streakTertinggi);
 
-    window.location.href = 'performa.html';
+    window.location.href = 'statistik.html';
 }
 
 // ==========================================
