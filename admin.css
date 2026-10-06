@@ -1,0 +1,216 @@
+/* ========================================== */
+/* ADMIN DASHBOARD STYLES                     */
+/* ========================================== */
+body.admin-mode {
+    margin: 0;
+    padding: 0;
+    background-color: #f8fafc;
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Sidebar */
+.admin-sidebar {
+    width: 260px;
+    background-color: #2b3a4a;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.admin-logo {
+    padding: 30px 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border-bottom: 1px solid #384b5e;
+}
+
+.admin-logo .icon {
+    background: #F4D03F;
+    color: #2b3a4a;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 900;
+    font-size: 18px;
+}
+
+.admin-nav {
+    flex: 1;
+    padding: 20px 0;
+    list-style: none;
+    margin: 0;
+}
+
+.admin-nav li a {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 25px;
+    color: #94a3b8;
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+.admin-nav li a:hover, .admin-nav li a.active {
+    color: #ffffff;
+    background-color: #384b5e;
+    border-right: 4px solid #F4D03F;
+}
+
+.admin-footer {
+    padding: 20px;
+    background-color: #384b5e;
+    margin: 20px;
+    border-radius: 10px;
+    font-size: 12px;
+    color: #cbd5e1;
+}
+
+/* Main Content */
+.admin-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30px 40px;
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.admin-header h1 {
+    margin: 0;
+    color: #2b3a4a;
+    font-size: 28px;
+}
+
+.admin-header p {
+    margin: 5px 0 0 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.admin-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 15px;
+    border: 2px solid #2b3a4a;
+    border-radius: 30px;
+    font-weight: bold;
+    color: #2b3a4a;
+}
+
+/* Table Area */
+.admin-content-area {
+    padding: 40px;
+}
+
+.admin-toolbar {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.admin-search {
+    padding: 10px 15px;
+    width: 300px;
+    border: 2px solid #cbd5e1;
+    border-radius: 20px;
+    font-family: 'Nunito', sans-serif;
+    outline: none;
+}
+
+.admin-search:focus {
+    border-color: #2b3a4a;
+}
+
+.btn-add {
+    background-color: #F4D03F;
+    color: #2b3a4a;
+    border: 2px solid #2b3a4a;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Tabel */
+.admin-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #ffffff;
+    border: 2px solid #2b3a4a;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.admin-table th {
+    background-color: #e2e8f0;
+    color: #2b3a4a;
+    font-weight: 800;
+    padding: 15px;
+    text-align: left;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.admin-table td {
+    padding: 15px;
+    border-bottom: 1px solid #e2e8f0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.admin-table tr:last-child td {
+    border-bottom: none;
+}
+
+.admin-table td strong {
+    color: #2b3a4a;
+}
+
+/* Badges */
+.badge {
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: bold;
+}
+.badge.sulit { background: #fee2e2; color: #ef4444; }
+.badge.sedang { background: #fef3c7; color: #f59e0b; }
+.badge.mudah { background: #d1fae5; color: #10b981; }
+
+/* Action Buttons */
+.action-btns {
+    display: flex;
+    gap: 5px;
+}
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    border: 2px solid #2b3a4a;
+    border-radius: 8px;
+    background: #ffffff;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.btn-icon.view { color: #3b82f6; }
+.btn-icon.edit { background: #F4D03F; }
+.btn-icon.delete { background: #fee2e2; color: #ef4444; }

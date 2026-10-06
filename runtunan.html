@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Runtunan Harian - VocaTune</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navbar (Sesuai Beranda) -->
+    <nav class="navbar" style="position: relative; z-index: 999; border-bottom: 1px solid #e2e8f0; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; background: white;">
+        <div class="logo">
+            <span class="icon">🎙️</span>
+            <strong>VocaTune</strong>
+        </div>
+        <ul class="nav-links" style="display: flex; gap: 30px; list-style: none; margin: 0; padding: 0;">
+            <li><a href="index.html" style="text-decoration: none; color: #64748b; font-weight: bold;">Home</a></li>
+            <li><a href="#" style="text-decoration: none; color: #2b3a4a; font-weight: bold;">Leaderboard</a></li>
+        </ul>
+        <div class="btn-profile" style="border: 2px solid #2b3a4a; padding: 5px 15px; border-radius: 20px; font-weight: bold;">
+            👤 Akbar
+        </div>
+    </nav> 
+
+    <section style="display: block; padding: 40px 20px; background-color: #f8fafc;">
+        <div class="runtunan-container">
+            
+            <!-- Teks Peringatan Atas -->
+            <div class="peringatan-streak">
+                <span style="font-size: 14px;">🔥 Pertahankan streak-mu besok untuk menjaga kelipatannya!</span>
+                <p style="color: #64748b; font-size: 14px; margin-top: 5px;">Hebat! Kamu telah bermain selama <span id="textStreakDays">7</span> hari berturut-turut. Terus bermain setiap hari untuk mengumpulkan poin bonus dan melatih telingamu!</p>
+            </div>
+
+            <!-- Bagian 1: Pelacak Runtunan -->
+            <div class="runtunan-header-flex">
+                <div class="runtunan-title">
+                    <span class="icon-drop">💧</span>
+                    <h2>Runtunan harian</h2>
+                </div>
+                <div class="badge-aktif"><span id="badgeStreak">7</span> Hari Aktif!</div>
+            </div>
+
+            <div class="days-tracker">
+                <!-- Data ini akan dirender oleh JavaScript -->
+                <div id="hariContainer" class="days-row"></div>
+            </div>
+
+            <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 40px 0;">
+
+            <!-- Bagian 2: Aktivitas Belajar Mingguan -->
+            <div class="runtunan-header-flex">
+                <div class="runtunan-title">
+                    <span class="icon-drop">📊</span>
+                    <h2>Aktivitas Belajar Mingguan</h2>
+                </div>
+                <div style="color: #64748b; font-size: 14px; font-weight: bold;">7 Hari Terakhir</div>
+            </div>
+
+            <div class="aktivitas-grid">
+                <!-- Grafik Batang -->
+                <div class="chart-container" id="chartContainer">
+                    <!-- Batang grafik akan dirender oleh JS -->
+                </div>
+
+                <!-- Rangkuman Kinerja -->
+                <div class="rangkuman-kinerja">
+                    <h3 style="margin-bottom: 20px; color: #2b3a4a;">Rangkuman Kinerja</h3>
+                    
+                    <div class="kinerja-item">
+                        <span style="color: #64748b;">Total Lagu Ditebak</span>
+                        <strong style="font-size: 16px;">320 Lagu</strong>
+                    </div>
+                    <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 10px 0;">
+                    <div class="kinerja-item">
+                        <span style="color: #64748b;">Jawaban Benar</span>
+                        <strong style="font-size: 16px;">231 Kali</strong>
+                    </div>
+
+                    <div class="kinerja-info" style="margin-top: 30px; background: #f1f5f9; padding: 15px; border-radius: 8px; font-size: 12px; color: #64748b; line-height: 1.5;">
+                        ℹ️ Skor tertinggi kamu dalam seminggu terakhir tercapai di hari <strong>Sabtu</strong> dengan perolehan <strong>1,250 XP</strong>. Keren!
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Tombol BGM -->
+    <button id="btnBgm" class="btn-bgm">🔊 Music On</button>
+    <audio id="bgmAudio" loop autoplay><source src="assets/bgm/s.mp3" type="audio/mpeg"></audio>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module" src="js/supabase.js"></script>
+    <script type="module" src="js/runtunan.js"></script>
+</body>
+</html>

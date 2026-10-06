@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Lagu - VocaTune Admin</title>
+    <link rel="stylesheet" href="admin.css">
+    <!-- Jika kamu memisah CSS admin, panggil di sini: <link rel="stylesheet" href="admin.css"> -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
+</head>
+<body class="admin-mode">
+
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar">
+        <div class="admin-logo">
+            <div class="icon">VT</div>
+            <div>
+                <strong style="display: block; font-size: 18px;">VocaTune</strong>
+                <span style="font-size: 11px; color: #F4D03F;">ADMINISTRATOR</span>
+            </div>
+        </div>
+        <ul class="admin-nav">
+            <li><a href="#">⊞ Dashboard</a></li>
+            <li><a href="admin-pengguna.html">👥 Kelola Pengguna</a></li>
+            <li><a href="admin-lagu.html" class="active">🎵 Kelola Lagu</a></li>
+            <li><a href="admin-kosakata.html">📖 Kelola Kosakata</a></li>
+            <li><a href="#">⚙️ Pengaturan</a></li>
+        </ul>
+        <div class="admin-footer">
+            <strong style="color: white; display: block; margin-bottom: 5px;">VocaTune Engine</strong>
+            <span style="color: #10b981;">●</span> Online • v1.2.0
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="admin-main">
+        <header class="admin-header">
+            <div>
+                <h1>Kelola Lagu</h1>
+                <p>Kelola data pengguna, lagu, dan kosakata VocaTune.</p>
+            </div>
+            <div class="admin-profile">
+                👤 Super Admin
+            </div>
+        </header>
+
+        <section class="admin-content-area">
+            <div class="admin-toolbar">
+                <input type="text" class="admin-search" placeholder="🔍 Cari lagu atau artis...">
+                <button class="btn-add">+ Tambah Lagu Baru</button>
+            </div>
+
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Judul Lagu</th>
+                        <th>Artis</th>
+                        <th>Genre</th>
+                        <th>Tingkat Kesulitan</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBodyLagu">
+                    <!-- Contoh Data Dummy Sesuai Gambar -->
+                    <tr>
+                        <td>1</td>
+                        <td><strong>Bohemian Rhapsody</strong></td>
+                        <td>Queen</td>
+                        <td>Rock</td>
+                        <td><span class="badge sulit">Sulit</span></td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="btn-icon view">👁️</button>
+                                <button class="btn-icon edit">✏️</button>
+                                <button class="btn-icon delete">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td><strong>Hotel California</strong></td>
+                        <td>Eagles</td>
+                        <td>Rock</td>
+                        <td><span class="badge sedang">Sedang</span></td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="btn-icon view">👁️</button>
+                                <button class="btn-icon edit">✏️</button>
+                                <button class="btn-icon delete">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    
+     <!-- Script Supabase & Admin Lagu -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module" src="js/supabase.js"></script>
+    <script type="module" src="js/admin-guard.js"></script>
+    <script type="module" src="js/admin-lagu.js"></script>
+</body>
+</html>
+</body>
+</html>

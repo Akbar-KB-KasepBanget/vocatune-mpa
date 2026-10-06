@@ -1,6 +1,7 @@
 import { db } from './supabase.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    // 1. LOGIKA BGM (Music)
     const bgmAudio = document.getElementById('bgmAudio');
     const btnBgm = document.getElementById('btnBgm');
     let isPlaying = true; 
@@ -26,47 +27,52 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 3. TARIK DATA DARI SUPABASE
+    // 3. TARIK DATA DARI SUPABASE (Dengan Super Debugger)
     async function loadDataPerformaSupabase() {
         try {
             const { data: { session }, error: sessionError } = await db.auth.getSession();
             
-            if (sessionError) {
-                console.error("Gagal mengecek sesi login:", sessionError);
+            const wadahGlobalPerforma = document.getElementById('global-performa-section');
+
+            if (sessionError || !session) {
+                console.warn("⚠️ Status: Belum login. Data disembunyikan.");
+                if (wadahGlobalPerforma) wadahGlobalPerforma.style.display = 'none';
                 return;
             }
 
-            const wadahGlobalPerforma = document.getElementById('global-performa-section');
+            const userId = session.user.id;
+            const emailUser = session.user.email; // Melacak email yang sedang dipakai
+            const username = session.user.user_metadata?.username || 'Player';
+            const btnProfileNav = document.getElementById('btnProfileNav');
+            if (btnProfileNav) btnProfileNav.innerHTML = `👤 ${username}`;
+            // Menampilkan info ke console
+            console.log("🔍 Mencari data untuk email:", emailUser);
             
-            if (session) {
-                const userId = session.user.id;
-                
-                const { data, error } = await db
-                    .from('players')
-                    .select('highest_score, highest_combo, total_days_played, total_score')
-                    .eq('user_id', userId)
-                    .single();
+            // Menggunakan .maybeSingle() agar kebal terhadap error ganda/kosong
+            const { data, error } = await db
+                .from('players')
+                .select('*')
+                .eq('user_id', userId)
+                .maybeSingle(); 
 
-                if (error) {
-                    console.error("Gagal menarik data dari tabel players:", error.message);
-                    return;
-                }
+            if (error) {
+                console.error("❌ Gagal menarik data dari Supabase:", error.message);
+                return;
+            }
 
-                if (data) {
-                    // Masukkan data ke HTML
-                    document.getElementById('dbHighestScore').innerText = data.highest_score || 0;
-                    document.getElementById('dbHighestStreak').innerText = data.highest_combo || 0;
-                    document.getElementById('dbTotalDays').innerText = data.total_days_played || 0; 
-                    document.getElementById('dbTotalScore').innerText = data.total_score || 0;
-                }
+            if (data) {
+                console.log("✅ Data BERHASIL ditarik dari Supabase:", data); 
+
+                // Masukkan data ke HTML
+                document.getElementById('dbHighestScore').innerText = data.highest_score || 0;
+                document.getElementById('dbHighestStreak').innerText = data.daily_streak || data.highest_combo || 0;
+                document.getElementById('dbTotalDays').innerText = data.total_days_played || 0; 
+                document.getElementById('dbTotalScore').innerText = data.total_score || 0;
             } else {
-                // Jika Guest Mode (Visit)
-                if (wadahGlobalPerforma) {
-                    wadahGlobalPerforma.style.display = 'none';
-                }
+                console.warn("⚠️ Data kosong! User ini belum memiliki baris data di tabel players.");
             }
         } catch (error) {
-            console.error("Terjadi kesalahan:", error);
+            console.error("❌ Terjadi kesalahan fatal:", error);
         }
     }
 
