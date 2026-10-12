@@ -4,7 +4,7 @@
 import { db } from './supabase.js';
 
 // ==========================================
-// DEKLARASI ELEMEN HTML
+// DEKLARASI ELEMEN HTML (Hanya sekali di atas)
 // ==========================================
 const btnLoginNav = document.getElementById('btnLogin');
 const btnProfileNav = document.getElementById('btnProfile');
@@ -20,28 +20,43 @@ const loginError = document.getElementById('loginError');
 const signupError = document.getElementById('signupError');
 
 // ==========================================
-// 1. CEK SESI LOGIN, ROLE ADMIN, & BONUS STREAK
+// 1. CEK SESI LOGIN, PROFIL, ROLE ADMIN, & BONUS STREAK
 // ==========================================
 export async function cekStatusLogin() {
+    if (btnProfileNav) {
+        btnProfileNav.style.display = 'inline-flex';
+        btnProfileNav.innerHTML = `<span class="icon-user">👤</span> Memuat...`;
+    }
+
     try {
         const { data: { session }, error } = await db.auth.getSession();
         const dashboardMenu = document.getElementById('dashboard-menu-buttons');
         const tombolAdmin = document.getElementById('tombolMenuAdmin');
 
         if (session) {
-            let userTersimpan = session.user.user_metadata?.username || 'Player';
             const userId = session.user.id;
+            const userTersimpan = session.user.user_metadata?.username || session.user.user_metadata?.full_name || 'Player';
 
             if (btnLoginNav) btnLoginNav.style.display = 'none';
             if (btnProfileNav) {
-                btnProfileNav.style.display = 'flex';
+                btnProfileNav.style.display = 'inline-flex';
                 btnProfileNav.innerHTML = `<span class="icon-user">👤</span> ${userTersimpan}`;
             }
             if (dashboardMenu) dashboardMenu.style.display = 'flex';
 
+            // 👇 BAGIAN QUERY DAN PENANGANAN ERROR 👇
             const { data, error: playerError } = await db.from('players').select('*').eq('user_id', userId).single();
-            
-            if (!playerError && data) {
+
+            if (playerError) {
+                console.error("Gagal mengambil data player:", playerError.message);
+            }
+
+            if (data) {
+                // Tampilkan tombol admin jika role adalah 'admin'
+                if (data.role === 'admin' && tombolAdmin) {
+                    tombolAdmin.style.display = 'inline-block';
+                }
+
                 // --- LOGIKA BONUS LOGIN HARIAN & STREAK ---
                 const sekarang = new Date();
                 const tanggalHariIni = sekarang.toISOString().split('T')[0]; 
@@ -51,29 +66,25 @@ export async function cekStatusLogin() {
                 let totalSkorSekarang = data.total_score || 0;
                 let totalHariSekarang = data.total_days_played || data.total_days || 0;
 
-                // Jika tanggal login terakhir BUKAN hari ini (berarti hari baru)
                 if (tanggalTerakhir !== tanggalHariIni) {
-                    
                     if (tanggalTerakhir) {
                         const waktuTerakhir = new Date(tanggalTerakhir);
                         const waktuSekarang = new Date(tanggalHariIni);
                         const selisihHari = (waktuSekarang - waktuTerakhir) / (1000 * 60 * 60 * 24);
 
                         if (selisihHari === 1) {
-                            streakSekarang += 1; // Lanjut streak jika besoknya langsung main
+                            streakSekarang += 1;
                         } else if (selisihHari > 1) {
-                            streakSekarang = 1; // Putus, reset ke 1
+                            streakSekarang = 1;
                         }
                     } else {
-                        streakSekarang = 1; // Pemain baru pertama kali login
+                        streakSekarang = 1;
                     }
 
-                    // Tambahkan Bonus XP (Ubah angka 100 sesuai keinginanmu)
                     const bonusLogin = 100; 
                     totalSkorSekarang += bonusLogin;
                     totalHariSekarang += 1;
 
-                    // Update data ke Supabase
                     await db.from('players').update({
                         daily_streak: streakSekarang,
                         total_score: totalSkorSekarang,
@@ -81,13 +92,7 @@ export async function cekStatusLogin() {
                         last_play_date: sekarang.toISOString()
                     }).eq('user_id', userId);
                 }
-                // ------------------------------------------
 
-                if (data.role === 'admin' && tombolAdmin) {
-                    tombolAdmin.style.display = 'inline-block';
-                }
-
-                // Tampilkan ke UI menggunakan data yang sudah diperbarui
                 const homeStreak = document.getElementById('home-streak-value');
                 const homeHighscore = document.getElementById('home-highscore-value');
                 
@@ -95,8 +100,8 @@ export async function cekStatusLogin() {
                 if (homeHighscore) homeHighscore.innerText = (data.highest_score || 0) + ' Poin';
             }
         } else {
-            // JIKA BELUM LOGIN
-            if (btnLoginNav) btnLoginNav.style.display = 'flex';
+            // Jika belum login
+            if (btnLoginNav) btnLoginNav.style.display = 'inline-block';
             if (btnProfileNav) btnProfileNav.style.display = 'none';
             if (authSection) authSection.style.display = 'none';
             if (heroSection) heroSection.style.display = 'flex';
@@ -107,7 +112,9 @@ export async function cekStatusLogin() {
         console.error("Gagal mengecek sesi:", err);
     }
 }
-cekStatusLogin();
+
+// Jalankan pemeriksaan sesi saat halaman selesai dimuat
+document.addEventListener('DOMContentLoaded', cekStatusLogin);
 
 // ==========================================
 // 2. NAVIGASI FORM LOG IN & SIGN UP
@@ -117,7 +124,6 @@ function resetPesanError() {
     if (signupError) signupError.style.display = 'none';
 }
 
-// ⚠️ INI ADALAH FUNGSI YANG MEMBUAT TOMBOL LOGIN BISA DIPENCET
 if (btnLoginNav) {
     btnLoginNav.addEventListener('click', (e) => {
         e.preventDefault();
@@ -142,7 +148,6 @@ if (togglePasswordLogin && inputPasswordLogin) {
         const isPassword = inputPasswordLogin.type === 'password';
         inputPasswordLogin.type = isPassword ? 'text' : 'password';
         
-        // Ganti textContent menjadi innerHTML di sini 👇
         this.innerHTML = isPassword ? '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye-off preview-icon"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></svg>' : '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye preview-icon"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>';
     });
 }
@@ -237,12 +242,66 @@ if (btnSubmitLogin) {
 }
 
 // ==========================================
+// FITUR LUPA PASSWORD (RESET VIA EMAIL)
+// ==========================================
+const btnTampilkanLupaPass = document.getElementById('btnTampilkanLupaPass');
+const modalLupaPassword = document.getElementById('modalLupaPassword');
+const TutupModal = document.getElementById('TutupModal');
+const btnKirimReset = document.getElementById('btnKirimReset');
+const inputEmailReset = document.getElementById('inputEmailReset');
+const pesanReset = document.getElementById('pesanReset');
+
+if (btnTampilkanLupaPass) {
+    btnTampilkanLupaPass.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (modalLupaPassword) modalLupaPassword.style.display = 'flex';
+    });
+}
+
+if (TutupModal) {
+    TutupModal.addEventListener('click', () => {
+        if (modalLupaPassword) modalLupaPassword.style.display = 'none';
+        if (pesanReset) pesanReset.style.display = 'none';
+    });
+}
+
+if (btnKirimReset) {
+    btnKirimReset.addEventListener('click', async () => {
+        const email = inputEmailReset.value.trim();
+        
+        if (!email) {
+            pesanReset.textContent = "⚠ Harap masukkan alamat email!";
+            pesanReset.style.color = "#e74c3c";
+            pesanReset.style.display = "block";
+            return;
+        }
+
+        btnKirimReset.innerText = "Mengirim...";
+
+        const { error } = await db.auth.resetPasswordForEmail(email, {
+            redirectTo: window.location.origin + '/profile.html',
+        });
+
+        btnKirimReset.innerText = "Kirim Link Reset";
+
+        if (error) {
+            pesanReset.textContent = "❌ Gagal: " + error.message;
+            pesanReset.style.color = "#e74c3c";
+        } else {
+            pesanReset.textContent = "✅ Tautan berhasil dikirim! Silakan cek Inbox atau folder Spam email Anda.";
+            pesanReset.style.color = "#27ae60";
+            inputEmailReset.value = "";
+        }
+        pesanReset.style.display = "block";
+    });
+}
+
+// ==========================================
 // 6. NAVIGASI KE HALAMAN PROFIL
 // ==========================================
 if (btnProfileNav) {
     btnProfileNav.addEventListener('click', (e) => {
         e.preventDefault();
-        // Arahkan ke halaman pengaturan/profil
         window.location.href = 'profile.html'; 
     });
 }

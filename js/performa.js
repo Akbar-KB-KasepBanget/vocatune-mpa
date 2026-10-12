@@ -1,6 +1,15 @@
 import { db } from './supabase.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    // TANGKAP TOMBOL PROFIL & JADIKAN BISA DIKLIK
+    const btnProfileNav = document.getElementById('btnProfileNav') || document.getElementById('btnProfile');
+    if (btnProfileNav) {
+        btnProfileNav.addEventListener('click', () => {
+            window.location.href = 'profile.html';
+        });
+        btnProfileNav.style.cursor = 'pointer';
+    }
+
     // 1. LOGIKA BGM (Music)
     const bgmAudio = document.getElementById('bgmAudio');
     const btnBgm = document.getElementById('btnBgm');
@@ -41,11 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const userId = session.user.id;
-            const emailUser = session.user.email; // Melacak email yang sedang dipakai
-            const username = session.user.user_metadata?.username || 'Player';
-            const btnProfileNav = document.getElementById('btnProfileNav');
-            if (btnProfileNav) btnProfileNav.innerHTML = `👤 ${username}`;
-            // Menampilkan info ke console
+            const emailUser = session.user.email; 
             console.log("🔍 Mencari data untuk email:", emailUser);
             
             // Menggunakan .maybeSingle() agar kebal terhadap error ganda/kosong
@@ -63,11 +68,21 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data) {
                 console.log("✅ Data BERHASIL ditarik dari Supabase:", data); 
 
+                // UPDATE NAMA DI TOMBOL PROFIL DARI DATABASE TERBARU
+                if (btnProfileNav) {
+                    btnProfileNav.innerHTML = `👤 ${data.username || 'Player'}`;
+                }
+
                 // Masukkan data ke HTML
-                document.getElementById('dbHighestScore').innerText = data.highest_score || 0;
-                document.getElementById('dbHighestStreak').innerText = data.daily_streak || data.highest_combo || 0;
-                document.getElementById('dbTotalDays').innerText = data.total_days_played || 0; 
-                document.getElementById('dbTotalScore').innerText = data.total_score || 0;
+                const elHighestScore = document.getElementById('dbHighestScore');
+                const elHighestStreak = document.getElementById('dbHighestStreak');
+                const elTotalDays = document.getElementById('dbTotalDays');
+                const elTotalScore = document.getElementById('dbTotalScore');
+
+                if (elHighestScore) elHighestScore.innerText = data.highest_score || 0;
+                if (elHighestStreak) elHighestStreak.innerText = data.daily_streak || data.highest_combo || 0;
+                if (elTotalDays) elTotalDays.innerText = data.total_days_played || 0; 
+                if (elTotalScore) elTotalScore.innerText = data.total_score || 0;
             } else {
                 console.warn("⚠️ Data kosong! User ini belum memiliki baris data di tabel players.");
             }

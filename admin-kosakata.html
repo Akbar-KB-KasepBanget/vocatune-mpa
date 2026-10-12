@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Kosakata - VocaTune Admin</title>
+    <link rel="stylesheet" href="admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
+</head>
+<body class="admin-mode">
+
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar">
+        <div class="admin-logo">
+            <div class="icon">VT</div>
+            <div>
+                <strong>VocaTune</strong>
+                <span>ADMINISTRATOR</span>
+            </div>
+        </div>
+        <ul class="admin-nav">
+            <li><a href="#">⊞ Dashboard</a></li>
+            <li><a href="admin-pengguna.html">👥 Kelola Pengguna</a></li>
+            <li><a href="admin-lagu.html">🎵 Kelola Lagu</a></li>
+            <li><a href="admin-kosakata.html" class="active">📖 Kelola Kosakata</a></li>
+            <li><a href="#">⚙️ Pengaturan</a></li>
+        </ul>
+        <div class="admin-footer">
+            <strong>VocaTune Engine</strong>
+            <span><small style="color: #10b981;">●</small> Online • v1.2.0</span>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="admin-main">
+        <header class="admin-header">
+            <div>
+                <h1>Kelola Kosakata</h1>
+                <p>Kelola data kata, arti, dan relasi lagu di VocaTune.</p>
+            </div>
+            <div class="admin-profile">
+                👤 Super Admin
+            </div>
+        </header>
+
+        <section class="admin-content-area">
+            <div class="admin-toolbar">
+                <input type="text" class="admin-search" placeholder="🔍 Cari kata atau lagu...">
+                <button class="btn-add" id="btnBukaModalKosakata">+ Tambah Kosakata Baru</button>
+            </div>
+
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">No</th>
+                        <th>Kata Kosakata</th>
+                        <th>Arti Kata</th>
+                        <th>Lagu Terkait</th>
+                        <th style="width: 120px;">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBodyKosakata">
+                    <!-- Data dari Supabase dimuat di sini oleh JS -->
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <!-- ==========================================
+         MODAL POP-UP TAMBAH KOSAKATA
+         ========================================== -->
+    <div id="modalTambahKosakata" class="modal-overlay">
+        <div class="modal-box">
+            <h3>➕ Tambah Kosakata Baru</h3>
+            <form id="formTambahKosakata">
+                <div class="form-group">
+                    <label for="selectLaguTambah">Pilih Lagu</label>
+                    <select id="selectLaguTambah" required>
+                        <option value="">-- Pilih Lagu --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="kataTambah">Kata Kosakata</label>
+                    <input type="text" id="kataTambah" required placeholder="Contoh: Crumble">
+                </div>
+                <div class="form-group">
+                    <label for="artiTambah">Arti Kata</label>
+                    <input type="text" id="artiTambah" required placeholder="Contoh: Hancur / Runtuh">
+                </div>
+                <div class="form-group">
+                    <label for="penjelasanTambah">Penjelasan Kosakata</label>
+                    <textarea id="penjelasanTambah" required placeholder="Penjelasan detail kata..."></textarea>
+                </div>
+
+                <div class="modal-buttons">
+                    <button type="button" id="btnBatalTambahVoca" class="btn-secondary">Batal</button>
+                    <button type="submit" class="btn-primary">💾 Simpan Kosakata</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         MODAL POP-UP EDIT KOSAKATA
+         ========================================== -->
+    <div id="modalEditKosakata" class="modal-overlay">
+        <div class="modal-box">
+            <h3>✏️ Edit Kosakata</h3>
+            <form id="formEditKosakata">
+                <input type="hidden" id="editVocaId">
+                <div class="form-group">
+                    <label for="selectLaguEdit">Pilih Lagu</label>
+                    <select id="selectLaguEdit" required>
+                        <option value="">-- Pilih Lagu --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="kataEdit">Kata Kosakata</label>
+                    <input type="text" id="kataEdit" required>
+                </div>
+                <div class="form-group">
+                    <label for="artiEdit">Arti Kata</label>
+                    <input type="text" id="artiEdit" required>
+                </div>
+                <div class="form-group">
+                    <label for="penjelasanEdit">Penjelasan Kosakata</label>
+                    <textarea id="penjelasanEdit" required></textarea>
+                </div>
+
+                <div class="modal-buttons">
+                    <button type="button" id="btnBatalEditVoca" class="btn-secondary">Batal</button>
+                    <button type="submit" class="btn-primary">💾 Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         MODAL KONFIRMASI HAPUS KOSAKATA
+         ========================================== -->
+    <div id="modalHapusKosakata" class="modal-overlay">
+        <div class="modal-box modal-box-sm">
+            <h3 style="color: #e74c3c;">🗑️ Hapus Kosakata</h3>
+            <p style="margin: 15px 0; color: #475569;">Apakah kamu yakin ingin menghapus kosakata ini? Tindakan ini tidak dapat dibatalkan.</p>
+            <div class="modal-buttons center">
+                <button type="button" id="btnBatalHapusVoca" class="btn-secondary">Batal</button>
+                <button type="button" id="btnKonfirmasiHapusVoca" class="btn-danger">Hapus</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module" src="js/supabase.js"></script>
+    <script type="module" src="js/admin-guard.js"></script>
+    <script type="module" src="js/admin-kosakata.js"></script>
+</body>
+</html>

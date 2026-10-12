@@ -4,28 +4,45 @@ document.addEventListener('DOMContentLoaded', () => {
     const hariContainer = document.getElementById('hariContainer');
     const chartContainer = document.getElementById('chartContainer');
 
+    // TANGKAP TOMBOL PROFIL & JADIKAN BISA DIKLIK
+    const btnProfileNav = document.getElementById('btnProfileNav') || document.getElementById('btnProfile');
+    if (btnProfileNav) {
+        btnProfileNav.addEventListener('click', () => {
+            window.location.href = 'profile.html';
+        });
+        btnProfileNav.style.cursor = 'pointer';
+    }
+
     async function renderRuntunanDinamic() {
-        // 1. Tarik Streak Asli dari Supabase
+        // 1. Tarik Streak & Username Asli dari Supabase
         const { data: { session } } = await db.auth.getSession();
         let streak = 0;
 
         if (session) {
-            const { data } = await db.from('players').select('daily_streak').eq('user_id', session.user.id).single();
+            // KUNCI: Tambahkan 'username' di select
+            const { data } = await db.from('players').select('daily_streak, username').eq('user_id', session.user.id).single();
             if (data) {
                 streak = data.daily_streak || 0;
-                document.getElementById('badgeStreak').innerText = streak;
-                document.getElementById('textStreakDays').innerText = streak;
+                
+                // Update elemen angka runtunan
+                const badgeStreak = document.getElementById('badgeStreak');
+                const textStreakDays = document.getElementById('textStreakDays');
+                if (badgeStreak) badgeStreak.innerText = streak;
+                if (textStreakDays) textStreakDays.innerText = streak;
+
+                // Update teks tombol profil dengan nama terbaru
+                if (btnProfileNav) {
+                    btnProfileNav.innerHTML = `👤 ${data.username || 'Player'}`;
+                }
             }
         }
 
         // 2. LOGIKA RESET MINGGUAN OTOMATIS (Waktu Dunia Nyata)
-        // Dapatkan hari saat ini (0 = Minggu, 1 = Senin, ..., 6 = Sabtu)
         const hariIni = new Date().getDay(); 
-        // Ubah format index agar Senin = 0, Selasa = 1, ..., Minggu = 6
         const indexHariIni = hariIni === 0 ? 6 : hariIni - 1;
 
         const namaHari = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
-        const skorMock = [650, 890, 1120, 450, 950, 1250, 1300]; // Data grafik sementara
+        const skorMock = [650, 890, 1120, 450, 950, 1250, 1300]; 
 
         let dataMingguIni = [];
 
@@ -34,13 +51,10 @@ document.addEventListener('DOMContentLoaded', () => {
             let statusHari = 'empty';
 
             if (i < indexHariIni) {
-                // Hari-hari yang sudah berlalu di minggu ini
-                // Jika streak mencukupi untuk menutupi hari tersebut, tandai selesai
                 if (streak >= (indexHariIni - i)) {
                     statusHari = 'done';
                 }
             } else if (i === indexHariIni) {
-                // Hari ini (Lingkaran aktif)
                 statusHari = streak > 0 ? 'active done' : 'active';
             }
 
@@ -53,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 4. Render Lingkaran Hari ke HTML
         if (hariContainer) {
-            hariContainer.innerHTML = ''; // Bersihkan container
+            hariContainer.innerHTML = ''; 
             dataMingguIni.forEach(item => {
                 const isDone = item.status.includes('done');
                 const checkMark = isDone ? '✔' : '';
@@ -68,13 +82,12 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // 5. Render Diagram Batang (Sembunyikan nilai untuk hari yang belum terjadi)
+        // 5. Render Diagram Batang
         if (chartContainer) {
-            chartContainer.innerHTML = ''; // Bersihkan container
+            chartContainer.innerHTML = ''; 
             const maxSkor = 1500; 
 
             dataMingguIni.forEach((item, index) => {
-                // Jika hari belum terjadi (masa depan), grafiknya 0
                 const tinggiPersen = (index <= indexHariIni) ? (item.skor / maxSkor) * 100 : 0;
                 const nilaiSkor = (index <= indexHariIni) ? item.skor : '';
 
@@ -90,7 +103,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Jalankan render keseluruhan
     renderRuntunanDinamic();
 
     // 6. Logika BGM

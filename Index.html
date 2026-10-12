@@ -65,10 +65,9 @@
             <strong>VocaTune</strong>
         </div>
 
-        <!-- 👇 BAGIAN INI YANG KITA PERBAIKI 👇 -->
-        <ul class="nav-links">
-            <li><a href="#" id="navHome" class="active">Home</a></li>
-            <li><a href="#" id="navLeaderboard">Leaderboard</a></li>
+       <ul class="nav-links">
+            <li><a href="index.html" id="navHome" class="active">Home</a></li>
+            <li><a href="leaderboard.html" id="navLeaderboard">Leaderboard</a></li>
             <!-- 👇 TOMBOL PAUSE PRESISI (SVG) 👇 -->
             <li>
                 <a href="#" id="navPause" class="btn-pause-circle" style="display: none;">
@@ -80,13 +79,12 @@
             </li>
         </ul>
 
-        <div class="auth-button">
-            <button id="btnLogin" class="btn-primary">Log In</button>
-            <!-- Tombol Profil untuk Member (Disembunyikan di awal) -->
-            <button id="btnProfile" class="btn-profile" style="display: none;" >
-                <span class="icon-user">👤</span> user
-            </button>
-        </div>
+<div class="auth-button">
+    <button id="btnLogin" class="btn-primary">Log In</button>
+    <button id="btnProfile" class="btn-profile" style="display: none;">
+        <span class="icon-user">👤</span> Memuat...
+    </button>
+</div>
         
 
     </nav>
@@ -213,7 +211,9 @@
                     </svg>
                 </span>
             </div>
-            
+             
+             <p class="lupa-password-text">Lupa password? <a href="#" id="btnTampilkanLupaPass">Klik di sini</a></p>
+
             <button id="btnSubmitLogin" class="btn-primary auth-submit-btn">Log In</button>
 
             <p class="auth-footer-text">Belum punya akun? <span id="linkToSignUp" class="auth-link">Sign Up di sini</span></p>
@@ -242,6 +242,23 @@
     <audio id="bgmAudio" loop autoplay>
         <source src="assets/bgm/s.mp3" type="audio/mpeg">
     </audio>
+
+    <!-- ================= MODAL LUPA PASSWORD ================= -->
+    <div id="modalLupaPassword" class="modal-sembunyi">
+        <div class="modal-konten">
+            <span id="TutupModal" class="tutup-modal">&times;</span>
+            <h3 style="color: #2b3a4a; margin-top: 0;">Reset Password</h3>
+            <p style="font-size: 14px; color: #64748b;">Masukkan email yang terdaftar di VocaTune. Kami akan mengirimkan tautan untuk membuat password baru.</p>
+            
+            <div style="margin-bottom: 15px;">
+                <input type="email" id="inputEmailReset" class="settings-input" placeholder="Contoh: pemain@gmail.com" style="width: 100%; box-sizing: border-box;">
+            </div>
+            
+            <p id="pesanReset" class="pesan-notif"></p>
+            <button id="btnKirimReset" class="btn-primary" style="width: 100%;">Kirim Link Reset</button>
+        </div>
+    </div>
+
     <!-- ========================================== -->
     <!-- SCRIPT UNTUK HALAMAN BERANDA -->
     <!-- ========================================== -->

@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kelola Lagu - VocaTune Admin</title>
     <link rel="stylesheet" href="admin.css">
-    <!-- Jika kamu memisah CSS admin, panggil di sini: <link rel="stylesheet" href="admin.css"> -->
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
 </head>
 <body class="admin-mode">
@@ -47,7 +46,7 @@
         <section class="admin-content-area">
             <div class="admin-toolbar">
                 <input type="text" class="admin-search" placeholder="🔍 Cari lagu atau artis...">
-                <button class="btn-add">+ Tambah Lagu Baru</button>
+                <button class="btn-add" id="btnBukaModal">+ Tambah Lagu Baru</button>
             </div>
 
             <table class="admin-table">
@@ -62,47 +61,198 @@
                     </tr>
                 </thead>
                 <tbody id="tableBodyLagu">
-                    <!-- Contoh Data Dummy Sesuai Gambar -->
-                    <tr>
-                        <td>1</td>
-                        <td><strong>Bohemian Rhapsody</strong></td>
-                        <td>Queen</td>
-                        <td>Rock</td>
-                        <td><span class="badge sulit">Sulit</span></td>
-                        <td>
-                            <div class="action-btns">
-                                <button class="btn-icon view">👁️</button>
-                                <button class="btn-icon edit">✏️</button>
-                                <button class="btn-icon delete">🗑️</button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td><strong>Hotel California</strong></td>
-                        <td>Eagles</td>
-                        <td>Rock</td>
-                        <td><span class="badge sedang">Sedang</span></td>
-                        <td>
-                            <div class="action-btns">
-                                <button class="btn-icon view">👁️</button>
-                                <button class="btn-icon edit">✏️</button>
-                                <button class="btn-icon delete">🗑️</button>
-                            </div>
-                        </td>
-                    </tr>
+                    <!-- Data dari Supabase akan dimuat otomatis di sini -->
                 </tbody>
             </table>
         </section>
     </main>
 
-    
-     <!-- Script Supabase & Admin Lagu -->
+    <!-- ==========================================
+         MODAL POP-UP TAMBAH LAGU (LENGKAP)
+         ========================================== -->
+    <div id="modalTambahLagu" class="modal-overlay">
+        <div class="modal-content" style="max-height: 85vh; overflow-y: auto;">
+            <h2>➕ Tambah Lagu Baru</h2>
+            <form id="formTambahLagu">
+                <div class="form-group">
+                    <label for="judulLagu">Judul Lagu</label>
+                    <input type="text" id="judulLagu" required placeholder="Bohemian Rhapsody">
+                </div>
+                <div class="form-group">
+                    <label for="artisLagu">Nama Artis / Band</label>
+                    <input type="text" id="artisLagu" required placeholder="Queen">
+                </div>
+                <div class="form-group">
+                    <label for="genreLagu">Genre</label>
+                    <input type="text" id="genreLagu" required placeholder="Rock">
+                </div>
+                <div class="form-group">
+                <label for="kesulitanLagu">Tingkat Kesulitan</label>
+                <select id="kesulitanLagu" required>
+                    <option value="Mudah">Mudah</option>
+                    <option value="Sedang">Sedang</option>
+                    <option value="Sulit">Sulit</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="lirikLagu">Potongan Lirik (Untuk Soal)</label>
+                <textarea id="lirikLagu" required placeholder="“But I ..... completely when you cry”"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="fileMp3">Nama File / URL MP3</label>
+                <input type="text" id="fileMp3" required placeholder="assets/songs/505.mp3">
+            </div>
+            <div class="form-group">
+                <label for="detikMulai">Detik Mulai (Angka)</label>
+                <input type="number" id="detikMulai" required placeholder="148">
+            </div>
+
+            <!-- 👇 PEMBUNGKUS PILIHAN GANDA (DIKONTROL OLEH JS) 👇 -->
+            <div id="containerPilihanGanda">
+                <hr style="margin: 20px 0; border: 1px solid #cbd5e1;">
+                <h3 style="color: #2b3a4a; margin-bottom: 15px; font-size: 16px;">Pilihan Ganda (Khusus Mode Mudah)</h3>
+
+                <div class="form-group">
+                    <label for="pilihanA">Pilihan A</label>
+                    <input type="text" id="pilihanA" placeholder="A. Crumple">
+                </div>
+                <div class="form-group">
+                    <label for="pilihanB">Pilihan B</label>
+                    <input type="text" id="pilihanB" placeholder="B. Crumble">
+                </div>
+                <div class="form-group">
+                    <label for="pilihanC">Pilihan C</label>
+                    <input type="text" id="pilihanC" placeholder="C. Grumble">
+                </div>
+                <div class="form-group">
+                    <label for="pilihanD">Pilihan D</label>
+                    <input type="text" id="pilihanD" placeholder="D. Gumbal">
+                </div>
+                <div class="form-group">
+                    <label for="jawabanBenar">Jawaban Benar</label>
+                    <input type="text" id="jawabanBenar" placeholder="B. Crumble">
+                </div>
+            </div>
+            <!-- 👆 ========================================== 👆 -->
+
+            
+                <div class="modal-actions">
+                    <button type="button" id="btnBatalTambah" class="btn-cancel">Batal</button>
+                    <button type="submit" class="btn-save">💾 Simpan Lagu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==========================================
+     MODAL EDIT LAGU
+     ========================================== -->
+<div id="modalEditLagu" class="modal-overlay">
+    <div class="modal-content" style="max-height: 85vh; overflow-y: auto;">
+        <h2>✏️ Edit Lagu</h2>
+        <form id="formEditLagu">
+            <input type="hidden" id="editLaguId">
+            <div class="form-group">
+                <label for="editJudulLagu">Judul Lagu</label>
+                <input type="text" id="editJudulLagu" required>
+            </div>
+            <div class="form-group">
+                <label for="editArtisLagu">Nama Artis / Band</label>
+                <input type="text" id="editArtisLagu" required>
+            </div>
+            <div class="form-group">
+                <label for="editGenreLagu">Genre</label>
+                <input type="text" id="editGenreLagu" required>
+            </div>
+            <div class="form-group">
+                <label for="editKesulitanLagu">Tingkat Kesulitan</label>
+                <select id="editKesulitanLagu" required>
+                    <option value="Mudah">Mudah</option>
+                    <option value="Sedang">Sedang</option>
+                    <option value="Sulit">Sulit</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="editLirikLagu">Potongan Lirik</label>
+                <textarea id="editLirikLagu" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="editFileMp3">Nama File / URL MP3</label>
+                <input type="text" id="editFileMp3" required>
+            </div>
+            <div class="form-group">
+                <label for="editDetikMulai">Detik Mulai</label>
+                <input type="number" id="editDetikMulai" required>
+            </div>
+
+            <!-- CONTAINER PILIHAN GANDA EDIT -->
+            <div id="editContainerPilihanGanda">
+                <hr style="margin: 20px 0; border: 1px solid #cbd5e1;">
+                <h3>Pilihan Ganda (Khusus Mode Mudah)</h3>
+                <div class="form-group">
+                    <label for="editPilihanA">Pilihan A</label>
+                    <input type="text" id="editPilihanA">
+                </div>
+                <div class="form-group">
+                    <label for="editPilihanB">Pilihan B</label>
+                    <input type="text" id="editPilihanB">
+                </div>
+                <div class="form-group">
+                    <label for="editPilihanC">Pilihan C</label>
+                    <input type="text" id="editPilihanC">
+                </div>
+                <div class="form-group">
+                    <label for="editPilihanD">Pilihan D</label>
+                    <input type="text" id="editPilihanD">
+                </div>
+                <div class="form-group">
+                    <label for="editJawabanBenar">Jawaban Benar</label>
+                    <input type="text" id="editJawabanBenar">
+                </div>
+            </div>
+
+            <hr style="margin: 20px 0; border: 1px solid #cbd5e1;">
+            <h3>Definisi & Kosakata</h3>
+            <div class="form-group">
+                <label for="editVocaKata">Kata Kosakata</label>
+                <input type="text" id="editVocaKata" required>
+            </div>
+            <div class="form-group">
+                <label for="editVocaArti">Arti Kata</label>
+                <input type="text" id="editVocaArti" required>
+            </div>
+            <div class="form-group">
+                <label for="editVocaPenjelasan">Penjelasan Kosakata</label>
+                <textarea id="editVocaPenjelasan" required></textarea>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" id="btnBatalEdit" class="btn-cancel">Batal</button>
+                <button type="submit" class="btn-save">💾 Simpan Perubahan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+    <!--==========================================
+     MODAL KONFIRMASI HAPUS
+     ==========================================-->
+<div id="modalHapusLagu" class="modal-overlay">
+    <div class="modal-content" style="max-width: 400px; text-align: center;">
+        <h2 style="color: #e74c3c;">🗑️ Hapus Lagu</h2>
+        <p style="margin: 15px 0; color: #475569;">Apakah kamu yakin ingin menghapus lagu ini? Tindakan ini tidak dapat dibatalkan.</p>
+        <input type="hidden" id="hapusLaguId">
+        <div class="modal-actions" style="justify-content: center;">
+            <button type="button" id="btnBatalHapus" class="btn-cancel">Batal</button>
+            <button type="button" id="btnKonfirmasiHapus" class="btn-save" style="background: #e74c3c;">Hapus</button>
+        </div>
+    </div>
+</div>
+
+    <!-- SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script type="module" src="js/supabase.js"></script>
     <script type="module" src="js/admin-guard.js"></script>
     <script type="module" src="js/admin-lagu.js"></script>
-</body>
-</html>
 </body>
 </html>

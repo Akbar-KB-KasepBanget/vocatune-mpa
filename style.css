@@ -95,7 +95,7 @@ body {
     justify-content: center;
     text-align: center;
     padding: 40px 20px;
-    margin-top: 30px;
+    margin-top: -50px;
 }
 
 .title {
@@ -615,7 +615,7 @@ body {
 .home-stat-card {
     cursor: pointer;
     text-align: center;
-    max-width: 180px;
+    max-width: 200px;
     transition: transform 0.2s ease-in-out;
 }
 
@@ -1443,4 +1443,117 @@ input:checked + .slider:before { transform: translateX(22px); background-color: 
 
 .btn-toggle-pass:hover {
     opacity: 1;
+}
+
+/* =========================================
+   MODAL LUPA PASSWORD (DI HALAMAN LOGIN)
+   ========================================= */
+.lupa-password-text { font-size: 13px; text-align: center; margin-top: 15px; }
+.lupa-password-text a { color: #F4D03F; text-decoration: none; font-weight: 900; }
+.lupa-password-text a:hover { text-decoration: underline; }
+
+.modal-sembunyi { 
+    display: none; /* Sembunyikan secara default */
+    position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; 
+    background-color: rgba(0,0,0,0.6); 
+    align-items: center; justify-content: center; 
+}
+
+.modal-konten { 
+    background-color: white; padding: 25px; border-radius: 12px; 
+    width: 90%; max-width: 400px; position: relative; 
+    font-family: 'Nunito', sans-serif; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.tutup-modal { 
+    position: absolute; right: 15px; top: 10px; font-size: 28px; 
+    font-weight: bold; color: #94a3b8; cursor: pointer; transition: 0.2s;
+}
+.tutup-modal:hover { color: #e74c3c; }
+.pesan-notif { font-size: 13px; margin-bottom: 15px; display: none; font-weight: bold; }
+/* ==========================================
+   LEADERBOARD & SETTINGS LAYOUT
+========================================== */
+
+/* Background halaman */
+.bg-light {
+    background-color: #f8fafc;
+    margin: 0;
+    font-family: 'Nunito', sans-serif;
+}
+
+/* Pembungkus utama agar posisinya di tengah layar */
+.settings-container {
+    max-width: 650px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+/* Bagian Judul (Hall of Fame) */
+.settings-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.settings-header h2 {
+    font-size: 36px;
+    color: #2b3a4a;
+    margin: 0 0 5px 0;
+    font-weight: 900;
+}
+
+.settings-header p {
+    color: #64748b;
+    font-size: 16px;
+    margin: 0;
+    font-weight: bold;
+}
+
+/* Kotak Putih Utama (Tempat list pemain) */
+.settings-card {
+    background-color: #ffffff;
+    border-radius: 20px;
+    padding: 25px 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    border: 2px solid #e2e8f0;
+}
+
+/* Teks loading sebelum data Supabase muncul */
+.loading-text {
+    text-align: center;
+    color: #64748b;
+    padding: 40px 0;
+    font-weight: bold;
+}
+
+/* Area tombol di bawah kartu */
+.card-footer {
+    text-align: center;
+    margin-top: 30px;
+    margin-bottom: 10px;
+}
+
+/* Gaya Tombol Primary (Main Sekarang) */
+.btn-primary {
+    background-color: #F4D03F;
+    color: #2b3a4a;
+    border: 2px solid #2b3a4a;
+    padding: 12px 30px;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: 900;
+    font-family: 'Nunito', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 0 #2b3a4a;
+}
+
+.btn-primary:hover {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #2b3a4a;
+}
+
+.btn-primary:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 #2b3a4a;
 }

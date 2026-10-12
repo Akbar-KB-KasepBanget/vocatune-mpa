@@ -1,17 +1,15 @@
 // ==========================================
-// 1. IMPORT DATA & DATABASE
+// 1. IMPORT DATABASE
 // ==========================================
-import { bankSoal } from './data.js';
-import { simpanSkorKeDatabase } from './supabase.js';
+import { db, simpanSkorKeDatabase } from './supabase.js'; // Ganti import data.js menjadi db Supabase
 
 // ==========================================
-// 2. AMBIL MODE YANG DIPILIH DARI BERANDA
+// 2. AMBIL MODE & VARIABEL PERMAINAN
 // ==========================================
-let selectedMode = localStorage.getItem('vocaTuneMode') || 'Easy'; // Default ke Easy jika kosong
+let riwayatSoalDimaiankan = [];
+let bankSoal = []; // Dikosongkan dulu, nanti diisi dari Supabase
+let selectedMode = localStorage.getItem('vocaTuneMode') || 'Easy';
 
-// ==========================================
-// 3. VARIABEL PERMAINAN
-// ==========================================
 let skorSaatIni = 0; 
 let indeksSoal = 0; 
 let streakSaatIni = 0; 
@@ -22,13 +20,14 @@ let totalDetikBermain = 120;
 let hitungMundur;
 let sedangMain = false;
 let sedangDiPause = false;
-const laguSoal = new Audio(bankSoal[0].lagu);
-let detikMulai = bankSoal[0].detikMulai; 
-let batasBerhenti = detikMulai + 30; 
-laguSoal.currentTime = detikMulai; 
+
+// Audio disiapkan dalam keadaan kosong terlebih dahulu
+const laguSoal = new Audio();
+let detikMulai = 0; 
+let batasBerhenti = 30; 
 
 // ==========================================
-// 4. INISIALISASI PIXI.JS
+// 3. INISIALISASI PIXI.JS (TAMPILAN DASAR)
 // ==========================================
 const gameContainer = document.getElementById('game-container');
 let gameApp = new PIXI.Application({ width: 800, height: 580, backgroundAlpha: 0, resolution: 3, autoDensity: true, antialias: true });
@@ -48,8 +47,8 @@ kartuBawah.x = 40; kartuBawah.y = 265; gameApp.stage.addChild(kartuBawah);
 
 if (selectedMode === 'Medium' || selectedMode === 'Hard') { kartuBawah.visible = false; }
 
-// Teks Informasi Header
-const teksPertanyaanInfo = new PIXI.Text('🏆 Pertanyaan 1/10', { fontFamily: 'Nunito', fontSize: 16, fill: '#2b3a4a', fontWeight: 'bold' });
+// Teks Informasi Header (Teks default, akan diubah setelah data masuk)
+const teksPertanyaanInfo = new PIXI.Text('⏳ Sedang Memuat...', { fontFamily: 'Nunito', fontSize: 16, fill: '#2b3a4a', fontWeight: 'bold' });
 teksPertanyaanInfo.x = 60; teksPertanyaanInfo.y = 35; teksPertanyaanInfo.anchor.set(0, 0.5); gameApp.stage.addChild(teksPertanyaanInfo);
 
 const teksSkorInfo = new PIXI.Text('Skor: ' + skorSaatIni, { fontFamily: 'Nunito', fontSize: 16, fill: '#2b3a4a', fontWeight: 'bold' });
@@ -61,11 +60,11 @@ teksStreakInfo.x = 740; teksStreakInfo.y = 35; teksStreakInfo.anchor.set(1, 0.5)
 const teksTimer = new PIXI.Text('Waktu: 00:00', { fontFamily: 'Nunito', fontSize: 16, fill: '#E74C3C', fontWeight: 'bold' });
 teksTimer.x = gameApp.screen.width / 2; teksTimer.y = 95; teksTimer.anchor.set(0.5); gameApp.stage.addChild(teksTimer);
 
-// Teks Lirik Tengah
 const teksLabelLirik = new PIXI.Text('TEBAK LIRIKNYA!', { fontFamily: 'Nunito', fontSize: 16, fill: '#2b3a4a', fontWeight: '900', letterSpacing: 2 });
 teksLabelLirik.x = gameApp.screen.width / 2; teksLabelLirik.y = 120; teksLabelLirik.anchor.set(0.5); gameApp.stage.addChild(teksLabelLirik);
 
-const teksLirik = new PIXI.Text(bankSoal[0].lirik, { fontFamily: 'Nunito', fontSize: 16, fill: '#2b3a4a', fontWeight: 'bold' });
+// Teks Lirik Sementara
+const teksLirik = new PIXI.Text('Tunggu sebentar...', { fontFamily: 'Nunito', fontSize: 16, fill: '#64748b', fontWeight: 'bold' });
 teksLirik.x = gameApp.screen.width / 2; teksLirik.y = 170; teksLirik.anchor.set(0.5); gameApp.stage.addChild(teksLirik);
 
 // Player Audio Visual
@@ -93,11 +92,147 @@ const teksSisaWaktu = new PIXI.Text('Sisa Waktu: 0:30', { fontFamily: 'Nunito', 
 teksSisaWaktu.x = 620; teksSisaWaktu.y = 235; teksSisaWaktu.anchor.set(1, 0); gameApp.stage.addChild(teksSisaWaktu);
 
 // ==========================================
+// EFEK ANIMASI TEKS MELAYANG (FLOATING TEXT)
+// ==========================================
+function munculkanTeksMelayang(posisiX, posisiY, teks, warna) {
+    const teksMelayang = new PIXI.Text(teks, { fontFamily: 'Nunito', fontSize: 26, fill: warna, fontWeight: '900', dropShadow: true, dropShadowColor: '#000000', dropShadowAlpha: 0.3, dropShadowBlur: 4, dropShadowDistance: 2 });
+    teksMelayang.anchor.set(0.5); teksMelayang.x = posisiX; teksMelayang.y = posisiY; gameApp.stage.addChild(teksMelayang);
+    const animasiMelayang = () => {
+        teksMelayang.y -= 1.5; teksMelayang.alpha -= 0.02;
+        if (teksMelayang.alpha <= 0) {
+            gameApp.stage.removeChild(teksMelayang); teksMelayang.destroy(); gameApp.ticker.remove(animasiMelayang);
+        }
+    };
+    gameApp.ticker.add(animasiMelayang);
+}
+
+// ==========================================
+// 4. FUNGSI TARIK DATA DARI SUPABASE
+// ==========================================
+let arrayTeksPilihan = []; let arrayKotakPilihan = []; let teksJudulPilihan = null;
+const overlayInput = document.getElementById('medium-input-overlay');
+const kotakKetik = document.getElementById('inputJawabanMedium');
+const btnSubmitMedium = document.getElementById('btnSubmitMedium');
+
+async function inisialisasiGame() {
+    // 1. Tarik data lagu sekaligus relasi tabel vocabulary dari Supabase
+    const { data, error } = await db.from('songs').select('*, vocabulary(*)');
+    
+    if (error || !data || data.length === 0) {
+        teksPertanyaanInfo.text = "❌ Gagal memuat data!";
+        teksLirik.text = "Pastikan tabel 'songs' terisi.";
+        return;
+    }
+
+    // 2. Mapping Data dari Supabase ke bankSoal
+    bankSoal = data.map(item => {
+        const vocaUtama = (item.vocabulary && item.vocabulary.length > 0) ? item.vocabulary[0] : null;
+        return {
+            id: item.id,
+            judul: item.judul,
+            artis: item.artis,
+            lagu: item.file_mp3, 
+            detikMulai: item.detik_mulai,
+            lirik: item.lirik,
+            pilihan: [item.pilihan_a, item.pilihan_b, item.pilihan_c, item.pilihan_d],
+            jawabanBenar: item.jawaban_benar,
+            voca: vocaUtama ? {
+                kata: vocaUtama.kata || '-',
+                arti: vocaUtama.arti || '-',
+                penjelasan: vocaUtama.penjelasan || 'Tidak ada penjelasan khusus.'
+            } : { kata: '-', arti: '-', penjelasan: 'Tidak ada penjelasan khusus.' },
+            daftarVoca: item.vocabulary || []
+        };
+    });
+
+    // Reset riwayat soal & simpan lagu pertama (cukup 1x di luar loop)
+    riwayatSoalDimaiankan = [];
+    if (bankSoal.length > 0) {
+        riwayatSoalDimaiankan.push(bankSoal[0]);
+    }
+
+    // Masukkan data lagu pertama
+    let soalPertama = bankSoal[0];
+    teksPertanyaanInfo.text = '🏆 Pertanyaan 1/' + bankSoal.length;
+    teksLirik.text = soalPertama.lirik;
+    teksLirik.style.fill = '#2b3a4a';
+    laguSoal.src = soalPertama.lagu;
+    detikMulai = soalPertama.detikMulai;
+    batasBerhenti = detikMulai + 30;
+    laguSoal.currentTime = detikMulai;
+
+    // Siapkan Tampilan UI Pilihan Ganda (Mode Easy)
+    if (selectedMode === 'Easy') {
+        if (overlayInput) overlayInput.style.display = 'none';
+        teksJudulPilihan = new PIXI.Text('Pilihan Ganda', { fontFamily: 'Nunito', fontSize: 18, fill: '#2b3a4a', fontWeight: 'bold' });
+        teksJudulPilihan.anchor.x = 0.5; teksJudulPilihan.x = gameApp.screen.width / 2; teksJudulPilihan.y = 295; gameApp.stage.addChild(teksJudulPilihan);
+        
+        let pilihanAwal = soalPertama.pilihan;
+        pilihanAwal.forEach((teks, index) => {
+            let kolom = index % 2; let baris = Math.floor(index / 2); let lebarKotak = 320; let tinggiKotak = 60;
+            let posisiX = 70 + (kolom * 340); let posisiY = 335 + (baris * 65);
+            let kotakTombol = new PIXI.Graphics();
+            
+            function gambarKotak(warnaIsi) {
+                kotakTombol.clear(); kotakTombol.beginFill(warnaIsi); kotakTombol.lineStyle(2, 0x2b3a4a, 1);
+                kotakTombol.drawRoundedRect(0, 0, lebarKotak, tinggiKotak, 30); kotakTombol.endFill();
+            }
+            
+            gambarKotak(0xFFFFFF); kotakTombol.x = posisiX; kotakTombol.y = posisiY; kotakTombol.interactive = true; kotakTombol.cursor = 'pointer';
+            let tombolPilihan = new PIXI.Text(teks, { fontFamily: 'Nunito', fontSize: 18, fill: '#2b3a4a', fontWeight: 'bold' });
+            tombolPilihan.anchor.set(0.5); tombolPilihan.x = posisiX + (lebarKotak / 2); tombolPilihan.y = posisiY + (tinggiKotak / 2);
+            arrayKotakPilihan.push(kotakTombol); arrayTeksPilihan.push(tombolPilihan);
+
+            riwayatSoalDimaiankan.push(bankSoal[indeksSoal]);
+
+            kotakTombol.on('pointerdown', () => {
+                arrayKotakPilihan.forEach(kotak => kotak.interactive = false);
+                let jawabanBetul = bankSoal[indeksSoal].jawabanBenar;
+                
+                if (tombolPilihan.text === jawabanBetul) {
+                    jumlahBenar++; gambarKotak(0x2ECC71);
+                    let poinDidapat = 100; if (streakSaatIni >= 3) poinDidapat += 50;
+                    skorSaatIni += poinDidapat; streakSaatIni++;
+                    if (streakSaatIni > streakTertinggi) streakTertinggi = streakSaatIni;
+
+                    munculkanTeksMelayang(tombolPilihan.x, tombolPilihan.y - 40, `+${poinDidapat}`, '#2ECC71');
+                    if (streakSaatIni >= 3) munculkanTeksMelayang(tombolPilihan.x, tombolPilihan.y - 70, `🔥 COMBO!`, '#F4D03F');
+
+                    teksSkorInfo.text = 'Skor: ' + skorSaatIni; teksStreakInfo.text = '🔥 Streak: ' + streakSaatIni;
+                    laguSoal.pause(); sedangMain = false; setTimeout(() => { lanjutKeSoalBerikutnya(); }, 500);
+                } else {
+                    gambarKotak(0xE74C3C); tombolPilihan.style.fill = '#FFFFFF'; 
+                    streakSaatIni = 0; teksSkorInfo.text = 'Skor: ' + skorSaatIni; teksStreakInfo.text = '🔥 Streak: ' + streakSaatIni;
+                    
+                    munculkanTeksMelayang(tombolPilihan.x, tombolPilihan.y - 40, `SALAH!`, '#E74C3C');
+
+                    let getar = 0; let animasiGetar = setInterval(() => {
+                        kotakTombol.x += (getar % 2 === 0 ? 10 : -10); tombolPilihan.x += (getar % 2 === 0 ? 10 : -10); getar++;
+                        if (getar > 5) {
+                            clearInterval(animasiGetar); kotakTombol.x = posisiX; tombolPilihan.x = posisiX + (lebarKotak / 2);
+                            setTimeout(() => {
+                                gambarKotak(0xFFFFFF); tombolPilihan.style.fill = '#2b3a4a'; laguSoal.pause(); sedangMain = false; lanjutKeSoalBerikutnya();
+                            }, 500);
+                        }
+                    }, 50);
+                }
+            });
+            gameApp.stage.addChild(kotakTombol); gameApp.stage.addChild(tombolPilihan);
+        });
+    } else {
+        if (overlayInput) overlayInput.style.display = 'block';
+        if (kotakKetik) kotakKetik.focus();
+    }
+
+    // JALANKAN PERMAINAN SETELAH DATA SIAP
+    laguSoal.play(); sedangMain = true; ikonPlay.text = '⏸'; mulaiWaktuBermain();
+}
+
+// ==========================================
 // 5. EVENT LISTENER AUDIO
 // ==========================================
 laguSoal.addEventListener('play', () => { sedangMain = true; ikonPlay.text = '⏸'; });
 laguSoal.addEventListener('pause', () => { sedangMain = false; ikonPlay.text = '▶'; });
-
 tombolPlayBulat.on('pointerdown', () => { if (!sedangMain) { laguSoal.play(); } else { laguSoal.pause(); } });
 ikonReplay.on('pointerdown', () => { laguSoal.currentTime = detikMulai; laguSoal.play(); });
 
@@ -114,75 +249,12 @@ laguSoal.addEventListener('timeupdate', () => {
     teksWaktuBerjalan.text = '0:' + (waktuBerjalan < 10 ? '0' + waktuBerjalan : waktuBerjalan);
     teksSisaWaktu.text = 'Sisa Waktu: 0:' + (sisaWaktu < 10 ? '0' + sisaWaktu : sisaWaktu);
     barKuning.clear(); barKuning.beginFill(0xF4D03F); barKuning.drawRoundedRect(0, 0, 480 * (waktuBerjalan / 30), 8, 4); barKuning.endFill();
-
     if (laguSoal.currentTime >= batasBerhenti) { laguSoal.pause(); laguSoal.currentTime = detikMulai; }
 });
 
 // ==========================================
-// 6. LOGIKA GAMEPLAY & MODE
+// 6. LOGIKA GAMEPLAY & MODE MEDIUM/HARD
 // ==========================================
-let arrayTeksPilihan = []; let arrayKotakPilihan = []; let teksJudulPilihan = null;
-const overlayInput = document.getElementById('medium-input-overlay');
-const kotakKetik = document.getElementById('inputJawabanMedium');
-const btnSubmitMedium = document.getElementById('btnSubmitMedium');
-
-// Persiapan Berdasarkan Mode
-if (selectedMode === 'Easy') {
-    if (overlayInput) overlayInput.style.display = 'none';
-    teksJudulPilihan = new PIXI.Text('Pilihan Ganda', { fontFamily: 'Nunito', fontSize: 18, fill: '#2b3a4a', fontWeight: 'bold' });
-    teksJudulPilihan.anchor.x = 0.5; teksJudulPilihan.x = gameApp.screen.width / 2; teksJudulPilihan.y = 295; gameApp.stage.addChild(teksJudulPilihan);
-    
-    let pilihanAwal = bankSoal[indeksSoal].pilihan;
-    pilihanAwal.forEach((teks, index) => {
-        let kolom = index % 2; let baris = Math.floor(index / 2); let lebarKotak = 320; let tinggiKotak = 60;
-        let posisiX = 70 + (kolom * 340); let posisiY = 335 + (baris * 65);
-        let kotakTombol = new PIXI.Graphics();
-        
-        function gambarKotak(warnaIsi) {
-            kotakTombol.clear(); kotakTombol.beginFill(warnaIsi); kotakTombol.lineStyle(2, 0x2b3a4a, 1);
-            kotakTombol.drawRoundedRect(0, 0, lebarKotak, tinggiKotak, 30); kotakTombol.endFill();
-        }
-        
-        gambarKotak(0xFFFFFF); kotakTombol.x = posisiX; kotakTombol.y = posisiY; kotakTombol.interactive = true; kotakTombol.cursor = 'pointer';
-        let tombolPilihan = new PIXI.Text(teks, { fontFamily: 'Nunito', fontSize: 18, fill: '#2b3a4a', fontWeight: 'bold' });
-        tombolPilihan.anchor.set(0.5); tombolPilihan.x = posisiX + (lebarKotak / 2); tombolPilihan.y = posisiY + (tinggiKotak / 2);
-        arrayKotakPilihan.push(kotakTombol); arrayTeksPilihan.push(tombolPilihan);
-
-        kotakTombol.on('pointerdown', () => {
-            arrayKotakPilihan.forEach(kotak => kotak.interactive = false);
-            let jawabanBetul = bankSoal[indeksSoal].jawabanBenar;
-            
-            if (tombolPilihan.text === jawabanBetul) {
-                jumlahBenar++; gambarKotak(0x2ECC71);
-                let poinDidapat = 100; if (streakSaatIni >= 3) poinDidapat += 50;
-                skorSaatIni += poinDidapat; streakSaatIni++;
-                if (streakSaatIni > streakTertinggi) streakTertinggi = streakSaatIni;
-
-                teksSkorInfo.text = 'Skor: ' + skorSaatIni; teksStreakInfo.text = '🔥 Streak: ' + streakSaatIni;
-                laguSoal.pause(); sedangMain = false; 
-                setTimeout(() => { lanjutKeSoalBerikutnya(); }, 500);
-            } else {
-                gambarKotak(0xE74C3C); tombolPilihan.style.fill = '#FFFFFF'; 
-                streakSaatIni = 0; teksSkorInfo.text = 'Skor: ' + skorSaatIni; teksStreakInfo.text = '🔥 Streak: ' + streakSaatIni;
-                let getar = 0;
-                let animasiGetar = setInterval(() => {
-                    kotakTombol.x += (getar % 2 === 0 ? 10 : -10); tombolPilihan.x += (getar % 2 === 0 ? 10 : -10); getar++;
-                    if (getar > 5) {
-                        clearInterval(animasiGetar); kotakTombol.x = posisiX; tombolPilihan.x = posisiX + (lebarKotak / 2);
-                        setTimeout(() => {
-                            gambarKotak(0xFFFFFF); tombolPilihan.style.fill = '#2b3a4a'; laguSoal.pause(); sedangMain = false; lanjutKeSoalBerikutnya();
-                        }, 500);
-                    }
-                }, 50);
-            }
-        });
-        gameApp.stage.addChild(kotakTombol); gameApp.stage.addChild(tombolPilihan);
-    });
-} else {
-    if (overlayInput) overlayInput.style.display = 'block';
-    if (kotakKetik) kotakKetik.focus();
-}
-
 function cekTypo(kata1, kata2) {
     if (kata1.length === 0) return kata2.length; if (kata2.length === 0) return kata1.length;
     const matrix = []; for (let i = 0; i <= kata2.length; i++) matrix[i] = [i];
@@ -200,19 +272,31 @@ if (btnSubmitMedium && (selectedMode === 'Medium' || selectedMode === 'Hard')) {
         let tebakanPemain = kotakKetik.value.trim().toLowerCase();
         let jawabanLirik = bankSoal[indeksSoal].voca.kata.toLowerCase();
         let melesetLirik = cekTypo(tebakanPemain, jawabanLirik);
+        
+        riwayatSoalDimaiankan.push(bankSoal[indeksSoal]);
 
         if (melesetLirik === 0) {
             kotakKetik.style.borderColor = '#2ECC71'; kotakKetik.style.backgroundColor = '#EAFAF1'; jumlahBenar++;
             if (selectedMode === 'Hard') { totalDetikBermain += 10; updateTampilanTimer(); }
             let poinDidapat = 100; if (streakSaatIni >= 3) poinDidapat += 50; skorSaatIni += poinDidapat; streakSaatIni++;
+            
+            munculkanTeksMelayang(gameApp.screen.width / 2, 280, `+${poinDidapat}`, '#2ECC71');
+            if (streakSaatIni >= 3) munculkanTeksMelayang(gameApp.screen.width / 2, 250, `🔥 COMBO!`, '#F4D03F');
+
         } else if (melesetLirik <= 2) {
             kotakKetik.style.borderColor = '#F39C12'; kotakKetik.style.backgroundColor = '#FEF9E7'; jumlahHampirBenar++;
             if (selectedMode === 'Hard') { totalDetikBermain += 5; updateTampilanTimer(); }
             let poinDidapat = 50; if (streakSaatIni >= 3) poinDidapat += 25; skorSaatIni += poinDidapat; streakSaatIni++;
+            
+            munculkanTeksMelayang(gameApp.screen.width / 2, 280, `+${poinDidapat} (Typo Dikit)`, '#F39C12');
+            if (streakSaatIni >= 3) munculkanTeksMelayang(gameApp.screen.width / 2, 250, `🔥 COMBO!`, '#F4D03F');
+
         } else {
             kotakKetik.style.borderColor = '#E74C3C'; kotakKetik.style.backgroundColor = '#FDEDEC'; streakSaatIni = 0;
             if (selectedMode === 'Hard') { totalDetikBermain -= 5; if (totalDetikBermain < 0) totalDetikBermain = 0; updateTampilanTimer(); }
+            munculkanTeksMelayang(gameApp.screen.width / 2, 280, `SALAH!`, '#E74C3C');
         }
+        
         if (streakSaatIni > streakTertinggi) streakTertinggi = streakSaatIni;
         teksSkorInfo.text = 'Skor: ' + skorSaatIni; teksStreakInfo.text = '🔥 Streak: ' + streakSaatIni;
         laguSoal.pause(); sedangMain = false; setTimeout(() => { resetDanLanjutModeMedium(); }, 1000);
@@ -246,8 +330,11 @@ function mulaiWaktuBermain() {
 
 function lanjutKeSoalBerikutnya() {
     indeksSoal++; if (indeksSoal >= bankSoal.length) { akhiriPermainan(); return; }
+
+    riwayatSoalDimaiankan.push(bankSoal[indeksSoal]);
+
     let soalBaru = bankSoal[indeksSoal];
-    teksPertanyaanInfo.text = '🏆 Pertanyaan ' + (indeksSoal + 1) + '/10'; teksLirik.text = soalBaru.lirik;
+    teksPertanyaanInfo.text = '🏆 Pertanyaan ' + (indeksSoal + 1) + '/' + bankSoal.length; teksLirik.text = soalBaru.lirik;
     laguSoal.src = soalBaru.lagu; detikMulai = soalBaru.detikMulai; batasBerhenti = detikMulai + 30;
     laguSoal.currentTime = detikMulai; laguSoal.play(); sedangMain = true; ikonPlay.text = '⏸';
 
@@ -266,14 +353,18 @@ function lanjutKeSoalBerikutnya() {
 async function akhiriPermainan() {
     clearInterval(hitungMundur); 
     laguSoal.pause();
-
     localStorage.setItem('matchSkorAkhir', skorSaatIni);
     localStorage.setItem('matchStreak', streakTertinggi);
     localStorage.setItem('matchBenar', jumlahBenar);
     localStorage.setItem('matchHampir', jumlahHampirBenar);
     
+    // Simpan mode yang sedang dimainkan
+    localStorage.setItem('matchMode', selectedMode);
+    
+    // Simpan daftar soal yang dimainkan
+    localStorage.setItem('matchRiwayatSoal', JSON.stringify(riwayatSoalDimaiankan));
+    
     await simpanSkorKeDatabase(skorSaatIni, streakTertinggi);
-
     window.location.href = 'statistik.html';
 }
 
@@ -286,10 +377,7 @@ const btnResumeModal = document.getElementById('btnResumeModal');
 const btnMainLagiModal = document.getElementById('btnMainLagiModal');
 const btnHomeDariPause = document.getElementById('btnHomePause'); 
 
-function mainLagiOtomatis() {
-    localStorage.setItem('vocaTuneAutoStart', 'yes'); localStorage.setItem('vocaTuneModeTerakhir', selectedMode); window.location.reload();
-}
-
+function mainLagiOtomatis() { localStorage.setItem('vocaTuneAutoStart', 'yes'); localStorage.setItem('vocaTuneModeTerakhir', selectedMode); window.location.reload(); }
 if (btnMainLagiModal) { btnMainLagiModal.onclick = mainLagiOtomatis; }
 
 if (tombolPauseGlobal) {
@@ -328,5 +416,5 @@ if (btnHomeDariPause) {
     });
 }
 
-// JALANKAN PERMAINAN PERTAMA KALI
-laguSoal.play(); sedangMain = true; ikonPlay.text = '⏸'; mulaiWaktuBermain();
+// 💥 PENTING: Memicu pengambilan data saat halaman dibuka
+document.addEventListener('DOMContentLoaded', inisialisasiGame);

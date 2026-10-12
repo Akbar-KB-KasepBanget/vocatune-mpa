@@ -1,7 +1,19 @@
 import { db } from './supabase.js';
 
 // ==========================================
-// FUNGSI LOGIKA TITLE (PANGKAT)
+// 1. FILTER KATA KASAR (PROFANITY FILTER)
+// ==========================================
+// Kamu bisa menambahkan kata-kata lain ke dalam tanda kurung siku ini
+const kataTerlarang = ["anjing", "babi", "bangsat", "goblok", "tolol", "jancok", "tai", "bodoh", "prabowo", "presiden", "kontol", "sawit", "nyawit", "pemerintah", "k"];
+
+function mengandungKataKasar(nama) {
+    const namaKecil = nama.toLowerCase();
+    // Mengecek apakah nama yang diketik mengandung salah satu kata di atas
+    return kataTerlarang.some(kata => namaKecil.includes(kata));
+}
+
+// ==========================================
+// 2. FUNGSI LOGIKA TITLE (PANGKAT)
 // ==========================================
 function getPlayerTitle(totalScore) {
     if (totalScore <= 999) return "Newbie";
@@ -17,7 +29,7 @@ function getPlayerTitle(totalScore) {
 
 document.addEventListener('DOMContentLoaded', async () => {
     // ==========================================
-    // 1. KODE VISUAL & UI (Langsung jalan tanpa loading)
+    // 3. KODE VISUAL & UI (Langsung jalan)
     // ==========================================
     const togglePassword = document.getElementById('togglePassword');
     const inputPassword = document.getElementById('inputPassword');
@@ -51,12 +63,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // ==========================================
-    // 2. KODE DATABASE SUPABASE (Menunggu Server)
+    // 4. KODE DATABASE SUPABASE
     // ==========================================
     try {
         const { data: { session }, error: sessionError } = await db.auth.getSession();
         
-        // Cek jika belum login, lempar kembali ke index
         if (!session || sessionError) {
             window.location.href = 'index.html';
             return;
@@ -76,32 +87,29 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('inputUsername').value = data.username || 'Player';
             document.getElementById('inputEmail').value = emailUser;
             
-            // Navbar
             const btnProfileNav = document.getElementById('btnProfileNav');
             if (btnProfileNav) btnProfileNav.innerHTML = `👤 ${data.username || 'Player'}`;
 
-            // Kartu Performa
             document.getElementById('setHighestStreak').innerText = data.daily_streak || data.highest_combo || 0;
             document.getElementById('setHighestScore').innerText = data.highest_score || 0;
             document.getElementById('setTotalScore').innerText = totalSkor;
         }
 
-        // ==========================================
-        // FITUR LOGOUT
-        // ==========================================
-        const btnLogout = document.getElementById('btnLogout');
-        if (btnLogout) {
-            btnLogout.addEventListener('click', async () => {
-                let yakinKeluar = confirm("Apakah kamu yakin ingin Log Out?");
-                if (yakinKeluar) {
-                    await db.auth.signOut();
-                    window.location.href = 'index.html';
-                }
-            });
+       // FITUR LOGOUT
+const btnLogout = document.getElementById('btnLogout');
+if (btnLogout) {
+    btnLogout.addEventListener('click', async () => {
+        let yakinKeluar = confirm("Apakah kamu yakin ingin Log Out?");
+        if (yakinKeluar) {
+            await db.auth.signOut();
+            localStorage.removeItem('vocaTuneUserName'); // Hapus cache nama saat logout
+            window.location.href = 'index.html';
         }
+    });
+}
 
         // ==========================================
-        // FITUR SIMPAN PERUBAHAN (GABUNGAN NAMA & PASSWORD)
+        // FITUR SIMPAN PERUBAHAN (NAMA & PASSWORD)
         // ==========================================
         const btnSimpanProfil = document.getElementById('btnSimpanProfil');
         if (btnSimpanProfil) {
@@ -112,7 +120,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 btnSimpanProfil.innerText = "Menyimpan...";
 
-                // 1. Proses Update Password (jika ada isinya)
+                // 1. Proses Update Password
                 if (passwordBaru !== "") {
                     if (passwordBaru.length < 6) {
                         tampilkanPopup("⚠ Password baru harus lebih dari 6 karakter!", "error");
@@ -126,24 +134,36 @@ document.addEventListener('DOMContentLoaded', async () => {
                         tampilkanPopup("❌ Gagal mengganti password: " + passError.message, "error");
                         isSuccess = false;
                     } else {
-                        inputPassword.value = ""; // Kosongkan input setelah sukses
+                        inputPassword.value = ""; 
                     }
                 }
 
-                // 2. Proses Update Nama (jika ada isinya)
-                if (namaBaru !== "") {
-                    const { error: updateError } = await db.from('players')
-                        .update({ username: namaBaru })
-                        .eq('user_id', userId);
-                        
-                    if (updateError) {
-                        tampilkanPopup("❌ Gagal menyimpan nama!", "error");
-                        isSuccess = false;
-                    } else {
-                        const nav = document.getElementById('btnProfileNav');
-                        if(nav) nav.innerHTML = `👤 ${namaBaru}`;
-                    }
-                }
+               // 2. Proses Update Nama (GANTI BAGIAN INI DENGAN KODE BARU)
+if (namaBaru !== "") {
+    if (mengandungKataKasar(namaBaru)) {
+        tampilkanPopup("⚠ Nama tidak boleh mengandung kata yang tidak pantas!", "error");
+        btnSimpanProfil.innerText = "Simpan Perubahan";
+        return;
+    }
+
+    const { error: updateError } = await db.from('players')
+        .update({ username: namaBaru })
+        .eq('user_id', userId);
+        
+    if (updateError) {
+        tampilkanPopup("❌ Gagal menyimpan nama!", "error");
+        isSuccess = false;
+    } else {
+        const nav = document.getElementById('btnProfileNav');
+        if(nav) nav.innerHTML = `👤 ${namaBaru}`;
+
+        // Simpan ke local storage & update metadata Supabase
+        localStorage.setItem('vocaTuneUserName', namaBaru);
+        await db.auth.updateUser({
+            data: { full_name: namaBaru }
+        });
+    }
+}
 
                 // 3. Tampilkan Notifikasi Akhir
                 btnSimpanProfil.innerText = "Simpan Perubahan";
