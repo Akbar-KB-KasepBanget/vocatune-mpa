@@ -681,3 +681,70 @@ body.admin-mode {
 .btn-danger:hover {
     background-color: #c0392b;
 }
+
+.burger-btn {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: #2b3a4a;
+    cursor: pointer;
+    padding: 0;
+}
+/* Tombol X (Sembunyi di Desktop) */
+.close-sidebar-btn {
+    display: none;
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 1001;
+}
+
+/* Latar gelap di luar sidebar (Sembunyi secara default) */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6); /* Efek gelap 60% */
+    z-index: 999; /* Berada tepat di bawah sidebar (z-index: 1000) */
+}
+
+@media (max-width: 768px) {
+    /* Munculkan tombol burger di HP */
+    .burger-btn {
+        display: block;
+    }
+
+    /* Ubah Sidebar jadi melayang dan sembunyi ke luar kiri layar */
+    .admin-sidebar {
+        position: fixed;
+        top: 0;
+        left: -260px; /* Sembunyi sejauh lebarnya sendiri */
+        z-index: 1000;
+        transition: left 0.3s ease-in-out; /* Animasi geser mulus */
+        box-shadow: 2px 0 10px rgba(0,0,0,0.5); /* Efek bayangan saat muncul */
+    }
+
+    /* Class ini akan ditempelkan oleh JS saat burger diklik */
+    .admin-sidebar.buka {
+        left: 0; /* Menggeser sidebar masuk ke dalam layar */
+    }
+
+    .close-sidebar-btn {
+        display: block;
+    }
+
+    /* Saat overlay diberi class 'aktif' oleh JS, tampilkan layarnya */
+    .sidebar-overlay.aktif {
+        display: block;
+    }
+
+}

@@ -8,9 +8,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
 </head>
 <body class="admin-mode">
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
 
     <!-- SIDEBAR -->
+     
     <aside class="admin-sidebar">
+        <button id="btnCloseSidebar" class="close-sidebar-btn">✖</button>
         <div class="admin-logo">
             <div class="icon">VT</div>
             <div>
@@ -19,11 +22,10 @@
             </div>
         </div>
         <ul class="admin-nav">
-            <li><a href="#">⊞ Dashboard</a></li>
+            <li><a href="index.html">Kembali</a></li>
             <li><a href="admin-pengguna.html">👥 Kelola Pengguna</a></li>
             <li><a href="admin-lagu.html" class="active">🎵 Kelola Lagu</a></li>
             <li><a href="admin-kosakata.html">📖 Kelola Kosakata</a></li>
-            <li><a href="#">⚙️ Pengaturan</a></li>
         </ul>
         <div class="admin-footer">
             <strong style="color: white; display: block; margin-bottom: 5px;">VocaTune Engine</strong>
@@ -34,9 +36,12 @@
     <!-- MAIN CONTENT -->
     <main class="admin-main">
         <header class="admin-header">
-            <div>
-                <h1>Kelola Lagu</h1>
-                <p>Kelola data pengguna, lagu, dan kosakata VocaTune.</p>
+           <div style="display: flex; align-items: center; gap: 15px;">
+                <button id="btnBurger" class="burger-btn">☰</button>
+                <div>
+                    <h1>Kelola Lagu</h1>
+                    <p>Kelola data pengguna, lagu, dan kosakata VocaTune.</p>
+                </div>
             </div>
             <div class="admin-profile">
                 👤 Super Admin

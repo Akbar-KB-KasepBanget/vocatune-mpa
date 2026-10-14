@@ -27,11 +27,14 @@
         </ul>
         <div class="auth-button">
     
-    <!-- Tombol profil (id sudah btnProfile agar terdeteksi oleh ui.js) -->
-    <div id="btnProfile" class="btn-profile" style="border: 2px solid #2b3a4a; padding: 5px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; display: none;">
+   <div class="auth-button">
+    <!-- Tombol Log In tampil secara bawaan -->
+    <button id="btnLogin" class="btn-primary">Log In</button>
+    
+    <!-- 🟢 Tambahkan style="display: none;" di sini biar gak bocor pas baru dibuka -->
+    <div id="btnProfile" class="btn-profile" style="display: none;">
         👤 Memuat...
     </div>
-    
 </div>
     </nav>
 
@@ -68,5 +71,6 @@
          ========================================== -->
     <script type="module" src="js/ui.js"></script>
     <script type="module" src="js/leaderboard.js"></script>
+    <script type="moduke" src="js/auth.js"></script>
 </body>
 </html>

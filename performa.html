@@ -21,9 +21,11 @@
             <li><a href="#" style="text-decoration: none; color: #2b3a4a; font-weight: bold;">Leaderboard</a></li>
         </ul>
         <!-- Tambahkan id="btnProfileNav" agar bisa diubah oleh JavaScript -->
-       <div id="btnProfileNav" class="btn-profile" style="border: 2px solid #2b3a4a; padding: 5px 15px; border-radius: 20px; font-weight: bold; cursor: pointer;">
-    👤 Memuat...
-</div>
+      <div class="auth-button">
+            <div id="btnProfile" class="btn-profile" style="display: none;">
+                👤 Memuat...
+            </div>
+        </div>
     </nav> 
 
 
@@ -81,6 +83,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script type="module" src="js/ui.js"></script>
+    <script type="module" src="js/auth.js"></script>
     <script type="module" src="js/supabase.js"></script>
     <script type="module" src="js/performa.js"></script>
 </body>

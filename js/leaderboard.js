@@ -22,9 +22,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function muatLeaderboard() {
         try {
             // 2. Tambahkan kolom daily_streak / streak ke dalam select()
+            // TAMBAHKAN avatar_url DI DALAM .select()
             const { data, error } = await db
                 .from('players')
-                .select('username, highest_score, highest_combo, title, daily_streak') 
+                .select('username, highest_score, highest_combo, title, daily_streak, avatar_url')
                 .order('highest_score', { ascending: false });
 
             if (error) {
@@ -32,48 +33,39 @@ document.addEventListener('DOMContentLoaded', async () => {
                 throw error;
             }
 
-            wadahLeaderboard.innerHTML = ''; 
+            wadahLeaderboard.innerHTML = '';
 
             if (data && data.length > 0) {
                 data.forEach((player, index) => {
-                    let rankIcon = `<span style="font-size: 20px; font-weight: 900; color: #64748b;">#${index + 1}</span>`;
-                    let bgColor = 'transparent';
-
-                    if (index === 0) { rankIcon = '🥇'; bgColor = '#FFF9E6'; } 
-                    else if (index === 1) { rankIcon = '🥈'; bgColor = '#F1F5F9'; } 
-                    else if (index === 2) { rankIcon = '🥉'; bgColor = '#FFF4E6'; } 
+                    let rankIcon = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
+                    let rankClass = index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : '';
 
                     let titlePemain = teksAman(player.title) || 'Novice Singer';
                     let namaPemain = teksAman(player.username) || 'Anonim';
                     let skorPemain = player.highest_score || 0;
-                    let streakHardPemain = player.daily_streak || player.highest_combo || 0; 
+                    let streakHardPemain = player.daily_streak || player.highest_combo || 0;
+
+                    // Tambahkan logika pemanggil foto profil
+                    let fotoAvatar = player.avatar_url
+                        ? `<img src="${teksAman(player.avatar_url)}" alt="${namaPemain}" class="avatar-leaderboard">`
+                        : `<div class="avatar-leaderboard-placeholder">👤</div>`;
 
                     const barisHtml = `
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 18px 15px; border-bottom: 1px solid #e2e8f0; background-color: ${bgColor}; border-radius: 12px; margin-bottom: 8px;">
-                            
-                            <div style="display: flex; align-items: center; gap: 20px;">
-                                <div style="width: 40px; text-align: center; font-size: 28px;">${rankIcon}</div>
-                                <div style="display: flex; flex-direction: column;">
-                                    <div style="font-size: 18px; font-weight: bold; color: #2b3a4a;">
-                                        ${namaPemain}
-                                    </div>
-                                    <div style="font-size: 13px; font-weight: bold; color: #8592a3; margin-top: 4px;">
-                                        🎖️ ${titlePemain}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div style="text-align: right;">
-                                <div style="font-size: 18px; font-weight: 900; color: #F2994A;">
-                                    ${skorPemain} XP
-                                </div>
-                                <div style="font-size: 14px; font-weight: bold; color: #E74C3C; margin-top: 4px;">
-                                    🔥 Streak: ${streakHardPemain}
-                                </div>
-                            </div>
-
-                        </div>
-                    `;
+    <div class="leaderboard-item ${rankClass}">
+        <div class="player-info-wrapper">
+            <div class="rank-badge">${rankIcon}</div>
+            ${fotoAvatar}
+            <div class="player-details">
+                <span class="player-name">${namaPemain}</span>
+                <span class="player-title">🎖️ ${titlePemain}</span>
+            </div>
+        </div>
+        <div class="player-stats">
+            <span class="player-score">${skorPemain} XP</span>
+            <span class="player-streak">🔥 Streak: ${streakHardPemain}</span>
+        </div>
+    </div>
+`;
                     wadahLeaderboard.innerHTML += barisHtml;
                 });
             } else {

@@ -2,7 +2,6 @@ import { db } from './supabase.js';
 
 // Variabel penampung data agar tombol Edit langsung terbuka tanpa loading
 let daftarLaguGlobal = [];
-let idYangAkanDihapus = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Muat tabel saat halaman pertama kali dibuka
@@ -49,7 +48,6 @@ async function memuatDataLagu() {
             <td><span class="badge ${item.tingkat_kesulitan ? item.tingkat_kesulitan.toLowerCase() : 'mudah'}">${item.tingkat_kesulitan || 'Mudah'}</span></td>
             <td>
                 <div class="action-btns">
-                    <!-- Gunakan data-index untuk tarik data kilat -->
                     <button class="btn-icon edit-btn" data-index="${index}">✏️</button>
                     <button class="btn-icon delete-btn" data-id="${item.id}">🗑️</button>
                 </div>
@@ -65,15 +63,14 @@ async function memuatDataLagu() {
 // 2. PASANG KLIK KE TOMBOL ✏️ DAN 🗑️
 // ==========================================
 function pasangEventTombolAksi() {
-    // Tombol Edit (Tarik data dari memori browser, BUKAN dari Supabase)
+    // Tombol Edit
     document.querySelectorAll('.edit-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const index = e.currentTarget.getAttribute('data-index');
-            const data = daftarLaguGlobal[index]; // Ambil kilat
+            const data = daftarLaguGlobal[index];
 
             if (!data) return alert('Data tidak ditemukan!');
 
-            // Masukkan data ke kotak input Modal Edit
             document.getElementById('editLaguId').value = data.id;
             document.getElementById('editJudulLagu').value = data.judul || '';
             document.getElementById('editArtisLagu').value = data.artis || '';
@@ -83,7 +80,6 @@ function pasangEventTombolAksi() {
             document.getElementById('editFileMp3').value = data.file_mp3 || '';
             document.getElementById('editDetikMulai').value = data.detik_mulai || 0;
 
-            // Pilihan ganda dibungkus IF agar tidak error jika elemennya hilang
             if (document.getElementById('editPilihanA')) document.getElementById('editPilihanA').value = data.pilihan_a || '';
             if (document.getElementById('editPilihanB')) document.getElementById('editPilihanB').value = data.pilihan_b || '';
             if (document.getElementById('editPilihanC')) document.getElementById('editPilihanC').value = data.pilihan_c || '';
@@ -94,18 +90,16 @@ function pasangEventTombolAksi() {
             document.getElementById('editVocaArti').value = data.voca_arti || '';
             document.getElementById('editVocaPenjelasan').value = data.voca_penjelasan || '';
 
-            // Tampilkan/Sembunyikan Pilihan Ganda Berdasarkan Tingkat Kesulitan
             const editContainerPG = document.getElementById('editContainerPilihanGanda');
             if (editContainerPG) {
                 editContainerPG.style.display = (data.tingkat_kesulitan === 'Sedang' || data.tingkat_kesulitan === 'Sulit') ? 'none' : 'block';
             }
 
-            // Munculkan Pop-up secara Instan
             document.getElementById('modalEditLagu').style.display = 'flex';
         });
     });
 
-    // Tombol Hapus (Buka pop-up dan lempar ID)
+    // Tombol Hapus
     document.querySelectorAll('.delete-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const id = e.currentTarget.getAttribute('data-id');
@@ -123,13 +117,21 @@ function setupModalHapus() {
     const btnBatal = document.getElementById('btnBatalHapus');
     const btnHapus = document.getElementById('btnKonfirmasiHapus');
 
-    if (btnBatal) {
+    // Tombol Batal
+    if (btnBatal && modalHapus) {
         btnBatal.addEventListener('click', () => modalHapus.style.display = 'none');
     }
 
+    // Klik luar area modal untuk menutup
+    if (modalHapus) {
+        modalHapus.addEventListener('click', (e) => {
+            if (e.target === modalHapus) modalHapus.style.display = 'none';
+        });
+    }
+
+    // Konfirmasi Hapus
     if (btnHapus) {
         btnHapus.addEventListener('click', async () => {
-            // Ubah teks tombol sementara agar terlihat sedang bekerja
             const teksAsli = btnHapus.innerText;
             btnHapus.innerText = 'Menghapus...';
             btnHapus.style.opacity = '0.7';
@@ -138,7 +140,6 @@ function setupModalHapus() {
             const id = document.getElementById('hapusLaguId').value;
             const { error } = await db.from('songs').delete().eq('id', id);
 
-            // Kembalikan tombol ke bentuk semula
             btnHapus.innerText = teksAsli;
             btnHapus.style.opacity = '1';
             btnHapus.disabled = false;
@@ -147,7 +148,7 @@ function setupModalHapus() {
                 alert('Gagal menghapus: ' + error.message);
             } else {
                 modalHapus.style.display = 'none';
-                memuatDataLagu(); // Refresh otomatis
+                memuatDataLagu();
             }
         });
     }
@@ -161,11 +162,19 @@ function setupModalEdit() {
     const btnBatal = document.getElementById('btnBatalEdit');
     const formEdit = document.getElementById('formEditLagu');
 
-    if (btnBatal) {
+    // Tombol Batal
+    if (btnBatal && modalEdit) {
         btnBatal.addEventListener('click', () => modalEdit.style.display = 'none');
     }
 
-    // Toggle Sembunyikan Pilihan Ganda
+    // Klik luar area modal untuk menutup
+    if (modalEdit) {
+        modalEdit.addEventListener('click', (e) => {
+            if (e.target === modalEdit) modalEdit.style.display = 'none';
+        });
+    }
+
+    // Toggle Pilihan Ganda berdasarkan tingkat kesulitan
     const editKesulitan = document.getElementById('editKesulitanLagu');
     const editContainerPG = document.getElementById('editContainerPilihanGanda');
     if (editKesulitan && editContainerPG) {
@@ -174,6 +183,7 @@ function setupModalEdit() {
         });
     }
 
+    // Submit Form Edit
     if (formEdit) {
         formEdit.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -209,14 +219,14 @@ function setupModalEdit() {
                 alert('Gagal mengedit lagu: ' + error.message);
             } else {
                 modalEdit.style.display = 'none';
-                memuatDataLagu(); // Refresh otomatis
+                memuatDataLagu();
             }
         });
     }
 }
 
 // ==========================================
-// 5. LOGIKA POP-UP TAMBAH (TETAP SAMA)
+// 5. LOGIKA POP-UP TAMBAH
 // ==========================================
 function setupModalTambah() {
     const modalTambah = document.getElementById('modalTambahLagu');
@@ -226,15 +236,25 @@ function setupModalTambah() {
     const selectKesulitan = document.getElementById('kesulitanLagu');
     const containerPG = document.getElementById('containerPilihanGanda');
 
-    if (btnBuka) btnBuka.addEventListener('click', () => modalTambah.style.display = 'flex');
-    if (btnBatal) btnBatal.addEventListener('click', () => modalTambah.style.display = 'none');
+    // Buka & Batal
+    if (btnBuka && modalTambah) btnBuka.addEventListener('click', () => modalTambah.style.display = 'flex');
+    if (btnBatal && modalTambah) btnBatal.addEventListener('click', () => modalTambah.style.display = 'none');
 
+    // Klik luar area modal untuk menutup
+    if (modalTambah) {
+        modalTambah.addEventListener('click', (e) => {
+            if (e.target === modalTambah) modalTambah.style.display = 'none';
+        });
+    }
+
+    // Toggle Pilihan Ganda
     if (selectKesulitan && containerPG) {
         selectKesulitan.addEventListener('change', (e) => {
             containerPG.style.display = (e.target.value === 'Sedang' || e.target.value === 'Sulit') ? 'none' : 'block';
         });
     }
 
+    // Submit Form Tambah
     if (formTambah) {
         formTambah.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -267,8 +287,39 @@ function setupModalTambah() {
             } else {
                 modalTambah.style.display = 'none';
                 formTambah.reset();
-                memuatDataLagu(); // Refresh otomatis
+                memuatDataLagu();
             }
         });
     }
+}
+// ==========================================
+// FUNGSI HAMBURGER MENU & CLOSE (MOBILE)
+// ==========================================
+const btnBurger = document.getElementById('btnBurger');
+const sidebarAdmin = document.querySelector('.admin-sidebar');
+const btnCloseSidebar = document.getElementById('btnCloseSidebar');
+const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+// 1. Membuka Sidebar & Memunculkan Latar Gelap
+if (btnBurger && sidebarAdmin) {
+    btnBurger.addEventListener('click', () => {
+        sidebarAdmin.classList.add('buka');
+        if (sidebarOverlay) sidebarOverlay.classList.add('aktif');
+    });
+}
+
+// 2. Menutup Sidebar saat tombol "X" ditekan
+if (btnCloseSidebar) {
+    btnCloseSidebar.addEventListener('click', () => {
+        sidebarAdmin.classList.remove('buka');
+        if (sidebarOverlay) sidebarOverlay.classList.remove('aktif');
+    });
+}
+
+// 3. Menutup Sidebar saat area gelap (luar sidebar) ditekan
+if (sidebarOverlay) {
+    sidebarOverlay.addEventListener('click', () => {
+        sidebarAdmin.classList.remove('buka');
+        sidebarOverlay.classList.remove('aktif');
+    });
 }

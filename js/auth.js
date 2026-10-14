@@ -23,43 +23,50 @@ const signupError = document.getElementById('signupError');
 // 1. CEK SESI LOGIN, PROFIL, ROLE ADMIN, & BONUS STREAK
 // ==========================================
 export async function cekStatusLogin() {
-    if (btnProfileNav) {
-        btnProfileNav.style.display = 'inline-flex';
-        btnProfileNav.innerHTML = `<span class="icon-user">👤</span> Memuat...`;
-    }
+    const btnLogin = document.getElementById('btnLogin');
+    const btnProfile = document.getElementById('btnProfile');
 
     try {
-        const { data: { session }, error } = await db.auth.getSession();
+        const { data: { session } } = await db.auth.getSession();
         const dashboardMenu = document.getElementById('dashboard-menu-buttons');
         const tombolAdmin = document.getElementById('tombolMenuAdmin');
 
         if (session) {
-            const userId = session.user.id;
-            const userTersimpan = session.user.user_metadata?.username || session.user.user_metadata?.full_name || 'Player';
-
-            if (btnLoginNav) btnLoginNav.style.display = 'none';
-            if (btnProfileNav) {
-                btnProfileNav.style.display = 'inline-flex';
-                btnProfileNav.innerHTML = `<span class="icon-user">👤</span> ${userTersimpan}`;
+            // 🟢 PENGGUNA SUDAH LOGIN: Sembunyikan Log In, Tampilkan Profil
+            if (btnLogin) btnLogin.style.setProperty('display', 'none', 'important');
+            if (btnProfile) {
+                btnProfile.style.setProperty('display', 'inline-flex', 'important');
+                btnProfile.innerHTML = `<span class="icon-user">👤</span> Memuat...`;
             }
-            if (dashboardMenu) dashboardMenu.style.display = 'flex';
 
-            // 👇 BAGIAN QUERY DAN PENANGANAN ERROR 👇
+            const userId = session.user.id;
             const { data, error: playerError } = await db.from('players').select('*').eq('user_id', userId).single();
 
             if (playerError) {
                 console.error("Gagal mengambil data player:", playerError.message);
             }
 
+            const userTersimpan = data?.username || session.user.user_metadata?.username || session.user.user_metadata?.full_name || 'Player';
+            const avatarUrl = data?.avatar_url || session.user.user_metadata?.avatar_url;
+
+            if (btnProfile) {
+                if (avatarUrl) {
+                    btnProfile.innerHTML = `<img src="${avatarUrl}" alt="Avatar" class="avatar-nav"> ${userTersimpan}`;
+                } else {
+                    btnProfile.innerHTML = `<span class="icon-user">👤</span> ${userTersimpan}`;
+                }
+            }
+
+            if (dashboardMenu) dashboardMenu.style.display = 'flex';
+
             if (data) {
-                // Tampilkan tombol admin jika role adalah 'admin'
                 if (data.role === 'admin' && tombolAdmin) {
                     tombolAdmin.style.display = 'inline-block';
                 }
 
-                // --- LOGIKA BONUS LOGIN HARIAN & STREAK ---
+                // Logika Streak
                 const sekarang = new Date();
-                const tanggalHariIni = sekarang.toISOString().split('T')[0]; 
+                const tanggalHariIni = sekarang.toISOString().split('T')[0];
                 const tanggalTerakhir = data.last_play_date ? data.last_play_date.split('T')[0] : null;
 
                 let streakSekarang = data.daily_streak || 0;
@@ -81,8 +88,7 @@ export async function cekStatusLogin() {
                         streakSekarang = 1;
                     }
 
-                    const bonusLogin = 100; 
-                    totalSkorSekarang += bonusLogin;
+                    totalSkorSekarang += 100;
                     totalHariSekarang += 1;
 
                     await db.from('players').update({
@@ -95,14 +101,14 @@ export async function cekStatusLogin() {
 
                 const homeStreak = document.getElementById('home-streak-value');
                 const homeHighscore = document.getElementById('home-highscore-value');
-                
+
                 if (homeStreak) homeStreak.innerText = streakSekarang + ' Hari';
                 if (homeHighscore) homeHighscore.innerText = (data.highest_score || 0) + ' Poin';
             }
         } else {
-            // Jika belum login
-            if (btnLoginNav) btnLoginNav.style.display = 'inline-block';
-            if (btnProfileNav) btnProfileNav.style.display = 'none';
+            // 🔴 PENGGUNA BELUM LOGIN: Tampilkan Log In, Sembunyikan Profil
+            if (btnLogin) btnLogin.style.setProperty('display', 'inline-block', 'important');
+            if (btnProfile) btnProfile.style.setProperty('display', 'none', 'important');
             if (authSection) authSection.style.display = 'none';
             if (heroSection) heroSection.style.display = 'flex';
             if (dashboardMenu) dashboardMenu.style.display = 'none';
@@ -147,7 +153,7 @@ if (togglePasswordLogin && inputPasswordLogin) {
     togglePasswordLogin.addEventListener('click', function () {
         const isPassword = inputPasswordLogin.type === 'password';
         inputPasswordLogin.type = isPassword ? 'text' : 'password';
-        
+
         this.innerHTML = isPassword ? '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye-off preview-icon"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></svg>' : '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye preview-icon"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>';
     });
 }
@@ -232,11 +238,11 @@ if (btnSubmitLogin) {
 
         if (error) {
             loginError.style.display = 'block';
-            loginError.innerText = '*' + error.message; 
+            loginError.innerText = '*' + error.message;
         } else {
             resetPesanError();
             localStorage.setItem('vocaTuneUserLoggedIn', 'yes');
-            window.location.reload(); 
+            window.location.reload();
         }
     });
 }
@@ -268,7 +274,7 @@ if (TutupModal) {
 if (btnKirimReset) {
     btnKirimReset.addEventListener('click', async () => {
         const email = inputEmailReset.value.trim();
-        
+
         if (!email) {
             pesanReset.textContent = "⚠ Harap masukkan alamat email!";
             pesanReset.style.color = "#e74c3c";
@@ -302,6 +308,34 @@ if (btnKirimReset) {
 if (btnProfileNav) {
     btnProfileNav.addEventListener('click', (e) => {
         e.preventDefault();
-        window.location.href = 'profile.html'; 
+        window.location.href = 'profile.html';
+    });
+}
+
+// ==========================================
+// FITUR TUTUP POP-UP AUTH (LOG IN / SIGN UP)
+// ==========================================
+const btnCloseLogin = document.getElementById('btnCloseLogin');
+const btnCloseSignup = document.getElementById('btnCloseSignup');
+
+function tutupModalAuth() {
+    if (authSection) authSection.style.display = 'none';
+    if (heroSection) heroSection.style.display = 'flex';
+}
+
+if (btnCloseLogin) {
+    btnCloseLogin.addEventListener('click', tutupModalAuth);
+}
+
+if (btnCloseSignup) {
+    btnCloseSignup.addEventListener('click', tutupModalAuth);
+}
+
+// Tutup otomatis jika area luar gelap (overlay) diklik
+if (authSection) {
+    authSection.addEventListener('click', (e) => {
+        if (e.target === authSection) {
+            tutupModalAuth();
+        }
     });
 }

@@ -41,16 +41,25 @@
                     <span class="icon-outline">⚙️</span>
                     <h3>Profil Pengguna</h3>
                 </div>
-                <button id="btnLogout" class="btn-warning">Logout</button>
+                <button type="button" id="btnLogout" class="btn-warning">Logout</button>
             </div>
 
             <div class="profile-info-section">
+                <!-- BAGIAN FOTO PROFIL (SUDAH DISISIPKAN RAPI) -->
                 <div class="avatar-wrapper">
-                    <div class="avatar-circle">👦🏽</div>
+                    <img id="avatarPreview" class="avatar-preview" src="https://via.placeholder.com/100?text=User"
+                        alt="Preview Profil"
+                        style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #F2994A;">
                     <div class="avatar-text">
                         <strong>Foto Profil Anda</strong>
                         <span>Format PNG, JPG maks 2MB</span>
-                        <div id="playerTitleDisplay" class="player-title-badge">Memuat...</div>
+                        <div style="margin-top: 8px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                            <label for="inputAvatar" class="btn-upload-avatar"
+                                style="cursor: pointer; padding: 6px 12px; background-color: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; font-weight: bold; color: #334155;">📸
+                                Pilih Foto Profil</label>
+                            <input type="file" id="inputAvatar" accept="image/*" style="display: none;">
+                            <div id="playerTitleDisplay" class="player-title-badge">Memuat...</div>
+                        </div>
                     </div>
                 </div>
 
@@ -70,13 +79,12 @@
                 <div class="input-group">
                     <label>Password Baru</label>
                     <div class="password-wrapper">
-                        <input type="password" id="inputPassword" class="settings-input" placeholder="Kosongkan jika tidak ingin mengubah..." autocomplete="new-password">
-                        <!-- KUNCI: Tambahan onclick memanggil fungsi langsung -->
+                        <input type="password" id="inputPassword" class="settings-input"
+                            placeholder="Kosongkan jika tidak ingin mengubah..." autocomplete="new-password">
                         <button type="button" id="togglePassword" class="btn-toggle-pass"
                             title="Lihat Password">👁</button>
                     </div>
                 </div>
-                <!-- 👆 ===================================== 👆 -->
 
                 <p id="pesanUpdate" class="pesan-sukses">✅ Profil berhasil diperbarui!</p>
                 <button id="btnSimpanProfil" class="btn-primary">Simpan Perubahan</button>
@@ -158,6 +166,19 @@
 
         </div>
     </section>
+    <!-- Modal Logout (Di bagian bawah HTML) -->
+    <div id="modalLogout" class="modal-overlay" style="display: none;">
+        <div class="modal-box modal-box-sm">
+            <h3>Konfirmasi Logout</h3>
+            <p style="color: #64748b; margin-bottom: 20px;">
+                Apakah kamu yakin ingin keluar dari akun VocaTune?
+            </p>
+            <div class="modal-buttons center">
+                <button type="button" id="btnBatalLogout" class="btn-secondary">Batal</button>
+                <button type="button" id="btnKonfirmasiLogout" class="btn-danger">Logout</button>
+            </div>
+        </div>
+    </div>
 
     <audio id="bgmAudio" loop autoplay>
         <source src="assets/bgm/s.mp3" type="audio/mpeg">
@@ -165,6 +186,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script type="module" src="js/supabase.js"></script>
     <script type="module" src="js/profile.js"></script>
+
     <!-- Elemen untuk Pop-up Kustom -->
     <div id="customPopup" class="popup-toast">Pesan akan muncul di sini</div>
 </body>

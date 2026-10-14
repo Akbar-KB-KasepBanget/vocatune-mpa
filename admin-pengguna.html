@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Pengguna - VocaTune Admin</title>
+    <!-- Hubungkan ke CSS admin milikmu -->
+    <link rel="stylesheet" href="admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body class="admin-mode">
+
+    <!-- ================= 1. SIDEBAR KIRI ================= -->
+    <aside class="admin-sidebar">
+        <div class="admin-logo">
+            <div class="icon">VT</div>
+            <div>
+                <strong>VocaTune</strong>
+                <span>ADMINISTRATOR</span>
+            </div>
+        </div>
+
+        <ul class="admin-nav">
+            <li><a href="index.html">Kembali</a></li>
+            <li><a href="admin-kelola-pengguna.html" class="active">👥 Kelola Pengguna</a></li>
+            <li><a href="admin-lagu.html">🎵 Kelola Lagu</a></li>
+            <li><a href="admin-kosakata.html">📖 Kelola Kosakata</a></li>
+        </ul>
+
+        <div class="admin-footer">
+            <strong>VocaTune Engine</strong>
+            <span>🟢 Online v1.2.0</span>
+        </div>
+    </aside>
+
+    <!-- ================= 2. KONTEN UTAMA ================= -->
+    <main class="admin-main">
+        <header class="admin-header">
+          <div style="display: flex; align-items: center; gap: 15px;">
+                <button id="btnBurger" class="burger-btn">☰</button>
+                <div>
+                    <h1 style="margin-bottom: 5px;">Kelola Pengguna</h1>
+                    <p style="margin-top: 0;">Kelola data dan status pengguna VocaTune.</p>
+                </div>
+            </div>
+            <div class="admin-profile" style="flex-shrink: 0;">
+                👤 Super Admin
+            </div>
+        </header>
+
+        <div class="admin-content-area">
+            <!-- Toolbar Search -->
+            <div class="admin-toolbar">
+                <input type="text" id="inputCariPengguna" placeholder="🔍 Cari pengguna..." class="admin-search">
+            </div>
+
+            <!-- Tabel Data Pengguna -->
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>NO</th>
+                        <th>NAMA PENGGUNA / EMAIL</th>
+                        <th>LEVEL</th>
+                        <th>SKOR TOTAL</th>
+                        <th>STATUS</th>
+                        <th>AKSI</th>
+                    </tr>
+                </thead>
+               <tbody id="tabelPenggunaBody">
+    <!-- Cukup sediakan wadah ini saja. JavaScript akan otomatis mengisi baris & tombol pemain di sini -->
+    <tr>
+        <td colspan="6" style="text-align: center; padding: 20px; color: #64748b;">
+            Memuat data pengguna dari database...
+        </td>
+    </tr>
+</tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- ================= 3. MODAL POP-UP EDIT MODERASI ================= -->
+    <div id="modalEditUser" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Moderasi Pengguna</h3>
+            <p id="editUserEmail" style="font-size: 13px; color: #64748b; margin-top: -10px; margin-bottom: 20px;">aris@email.com</p>
+
+            <!-- Input Username & Quick Reset -->
+            <div class="form-group">
+                <label for="editUsername">Nama Pengguna</label>
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" id="editUsername" placeholder="Masukkan username..." style="flex: 1;">
+                    <button type="button" id="btnResetUsername" class="btn-secondary" style="padding: 8px 12px; font-size: 12px; border-radius: 10px;">Reset ke "Pengguna"</button>
+                </div>
+            </div>
+
+            <!-- Pilihan Role Akses -->
+            <div class="form-group">
+                <label for="editRole">Role Hak Akses</label>
+                <select id="editRole">
+                    <option value="user">User biasa</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+
+            <!-- Pilihan Status Akun -->
+            <div class="form-group">
+                <label for="editStatus">Status Akun</label>
+                <select id="editStatus">
+                    <option value="aktif">Aktif</option>
+                    <option value="banned">Nonaktif / Banned</option>
+                </select>
+            </div>
+
+            <!-- Reset Foto Profil -->
+            <div class="form-group" style="padding-top: 15px; border-top: 1px solid #e2e8f0; margin-top: 15px;">
+                <button type="button" id="btnResetAvatar" class="btn-danger" style="width: 100%;">🗑️ Hapus Foto Profil (Reset Default)</button>
+                <small id="notifResetAvatar" style="display: none; color: #e74c3c; font-size: 12px; margin-top: 6px;">*Foto profil akan dihapus saat disimpan.</small>
+            </div>
+
+            <!-- Tombol Aksi Modal -->
+            <div class="modal-buttons">
+                <button id="btnBatalEdit" class="btn-secondary">Batal</button>
+                <button id="btnSimpanEdit" class="btn-primary">Simpan Perubahan</button>
+            </div>
+        </div>
+    </div>
+
+   <!-- ================= MODAL DETAIL PENGGUNA ================= -->
+<div id="modalDetailUser" class="modal-overlay">
+    <div class="modal-box modal-box-sm">
+        <h3>Detail Pengguna</h3>
+        
+        <div style="text-align: center; margin-bottom: 15px;">
+            <!-- Foto Profil (Tampil jika ada avatar_url) -->
+            <img id="detailAvatar" src="" alt="Foto Profil" style="width: 75px; height: 75px; border-radius: 50%; object-fit: cover; margin: 0 auto 10px auto; border: 3px solid #2b3a4a; display: none;">
+            
+            <!-- Placeholder Ikon Default (Tampil jika tidak ada foto) -->
+            <div id="detailAvatarPlaceholder" style="width: 75px; height: 75px; border-radius: 50%; background-color: #e2e8f0; border: 3px solid #2b3a4a; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 10px auto;">
+                👤
+            </div>
+
+            <h4 id="detailUsername" style="color: #2b3a4a; margin: 0; font-size: 18px;">-</h4>
+            <p id="detailEmail" style="color: #64748b; font-size: 13px; margin: 4px 0 0 0;">-</p>
+        </div>
+
+        <div style="background: #f8fafc; padding: 15px; border-radius: 10px; border: 1px solid #e2e8f0; font-size: 14px; text-align: left; display: flex; flex-direction: column; gap: 8px;">
+            <div><strong>Level:</strong> <span id="detailLevel">-</span></div>
+            <div><strong>Skor Total:</strong> <span id="detailSkor">-</span></div>
+            <div><strong>Daily Streak:</strong> <span id="detailStreak">-</span></div>
+            <div><strong>Status:</strong> <span id="detailStatus">-</span></div>
+            <div><strong>Role:</strong> <span id="detailRole">-</span></div>
+        </div>
+
+        <div class="modal-buttons center" style="margin-top: 20px;">
+            <button id="btnTutupDetail" class="btn-primary">Tutup</button>
+        </div>
+    </div>
+</div>
+
+
+<!-- ================= MODAL HAPUS PENGGUNA ================= -->
+<div id="modalHapusUser" class="modal-overlay">
+    <div class="modal-box modal-box-sm">
+        <h3>Konfirmasi Hapus</h3>
+        <input type="hidden" id="hapusUserId">
+        <p style="color: #64748b; margin-bottom: 20px;" id="teksKonfirmasiHapus">
+            Apakah kamu yakin ingin menghapus pengguna ini? Tindakan ini tidak dapat dibatalkan.
+        </p>
+        <div class="modal-buttons center">
+            <button id="btnBatalHapusUser" class="btn-secondary">Batal</button>
+            <button id="btnKonfirmasiHapusUser" class="btn-danger">Hapus Pengguna</button>
+        </div>
+    </div>
+</div>
+
+    <!-- Script Supabase & Logic Admin -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module" src="js/supabase.js"></script>
+    <script type="module" src="js/admin-pengguna.js"></script>
+</body>
+</html>

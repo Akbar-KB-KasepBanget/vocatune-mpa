@@ -7,6 +7,7 @@ const NAMA_TABEL_VOCA = 'vocabulary'; // Ganti ke 'kosakata' jika nama tabelmu d
 document.addEventListener('DOMContentLoaded', () => {
     memuatDataKosakata();
     muatOpsiLagu();
+    setupSearchKosakata(); // Fitur pencarian
 
     setupModalTambah();
     setupModalEdit();
@@ -37,7 +38,6 @@ async function memuatDataKosakata() {
 
     tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Memuat data... ⏳</td></tr>';
 
-    // Mengambil data kosakata + JOIN ke tabel songs berdasarkan song_id
     const { data, error } = await db
         .from(NAMA_TABEL_VOCA)
         .select('*, songs(judul, artis)')
@@ -54,9 +54,22 @@ async function memuatDataKosakata() {
     }
 
     daftarKosakataGlobal = data;
+    renderTabelKosakata(daftarKosakataGlobal);
+}
+
+// FUNGSI RENDER TABEL (UNTUK DISPLAY & SEARCH)
+function renderTabelKosakata(daftar) {
+    const tableBody = document.getElementById('tableBodyKosakata');
+    if (!tableBody) return;
+
+    if (daftar.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#64748b; padding:20px;">Kosakata tidak ditemukan.</td></tr>';
+        return;
+    }
+
     tableBody.innerHTML = '';
 
-    data.forEach((item, index) => {
+    daftar.forEach((item, index) => {
         const row = document.createElement('tr');
         const judulLagu = item.songs ? `${item.songs.judul} (${item.songs.artis || '-'})` : 'Lagu Tidak Ditemukan';
 
@@ -67,7 +80,7 @@ async function memuatDataKosakata() {
             <td><small>${judulLagu}</small></td>
             <td>
                 <div class="action-btns">
-                    <button class="btn-icon edit-voca-btn" data-index="${index}">✏️</button>
+                    <button class="btn-icon edit-voca-btn" data-id="${item.id}">✏️</button>
                     <button class="btn-icon delete-voca-btn" data-id="${item.id}">🗑️</button>
                 </div>
             </td>
@@ -78,12 +91,38 @@ async function memuatDataKosakata() {
     pasangEventTombol();
 }
 
+// FUNGSI PENCARIAN REAL-TIME
+function setupSearchKosakata() {
+    const inputCari = document.getElementById('inputCariKosakata') || document.getElementById('inputCari');
+    if (!inputCari) return;
+
+    inputCari.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase().trim();
+
+        const hasilFilter = daftarKosakataGlobal.filter((item) => {
+            const kata = (item.kata || '').toLowerCase();
+            const arti = (item.arti || '').toLowerCase();
+            const penjelasan = (item.penjelasan || '').toLowerCase();
+            const judulLagu = item.songs ? (item.songs.judul || '').toLowerCase() : '';
+            const artisLagu = item.songs ? (item.songs.artis || '').toLowerCase() : '';
+
+            return kata.includes(query) || 
+                   arti.includes(query) || 
+                   penjelasan.includes(query) || 
+                   judulLagu.includes(query) || 
+                   artisLagu.includes(query);
+        });
+
+        renderTabelKosakata(hasilFilter);
+    });
+}
+
 // 3. PASANG EVENT TOMBOL EDIT & HAPUS
 function pasangEventTombol() {
     document.querySelectorAll('.edit-voca-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
-            const index = e.currentTarget.getAttribute('data-index');
-            const data = daftarKosakataGlobal[index];
+            const id = e.currentTarget.getAttribute('data-id');
+            const data = daftarKosakataGlobal.find(item => item.id == id);
             if (!data) return;
 
             document.getElementById('editVocaId').value = data.id;
