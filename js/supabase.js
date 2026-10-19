@@ -1,20 +1,24 @@
 // ==========================================
-// 1. FUNGSI PENENTU GELAR (TITLE)
+// 1. FUNGSI PENENTU GELAR (TITLE - SINKRON DENGAN PROFIL & LEADERBOARD)
 // ==========================================
-function tentukanGelar(skorTertinggi) {
-    if (skorTertinggi >= 10000) return 'Voca Master';
-    if (skorTertinggi >= 6000) return 'Chart Topper';
-    if (skorTertinggi >= 3000) return 'Stage Performer';
-    if (skorTertinggi >= 1000) return 'Rising Star';
-    return 'Novice Singer';
+function tentukanGelar(skor) {
+    if (skor <= 999) return "Newbie";
+    if (skor <= 4999) return "Rookie";
+    if (skor <= 9999) return "Pro";
+    if (skor <= 14999) return "Master";
+    if (skor <= 19999) return "Grand Master";
+    if (skor <= 24999) return "Legend";
+    if (skor <= 29999) return "Mytic";
+    if (skor <= 100000) return "Myth";
+    return "Hacker";
 }
 
 // ==========================================
-// 2. FUNGSI SIMPAN SKOR & DATA PEMAIN
+// 2. FUNGSI SIMPAN SKOR & HITUNG STREAK (SATU PINTU)
 // ==========================================
-export async function simpanSkorKeDatabase(skorBaru, streakBaru) {
+export async function simpanSkorKeDatabase(skorBaru, streakRondeIni) {
     const { data: { session } } = await db.auth.getSession();
-    if (!session) return; 
+    if (!session) return { status: 'error', bonus: 0, streak: 0 }; 
 
     const userId = session.user.id;
 
@@ -28,63 +32,84 @@ export async function simpanSkorKeDatabase(skorBaru, streakBaru) {
 
         if (fetchError) throw fetchError;
 
-        // 2. Kalkulasi Skor & Skill
-        let skorTertinggiBaru = Math.max(playerData.highest_score || 0, skorBaru);
-        let totalSkorBaru = (playerData.total_score || 0) + skorBaru;
-        let comboTertinggiBaru = Math.max(playerData.highest_combo || 0, streakBaru);
-
-        // 3. Tentukan Gelar Baru berdasarkan Skor Tertinggi Terbaru
-        let gelarBaru = tentukanGelar(skorTertinggiBaru);
-
-        // 4. Kalkulasi Logika "Daily Streak" dan "Total Hari Bermain"
-        let streakHarianBaru = playerData.daily_streak || 0;
-        let totalHariBaru = playerData.total_days_played || 0;
-        
+        // 2. Format Tanggal Lokal (YYYY-MM-DD)
         const now = new Date();
-        const hariIni = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-        if (playerData.last_play_date) {
-            const lastPlay = new Date(playerData.last_play_date);
-            const tglTerakhir = new Date(lastPlay.getFullYear(), lastPlay.getMonth(), lastPlay.getDate());
-            
-            const selisihWaktu = hariIni - tglTerakhir;
-            const selisihHari = Math.round(selisihWaktu / (1000 * 60 * 60 * 24));
-
-            if (selisihHari === 1) {
-                streakHarianBaru += 1; 
-                totalHariBaru += 1; 
-            } else if (selisihHari > 1) {
-                streakHarianBaru = 1; 
-                totalHariBaru += 1; 
-            }
-        } else {
-            streakHarianBaru = 1; 
-            totalHariBaru = 1; 
+        const hariIniStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        
+        let lastPlayStr = null;
+        if (playerData?.last_play_date) {
+            const lp = new Date(playerData.last_play_date);
+            lastPlayStr = `${lp.getFullYear()}-${String(lp.getMonth() + 1).padStart(2, '0')}-${String(lp.getDate()).padStart(2, '0')}`;
         }
 
-        // 5. Kirim semua data terbaru (termasuk title) ke Supabase
+        const kemarinObj = new Date();
+        kemarinObj.setDate(kemarinObj.getDate() - 1);
+        const kemarinStr = `${kemarinObj.getFullYear()}-${String(kemarinObj.getMonth() + 1).padStart(2, '0')}-${String(kemarinObj.getDate()).padStart(2, '0')}`;
+
+        let streakBaru = playerData?.daily_streak || 0;
+        let totalHariBaru = playerData?.total_days_played || 0;
+        let statusNotif = 'sudah_main';
+        let bonusSkor = 0;
+
+        // 3. Logika Penentuan Streak & Notifikasi
+        if (lastPlayStr === hariIniStr) {
+            // Sudah pernah main hari ini -> tidak ada notifikasi bonus
+            statusNotif = 'sudah_main';
+        } else if (lastPlayStr === kemarinStr) {
+            // Kemarin main -> Streak AMAN!
+            streakBaru += 1;
+            totalHariBaru += 1;
+            bonusSkor = (streakBaru * 200) - 100;
+            statusNotif = 'aman';
+        } else {
+            // Kemarin TIDAK main
+            if ((playerData?.daily_streak || 0) > 1) {
+                statusNotif = 'hancur'; // Punya streak > 1 tapi kemarin bolong
+            } else {
+                statusNotif = 'baru'; // Baru pertama kali main lagi
+            }
+            streakBaru = 1;
+            totalHariBaru += 1;
+            bonusSkor = (streakBaru * 200) - 100;
+        }
+
+        // Skor Ronde Ini Ditambah Bonus Streak
+        const skorTotalRondeIni = skorBaru + bonusSkor;
+
+        // Kalkulasi Rekor
+        let skorTertinggiBaru = Math.max(playerData?.highest_score || 0, skorTotalRondeIni);
+        let totalSkorBaru = (playerData?.total_score || 0) + skorTotalRondeIni;
+        let comboTertinggiBaru = Math.max(playerData?.highest_combo || 0, streakRondeIni);
+        let gelarBaru = tentukanGelar(skorTertinggiBaru);
+
+        // 4. Update HANYA SATU KALI ke Supabase
         const { error: updateError } = await db
             .from('players')
             .update({
                 highest_score: skorTertinggiBaru,
                 total_score: totalSkorBaru,
                 highest_combo: comboTertinggiBaru,
-                daily_streak: streakHarianBaru,
+                daily_streak: streakBaru,
                 total_days_played: totalHariBaru,
-                title: gelarBaru, // <-- Gelar otomatis tersimpan di sini
+                title: gelarBaru,
                 last_play_date: new Date().toISOString()
             })
             .eq('user_id', userId);
 
         if (updateError) throw updateError;
-        
-        console.log("Skor, Combo, Umur Akun, Daily Streak, dan Gelar berhasil diamankan! 🚀");
+
+        return {
+            status: statusNotif,
+            bonus: bonusSkor,
+            streak: streakBaru,
+            skorTotalRondeIni: skorTotalRondeIni
+        };
 
     } catch (error) {
         console.error("Gagal menyimpan data:", error.message);
+        return { status: 'error', bonus: 0, streak: 0 };
     }
 }
-
 // ==========================================
 // INISIALISASI SUPABASE
 // ==========================================

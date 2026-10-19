@@ -50,7 +50,13 @@
     <!-- Elemen Audio & Tombol BGM -->
     <button id="btnBgm" class="btn-bgm">🔊 Music On</button>
     <audio id="bgmAudio" loop autoplay><source src="assets/bgm/s.mp3" type="audio/mpeg"></audio>
-
+      </div>
+    <!-- Wadah Notifikasi Toast Dinamis -->
+    <div id="notifToast" class="toast-sembunyi">
+        <span id="toastIcon">✨</span>
+        <span id="toastMessage">Pesan di sini</span>
+    </div>
+</body> <!-- Ini tag penutup body bawaan HTML-mu -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script type="module" src="js/supabase.js"></script>
     <script type="module" src="js/statistik.js"></script> <!-- Script khusus rekap game -->

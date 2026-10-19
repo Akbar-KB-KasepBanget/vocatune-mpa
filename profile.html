@@ -45,7 +45,7 @@
             </div>
 
             <div class="profile-info-section">
-                <!-- BAGIAN FOTO PROFIL (SUDAH DISISIPKAN RAPI) -->
+                <!-- BAGIAN FOTO PROFIL -->
                 <div class="avatar-wrapper">
                     <img id="avatarPreview" class="avatar-preview" src="https://via.placeholder.com/100?text=User"
                         alt="Preview Profil"
@@ -75,7 +75,7 @@
                     <input type="email" id="inputEmail" class="settings-input input-disabled" disabled>
                 </div>
 
-                <!-- Input Password dengan Icon Mata -->
+                <!-- Input Password -->
                 <div class="input-group">
                     <label>Password Baru</label>
                     <div class="password-wrapper">
@@ -114,18 +114,24 @@
                 <div class="setting-row">
                     <span>Notifikasi Streak</span>
                     <label class="switch">
-                        <input type="checkbox" checked>
+                        <!-- Pastikan id="toggleNotif" tertulis di sini! -->
+                        <input type="checkbox" id="toggleNotif">
                         <span class="slider round"></span>
                     </label>
                 </div>
-
-                <div class="setting-row">
-                    <span>Bahasa</span>
-                    <select class="settings-select">
-                        <option>Indonesia</option>
-                        <option>English</option>
-                    </select>
+                <!-- ✨ BAHASA DIHAPUS, DIGANTI PARAGRAF TENTANG VOCATUNE ✨ -->
+                <div style="margin-top: 25px; padding-top: 20px; border-top: 1px dashed #cbd5e1;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                        <span style="font-size: 16px;">ℹ️</span>
+                        <h4 style="margin: 0; color: #2b3a4a; font-family: 'Nunito', sans-serif;">Tentang VocaTune</h4>
+                    </div>
+                    <p style="font-size: 13px; color: #64748b; line-height: 1.6; margin: 0; text-align: justify;">
+                        VocaTune adalah platform permainan tebak lirik interaktif yang dirancang untuk melatih
+                        pendengaran (listening) dan memperkaya kosakata bahasa Inggrismu lewat lagu-lagu pilihan. Dibuat
+                        dengan 💻 dan ☕.
+                    </p>
                 </div>
+
             </div>
 
             <!-- KARTU KANAN BAWAH: PERFORMA -->
@@ -166,7 +172,8 @@
 
         </div>
     </section>
-    <!-- Modal Logout (Di bagian bawah HTML) -->
+
+    <!-- Modal Logout -->
     <div id="modalLogout" class="modal-overlay" style="display: none;">
         <div class="modal-box modal-box-sm">
             <h3>Konfirmasi Logout</h3>
@@ -180,6 +187,13 @@
         </div>
     </div>
 
+    <!-- Wadah Notifikasi Toast Dinamis -->
+    <div id="notifToast" class="toast-sembunyi">
+        <span id="toastIcon">✨</span>
+        <span id="toastMessage">Pesan di sini</span>
+    </div>
+
+    <!-- AUDIO DAN SCRIPT -->
     <audio id="bgmAudio" loop autoplay>
         <source src="assets/bgm/s.mp3" type="audio/mpeg">
     </audio>
@@ -187,8 +201,6 @@
     <script type="module" src="js/supabase.js"></script>
     <script type="module" src="js/profile.js"></script>
 
-    <!-- Elemen untuk Pop-up Kustom -->
-    <div id="customPopup" class="popup-toast">Pesan akan muncul di sini</div>
 </body>
 
 </html>

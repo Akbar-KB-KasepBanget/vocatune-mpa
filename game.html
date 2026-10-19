@@ -31,9 +31,8 @@
         </ul>
     </nav> 
 
-    <!-- Wadah game -->
-     <div id="game-container" style="display: flex; position: relative; width: 800px; height: 580px; margin: 30px auto 0 auto;">
-        
+    <!-- Wadah game yang sudah dibuat responsif -->
+    <div id="game-container" style="display: flex; position: relative; width: 100%; max-width: 800px; min-height: 640px; margin: 30px auto 0 auto; justify-content: center;">
         <!-- Kotak ketik di mode medium -->
         <div id="medium-input-overlay">
             <div class="input-header">
@@ -57,6 +56,12 @@
             </div>
         </div>
     </div>
+   <!-- Wadah Notifikasi Toast Dinamis -->
+    <div id="notifToast" class="toast-sembunyi">
+        <span id="toastIcon">✨</span>
+        <span id="toastMessage">Pesan di sini</span>
+    </div>
+
     <!-- ========================================== -->
     <!-- SCRIPT UNTUK HALAMAN GAME -->
     <!-- ========================================== -->

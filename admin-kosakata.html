@@ -8,9 +8,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
 </head>
 <body class="admin-mode">
-
+ <div id="sidebarOverlay" class="sidebar-overlay"></div>
     <!-- SIDEBAR -->
     <aside class="admin-sidebar">
+          <button id="btnCloseSidebar" class="close-sidebar-btn">✖</button>
         <div class="admin-logo">
             <div class="icon">VT</div>
             <div>
@@ -33,13 +34,12 @@
     <!-- MAIN CONTENT -->
     <main class="admin-main">
         <header class="admin-header">
+             <div style="display: flex; align-items: center; gap: 15px;">
+                <button id="btnBurger" class="burger-btn">☰</button>
             <div>
                     <h1>Kelola Kosakata</h1>
                     <p>Kelola data pengguna, lagu, dan kosakata VocaTune.</p>
                 </div>
-            </div>
-            <div class="admin-profile">
-                👤 Super Admin
             </div>
             <div class="admin-profile">
                 👤 Super Admin
@@ -51,7 +51,7 @@
                 <input type="text" class="admin-search" placeholder="🔍 Cari kata atau lagu...">
                 <button class="btn-add" id="btnBukaModalKosakata">+ Tambah Kosakata Baru</button>
             </div>
-
+            <div class="table-wrapper">
             <table class="admin-table">
                 <thead>
                     <tr>
@@ -66,6 +66,16 @@
                     <!-- Data dari Supabase dimuat di sini oleh JS -->
                 </tbody>
             </table>
+            </div>
+            <!-- WADAH PAGINATION BARU -->
+            <div class="pagination-wrapper">
+                <div class="pagination-info" id="paginationInfo">
+                    Menampilkan 0-0 dari 0 kosakata
+                </div>
+                <div class="pagination-controls" id="paginationControls">
+                    <!-- Tombol halaman dimuat dinamis oleh JS -->
+                </div>
+            </div>
         </section>
     </main>
 

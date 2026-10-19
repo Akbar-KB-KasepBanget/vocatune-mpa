@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.location.replace('index.html');
         return;
     }
-
+        
     // 2. Cek apakah role-nya adalah 'admin'
     const userId = session.user.id;
     const { data, error } = await db

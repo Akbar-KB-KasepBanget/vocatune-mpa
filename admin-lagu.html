@@ -53,7 +53,15 @@
                 <input type="text" class="admin-search" placeholder="🔍 Cari lagu atau artis...">
                 <button class="btn-add" id="btnBukaModal">+ Tambah Lagu Baru</button>
             </div>
-
+            <div class="table-wrapper">
+                <div class="pagination-wrapper">
+    <div class="pagination-info" id="paginationInfo">
+        Menampilkan 0-0 dari 0 data
+    </div>
+    <div class="pagination-controls" id="paginationControls">
+        <!-- Tombol halaman dimuat dinamis oleh JS -->
+    </div>
+</div>
             <table class="admin-table">
                 <thead>
                     <tr>
@@ -69,6 +77,7 @@
                     <!-- Data dari Supabase akan dimuat otomatis di sini -->
                 </tbody>
             </table>
+            </div>
         </section>
     </main>
 
@@ -81,15 +90,15 @@
             <form id="formTambahLagu">
                 <div class="form-group">
                     <label for="judulLagu">Judul Lagu</label>
-                    <input type="text" id="judulLagu" required placeholder="Bohemian Rhapsody">
+                    <input type="text" id="judulLagu">
                 </div>
                 <div class="form-group">
                     <label for="artisLagu">Nama Artis / Band</label>
-                    <input type="text" id="artisLagu" required placeholder="Queen">
+                    <input type="text" id="artisLagu">
                 </div>
                 <div class="form-group">
                     <label for="genreLagu">Genre</label>
-                    <input type="text" id="genreLagu" required placeholder="Rock">
+                    <input type="text" id="genreLagu">
                 </div>
                 <div class="form-group">
                 <label for="kesulitanLagu">Tingkat Kesulitan</label>
@@ -105,7 +114,7 @@
             </div>
             <div class="form-group">
                 <label for="fileMp3">Nama File / URL MP3</label>
-                <input type="text" id="fileMp3" required placeholder="assets/songs/505.mp3">
+                <input type="file" id="fileMp3" accept="audio/*" class="admin-input" required>
             </div>
             <div class="form-group">
                 <label for="detikMulai">Detik Mulai (Angka)</label>
@@ -133,13 +142,13 @@
                     <label for="pilihanD">Pilihan D</label>
                     <input type="text" id="pilihanD" placeholder="D. Gumbal">
                 </div>
-                <div class="form-group">
-                    <label for="jawabanBenar">Jawaban Benar</label>
-                    <input type="text" id="jawabanBenar" placeholder="B. Crumble">
-                </div>
+            </div> <!-- 👈 PENUTUP CONTAINER PILIHAN GANDA -->
+            
+            <!-- ✨ JAWABAN BENAR (SUDAH DI LUAR CONTAINER) ✨ -->
+            <div class="form-group" style="margin-top: 15px; padding-top: 15px; border-top: 2px dashed #cbd5e1;">
+                <label for="jawabanBenar" style="color: #10b981; font-weight: bold;">Jawaban Benar (Wajib Semua Mode)</label>
+                <input type="text" id="jawabanBenar" placeholder="B. Crumble atau Crumble" required>
             </div>
-            <!-- 👆 ========================================== 👆 -->
-
             
                 <div class="modal-actions">
                     <button type="button" id="btnBatalTambah" class="btn-cancel">Batal</button>
@@ -210,27 +219,15 @@
                     <label for="editPilihanD">Pilihan D</label>
                     <input type="text" id="editPilihanD">
                 </div>
-                <div class="form-group">
-                    <label for="editJawabanBenar">Jawaban Benar</label>
-                    <input type="text" id="editJawabanBenar">
-                </div>
+            </div> <!-- 👈 PENUTUP CONTAINER PILIHAN GANDA EDIT -->
+
+            <!-- ✨ JAWABAN BENAR EDIT (SUDAH DI LUAR CONTAINER) ✨ -->
+            <div class="form-group" style="margin-top: 15px; padding-top: 15px; border-top: 2px dashed #cbd5e1;">
+                <label for="editJawabanBenar" style="color: #10b981; font-weight: bold;">Jawaban Benar (Wajib Semua Mode)</label>
+                <input type="text" id="editJawabanBenar" required>
             </div>
 
             <hr style="margin: 20px 0; border: 1px solid #cbd5e1;">
-            <h3>Definisi & Kosakata</h3>
-            <div class="form-group">
-                <label for="editVocaKata">Kata Kosakata</label>
-                <input type="text" id="editVocaKata" required>
-            </div>
-            <div class="form-group">
-                <label for="editVocaArti">Arti Kata</label>
-                <input type="text" id="editVocaArti" required>
-            </div>
-            <div class="form-group">
-                <label for="editVocaPenjelasan">Penjelasan Kosakata</label>
-                <textarea id="editVocaPenjelasan" required></textarea>
-            </div>
-
             <div class="modal-actions">
                 <button type="button" id="btnBatalEdit" class="btn-cancel">Batal</button>
                 <button type="submit" class="btn-save">💾 Simpan Perubahan</button>

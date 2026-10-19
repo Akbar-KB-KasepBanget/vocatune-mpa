@@ -18,7 +18,7 @@
         </div>
         <ul class="nav-links" style="display: flex; gap: 30px; list-style: none; margin: 0; padding: 0;">
             <li><a href="index.html" style="text-decoration: none; color: #64748b; font-weight: bold;">Home</a></li>
-            <li><a href="#" style="text-decoration: none; color: #2b3a4a; font-weight: bold;">Leaderboard</a></li>
+            <li><a href="leaderboard.html" style="text-decoration: none; color: #2b3a4a; font-weight: bold;">Leaderboard</a></li>
         </ul>
         <!-- Tambahkan id="btnProfileNav" agar bisa diubah oleh JavaScript -->
       <div class="auth-button">
@@ -80,6 +80,12 @@
     <!-- Tombol BGM -->
     <button id="btnBgm" class="btn-bgm" style="position: fixed; bottom: 20px; right: 20px; padding: 10px 20px; border-radius: 20px; background: #2b3a4a; color: white; cursor: pointer; z-index: 100;">🔊 Music On</button>
     <audio id="bgmAudio" loop autoplay><source src="assets/bgm/s.mp3" type="audio/mpeg"></audio>
+    <!-- Wadah Notifikasi Toast Dinamis -->
+    <div id="notifToast" class="toast-sembunyi">
+        <span id="toastIcon">✨</span>
+        <span id="toastMessage">Pesan di sini</span>
+    </div>
+</body> <!-- Ini tag penutup body bawaan HTML-mu -->
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script type="module" src="js/ui.js"></script>

@@ -9,9 +9,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body class="admin-mode">
+    
+<div id="sidebarOverlay" class="sidebar-overlay"></div>
+
 
     <!-- ================= 1. SIDEBAR KIRI ================= -->
     <aside class="admin-sidebar">
+        <button id="btnCloseSidebar" class="close-sidebar-btn">✖</button>
         <div class="admin-logo">
             <div class="icon">VT</div>
             <div>
@@ -55,27 +59,53 @@
             </div>
 
             <!-- Tabel Data Pengguna -->
-            <table class="admin-table">
-                <thead>
-                    <tr>
-                        <th>NO</th>
-                        <th>NAMA PENGGUNA / EMAIL</th>
-                        <th>LEVEL</th>
-                        <th>SKOR TOTAL</th>
-                        <th>STATUS</th>
-                        <th>AKSI</th>
-                    </tr>
-                </thead>
-               <tbody id="tabelPenggunaBody">
-    <!-- Cukup sediakan wadah ini saja. JavaScript akan otomatis mengisi baris & tombol pemain di sini -->
-    <tr>
-        <td colspan="6" style="text-align: center; padding: 20px; color: #64748b;">
-            Memuat data pengguna dari database...
-        </td>
-    </tr>
-</tbody>
-            </table>
-        </div>
+             <div class="table-wrapper">
+                <div class="pagination-info" id="paginationInfo">
+        Menampilkan 0-0 dari 0 data
+    </div>
+    <div class="pagination-controls" id="paginationControls">
+        <!-- Tombol halaman dimuat dinamis oleh JS -->
+    </div>
+</div>
+            <!-- Tabel Data Pengguna -->
+            <!-- 1. BUKA WADAH SCROLL -->
+            <div class="table-wrapper">
+                
+                <!-- Pagination -->
+                <div class="pagination-wrapper" style="margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
+                    <div class="pagination-info" id="paginationInfo">
+                        Menampilkan 0-0 dari 0 data
+                    </div>
+                    <div class="pagination-controls" id="paginationControls">
+                        <!-- Tombol halaman dimuat dinamis oleh JS -->
+                    </div>
+                </div>
+
+                <!-- 2. TABEL BERADA DI DALAM WADAH -->
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>NO</th>
+                            <th>NAMA PENGGUNA / EMAIL</th>
+                            <th>LEVEL</th>
+                            <th>SKOR TOTAL</th>
+                            <th>STATUS</th>
+                            <th>AKSI</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelPenggunaBody">
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 20px; color: #64748b;">
+                                Memuat data pengguna dari database...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div> <!-- 3. TUTUP WADAH SCROLL DI BAWAH TABEL -->
+
+        </div> <!-- Tutup admin-content-area -->
+    
     </main>
 
     <!-- ================= 3. MODAL POP-UP EDIT MODERASI ================= -->

@@ -68,11 +68,19 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data) {
                 console.log("✅ Data BERHASIL ditarik dari Supabase:", data); 
 
-                // UPDATE NAMA DI TOMBOL PROFIL DARI DATABASE TERBARU
+               // UPDATE NAMA DAN FOTO DI TOMBOL PROFIL DARI DATABASE TERBARU
                 if (btnProfileNav) {
-                    btnProfileNav.innerHTML = `👤 ${data.username || 'Player'}`;
-                }
+                    const username = data.username || 'Player';
+                    // Pakai foto DB atau Avatar cadangan dari DiceBear
+                    const fotoUrl = data.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(username)}`;
 
+                    btnProfileNav.style.display = 'flex';
+                    // Ganti teks emoji 👤 dengan gambar <img>
+                    btnProfileNav.innerHTML = `
+                        <img src="${fotoUrl}" alt="Avatar" class="profile-avatar-img" loading="lazy">
+                        <span>${username}</span>
+                    `;
+                }
                 // Masukkan data ke HTML
                 const elHighestScore = document.getElementById('dbHighestScore');
                 const elHighestStreak = document.getElementById('dbHighestStreak');

@@ -29,7 +29,7 @@ body {
     min-height: 100vh;
 
     /* Latar Belakang Utama */
-    background-image: url('assets/vocatune-gameplay\ easy\ mode.png');
+    background-image: url('assets/Logo/vocatune-gameplay\ easy\ mode.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -38,13 +38,6 @@ body {
 /* 2. NAVBAR */
 .navbar {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 50px;
-
-    background-color: #ffffff;
-    border-bottom: 2px solid #f0f0f0;
-
     /* UBAH DARI ABSOLUTE KE FIXED SUPAYA AMAN DARI BUG KLIK */
     position: fixed;
     width: 100%;
@@ -52,6 +45,12 @@ body {
     left: 0;
     z-index: 1000;
     /* Ditinggikan agar selalu di atas */
+     position: relative;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 15px 40px;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
 }
 
 .logo {
@@ -1355,16 +1354,7 @@ input[type="password"]::-ms-clear {
     background-color: #f8fafc;
 }
 
-.navbar {
-    position: relative;
-    z-index: 999;
-    border-bottom: 1px solid #e2e8f0;
-    padding: 15px 40px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: white;
-}
+ 
 
 .nav-links {
     display: flex;
@@ -1382,7 +1372,7 @@ input[type="password"]::-ms-clear {
 
 /* TOMBOL PROFIL DENGAN DUKUNGAN FOTO */
 .btn-profile {
-    display: none;
+    display: flex;
     /* 🟢 Ubah ke none dan hapus !important */
     flex-direction: row;
     /* Tampilan tetap horizontal/samping */
@@ -1395,7 +1385,8 @@ input[type="password"]::-ms-clear {
     color: #2b3a4a;
     cursor: pointer;
     white-space: nowrap;
-    /* Mencegah teks terdorong turun ke bawah */
+    justify-content: center;
+    overflow: hidden;
 }
 
 /* FOTO PROFIL (DITURUNKAN SEDIKIT) */
@@ -2278,21 +2269,256 @@ input:checked+.slider:before {
     font-family: 'Nunito', sans-serif; 
     box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
+.profile-avatar-img {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+    max-width: 32px;
+    max-height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+#notifToast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999; /* Memastikan notifikasi selalu di atas canvas game */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    background-color: #2b3a4a;
+    color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease-in-out;
+}
+.toast-sembunyi {
+    transform: translateX(150%);
+    opacity: 0;
+}
+
+.toast-tampil {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+/* --- TOMBOL PEMICU MODAL --- */
+.btn-genre-trigger {
+    background-color: #2b3a4a;
+    color: #ffffff;
+    border: 2px solid #3b4d61;
+    padding: 10px 22px;
+    font-size: 0.95rem;
+    font-weight: bold;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-genre-trigger:hover {
+    background-color: #3b4d61;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* --- OVERLAY POP-UP MODAL --- */
+.genre-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.genre-modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* --- WADAH KONTEN MODAL --- */
+.genre-modal-content {
+    background: #ffffff;
+    width: 90%;
+    max-width: 400px;
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    transform: scale(0.85);
+    transition: transform 0.3s ease;
+}
+
+.genre-modal-overlay.active .genre-modal-content {
+    transform: scale(1);
+}
+
+.genre-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.genre-modal-header h3 {
+    margin: 0;
+    color: #2b3a4a;
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.btn-close-modal {
+    background: none;
+    border: none;
+    font-size: 1.6rem;
+    cursor: pointer;
+    color: #64748b;
+    line-height: 1;
+}
+
+.genre-modal-sub {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin: 6px 0 18px 0;
+    text-align: left;
+}
+
+/* --- TAMPILAN CARD GENRE --- */
+.genre-options-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.genre-chip {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #334155;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.genre-chip input {
+    margin-right: 10px;
+    accent-color: #2b3a4a;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.genre-chip:has(input:checked) {
+    border-color: #2b3a4a;
+    background-color: #f1f5f9;
+    color: #2b3a4a;
+}
+
+.btn-save-genre {
+    width: 100%;
+    background: #2b3a4a;
+    color: #ffffff;
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-save-genre:hover {
+    background: #1e293b;
+}
+
+/* ========================================== */
+/* TOAST NOTIFIKASI GAME (CSS MURNI)          */
+/* ========================================== */
+#toastNotifGame {
+    position: fixed;
+    top: -80px; /* Sembunyi di atas layar saat awal */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 99999;
+    padding: 16px 24px;
+    border-radius: 12px;
+    font-weight: bold;
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    font-family: 'Nunito', sans-serif;
+    font-size: 16px;
+    transition: top 0.4s ease, opacity 0.4s ease; /* Animasi mulus */
+    opacity: 0;
+    display: none;
+}
+
+/* Class pemicu animasi dari JavaScript */
+#toastNotifGame.muncul {
+    top: 20px;
+    opacity: 1;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo .icon img,
+.icon img {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    display: inline-block;
+}
+/* Mencegah tombol auth bertumpuk di navbar */
+.auth-button {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.auth-button #btnLogin[style*="display: none"],
+.auth-button #btnProfile[style*="display: none"] {
+    display: none !important;
+}
+
 
 /* ==========================================
    RESPONSIVE MOBILE (UNTUK HP & TABLET)
    ========================================== */
+
+/* --- BREAKPOINT UTAMA (MAX 768PX) --- */
 @media (max-width: 768px) {
 
     /* 1. NAVBAR */
-    .navbar {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px 16px;
-        gap: 10px;
-    }
+   .navbar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    gap: 10px;
+}
 
     .logo { order: 1; font-size: 18px; }
     .auth-button { order: 2; }
@@ -2307,52 +2533,65 @@ input:checked+.slider:before {
         font-size: 14px;
     }
 
-    /* 2. HERO SECTION & TOMBOL DASHBOARD ADMIN DI MOBILE */
-   main,
+    /* 2. HERO SECTION & TOMBOL DASHBOARD ADMIN */
+    main,
     .hero-section {
-        margin-top: 10px !important; /* Memberi ruang agar tidak tertutup navbar */
+        margin-top: 10px !important;
         padding-top: 10px !important;
     }
+
     .admin-wrapper {
         position: relative !important;
         top: auto !important;
         left: auto !important;
         text-align: center !important;
-        
-        /* 👇 Besarkan angka ini untuk mendorong tombol ke bawah */
-        margin-top: 30px !important; 
-        
+        margin-top: 30px !important;
         margin-bottom: 15px !important;
         width: 100% !important;
         z-index: 100 !important;
     }
 
-
-   
-    /* 3. KARTU STATISTIK (SEJAJAR HORIZONTAL DI MOBILE) */
-    #dashboard-menu-buttons,
-    .stats-container,
-    .home-stats {
+    /* 3. TOMBOL START GAME (TETAP BULAT SEMPURNA) */
+    .btn-start {
+        width: 160px !important;
+        height: 160px !important;
+        min-width: 160px !important;
+        min-height: 160px !important;
+        aspect-ratio: 1 / 1 !important;
+        border-radius: 50% !important;
         display: flex !important;
-        flex-direction: row !important; /* Ubah dari column jadi row (sejajar) */
+        flex-direction: column !important;
+        align-items: center !important;
         justify-content: center !important;
-        align-items: stretch !important;
-        gap: 10px !important;
-        padding: 0 10px !important;
+        margin: 20px auto !important;
+        flex-shrink: 0 !important;
     }
+
+    /* 4. KARTU STATISTIK HP (HANYA AKTIF SAAT LOGIN) */
+#dashboard-menu-buttons.is-active,
+.stats-container,
+.home-stats {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: center !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+    padding: 0 10px !important;
+    margin-top: 15px !important;
+}
 
     .home-stat-card,
     .stat-card {
-        width: 50% !important; /* Masing-masing kartu dapat setengah lebar */
+        width: 50% !important;
         flex: 1 !important;
-        padding: 12px 8px !important; /* KECILKAN PADDING AGAR MUAT BERSAMPINGAN */
+        padding: 12px 8px !important;
         box-sizing: border-box !important;
     }
 
-    /* Penyesuaian ukuran ikon dan teks agar pas di kartu sempit */
     .home-stat-card img,
     .home-stat-card .icon-box,
-    .stat-card .icon {
+    .stat-card .icon,
+    .home-stat-icon-wrapper {
         width: 45px !important;
         height: 45px !important;
         margin: 0 auto 6px auto !important;
@@ -2361,7 +2600,7 @@ input:checked+.slider:before {
     .home-stat-card h3,
     .home-stat-card .stat-title,
     .home-stat-card h4 {
-        font-size: 13px !important;
+        font-size: 12px !important;
         margin-bottom: 4px !important;
     }
 
@@ -2370,7 +2609,21 @@ input:checked+.slider:before {
         font-size: 10px !important;
         line-height: 1.2 !important;
     }
-    /* 4. SETTINGS & MODAL */
+
+    /* 5. TOMBOL MUSIC ON (ANTI MENIMPA ELEMEN LAIN) */
+    #btnBgm,
+    .btn-bgm {
+        position: relative !important;
+        display: block !important;
+        margin: 25px auto 15px auto !important;
+        top: auto !important;
+        bottom: auto !important;
+        left: auto !important;
+        transform: none !important;
+        z-index: 10 !important;
+    }
+
+    /* 6. SETTINGS & MODAL AUTH */
     .settings-grid {
         grid-template-columns: 1fr !important;
     }
@@ -2381,14 +2634,18 @@ input:checked+.slider:before {
         width: 90% !important;
         max-width: 380px;
         padding: 20px;
+        box-sizing: border-box;
     }
 
-    /* 5. ARENA GAME AUTO-FIT */
-    div, section, main, article,
-    #game-section, #gameSection,
-    .game-container, .game-card, .game-box, .quiz-container, .question-box {
+    /* 7. ARENA GAME & PILIHAN GANDA AUTO-FIT */
+    [class*="game"], 
+    [class*="quiz"], 
+    [class*="question"], 
+    [class*="card"] {
+        width: 100% !important;
         max-width: 100% !important;
         min-width: 0 !important;
+        box-sizing: border-box !important;
     }
 
     .game-container, 
@@ -2409,44 +2666,6 @@ input:checked+.slider:before {
         word-break: break-word;
     }
 
-    .options-container, 
-    .options-grid, 
-    .pilihan-ganda, 
-    .choices-container, 
-    .answers-grid {
-        display: flex !important;
-        flex-direction: column !important;
-        width: 100% !important;
-        gap: 10px !important;
-    }
-
-    .btn-option, 
-    .option-btn, 
-    .pilihan-btn, 
-    .choice-btn, 
-    .answer-btn {
-        width: 100% !important;
-        max-width: 100% !important;
-        min-width: 0 !important;
-        white-space: normal !important;
-    }
-
-    /* ==========================================
-       SAPU BERSIH OVERFLOW & GRID ARENA GAME
-       ========================================== */
-    
-    /* Paksa semua wadah game agar tidak melebihi lebar layar HP */
-    [class*="game"], 
-    [class*="quiz"], 
-    [class*="question"], 
-    [class*="card"] {
-        width: 100% !important;
-        max-width: 100% !important;
-        min-width: 0 !important;
-        box-sizing: border-box !important;
-    }
-
-    /* Paksa SEMUA elemen grid/pilihan ganda menjadi 1 kolom vertikal */
     [class*="options"], 
     [class*="pilihan"], 
     [class*="choices"], 
@@ -2454,12 +2673,10 @@ input:checked+.slider:before {
     [class*="grid"] {
         display: flex !important;
         flex-direction: column !important;
-        grid-template-columns: 1fr !important;
         width: 100% !important;
         gap: 10px !important;
     }
 
-    /* Paksa semua tombol jawaban muat dalam 1 baris layar */
     button, 
     [class*="btn"] {
         max-width: 100% !important;
@@ -2467,28 +2684,137 @@ input:checked+.slider:before {
         word-break: break-word !important;
     }
 
-    /* Mencegah Canvas PixiJS meluber keluar dari layar HP */
-canvas {
-    width: 100% !important;
-    height: auto !important;
-    max-width: 100% !important;
-    display: block;
-    margin: 0 auto !important;
+    canvas {
+        width: 100% !important;
+        height: auto !important;
+        max-width: 100% !important;
+        display: block;
+        margin: 0 auto !important;
+    }
+
+    /* 8. NOTIFIKASI TOAST */
+    #notifToast {
+        right: 20px;
+        left: 20px;
+        bottom: 30px;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .toast-sembunyi {
+        transform: translateY(150%);
+        opacity: 0;
+    }
+
+    .toast-muncul {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
-/*  MENGUNCI TOMBOL START GAME AGAR TETAP BULAT SEMPURNA */
-    .btn-start {
-        width: 160px !important;
-        height: 160px !important;
-        min-width: 160px !important;
-        min-height: 160px !important;
-        aspect-ratio: 1 / 1 !important;
-        border-radius: 50% !important;
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        justify-content: center !important;
-        margin: 20px auto !important;
-        flex-shrink: 0 !important;
+/* --- BREAKPOINT TABLET / HP SEDANG (MAX 720PX) --- */
+@media (max-width: 720px) {
+    .genre-modal-content {
+        width: 85%;
+        max-width: 380px;
+        padding: 20px;
+        border-radius: 16px;
     }
+
+    .genre-modal-header h3 {
+        font-size: 1.15rem;
+    }
+
+    .genre-options-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+    }
+
+    .genre-chip {
+        padding: 10px;
+        font-size: 0.85rem;
+    }
+
+    .btn-genre-trigger {
+        padding: 10px 18px;
+        font-size: 0.9rem;
+    }
+}
+
+/* --- BREAKPOINT HP KECIL (MAX 480PX) --- */
+@media (max-width: 480px) {
+    .genre-modal-content {
+        padding: 18px;
+        width: 92%;
+    }
+
+    .genre-options-grid {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 8px !important;
+    }
+
+    .btn-genre-trigger {
+        width: 100%;
+        max-width: 280px;
+        justify-content: center;
+    }
+    /* Kunci ukuran logo SVG VocaTune di HP */
+.logo .icon img,
+.icon img {
+    width: 32px !important;
+    height: 32px !important;
+    object-fit: contain !important;
+}
+
+/* ==========================================
+   PERBAIKAN TAMPILAN GAME MODE MEDIUM & HARD (MOBILE)
+   ========================================== */
+/* 1. Kunci body agar layar tidak bisa goyang/geser ke kanan-kiri */
+body, html {
+    overflow-x: hidden !important;
+    max-width: 100vw !important;
+}
+
+/* 2. Pastikan kartu game dan wadahnya tidak melebihi layar HP */
+.game-container, .game-card, .game-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+}
+
+/* 3. Paksa kotak input jawaban manual agar mengecil mengikuti layar */
+input[type="text"], 
+textarea, 
+.input-jawaban-manual, 
+#inputJawaban,
+#jawabanManual {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    font-size: 16px !important; /* Mencegah auto-zoom di iPhone/Android saat mengetik */
+}
+
+/* 4. Pastikan teks panjang seperti "TEBAK LIRIK..." tidak memecah layout */
+.game-header h2, 
+.tebak-lirik-title {
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    text-align: center !important;
+}
+
+
+   #medium-input-overlay {
+        position: absolute !important;
+        top: 300px !important; /* Angka diperkecil agar kotaknya naik merapat ke atas */
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        width: 90% !important;
+        max-width: 360px !important;
+        z-index: 10 !important;
+        background: transparent !important;
+    }
+
 }

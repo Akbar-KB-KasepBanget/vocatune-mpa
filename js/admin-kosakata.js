@@ -1,13 +1,19 @@
 import { db } from './supabase.js';
 
 let daftarKosakataGlobal = [];
+let daftarKosakataTersaring = [];
 let idVocaDihapus = null;
-const NAMA_TABEL_VOCA = 'vocabulary'; // Ganti ke 'kosakata' jika nama tabelmu di Supabase adalah 'kosakata'
+
+// KONFIGURASI PAGINATION
+let halamanAktif = 1;
+const itemPerHalaman = 5; // Jumlah data per halaman (misal 5 baris)
+
+const NAMA_TABEL_VOCA = 'vocabulary'; 
 
 document.addEventListener('DOMContentLoaded', () => {
     memuatDataKosakata();
     muatOpsiLagu();
-    setupSearchKosakata(); // Fitur pencarian
+    setupSearchKosakata();
 
     setupModalTambah();
     setupModalEdit();
@@ -50,31 +56,46 @@ async function memuatDataKosakata() {
 
     if (!data || data.length === 0) {
         tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Belum ada data kosakata.</td></tr>';
+        updatePaginationUI(0, 0, 0);
         return;
     }
 
     daftarKosakataGlobal = data;
-    renderTabelKosakata(daftarKosakataGlobal);
+    daftarKosakataTersaring = [...daftarKosakataGlobal];
+    
+    halamanAktif = 1;
+    renderTabelKosakata();
 }
 
-// FUNGSI RENDER TABEL (UNTUK DISPLAY & SEARCH)
-function renderTabelKosakata(daftar) {
+// 3. FUNGSI RENDER TABEL & PAGINATION
+function renderTabelKosakata() {
     const tableBody = document.getElementById('tableBodyKosakata');
     if (!tableBody) return;
 
-    if (daftar.length === 0) {
+    const totalData = daftarKosakataTersaring.length;
+
+    if (totalData === 0) {
         tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#64748b; padding:20px;">Kosakata tidak ditemukan.</td></tr>';
+        updatePaginationUI(0, 0, 0);
         return;
     }
 
+    const totalHalaman = Math.ceil(totalData / itemPerHalaman);
+    if (halamanAktif > totalHalaman) halamanAktif = totalHalaman;
+
+    const indeksAwal = (halamanAktif - 1) * itemPerHalaman;
+    const indeksAkhir = Math.min(indeksAwal + itemPerHalaman, totalData);
+    const dataHalaman = daftarKosakataTersaring.slice(indeksAwal, indeksAkhir);
+
     tableBody.innerHTML = '';
 
-    daftar.forEach((item, index) => {
+    dataHalaman.forEach((item, index) => {
         const row = document.createElement('tr');
+        const nomorBaris = indeksAwal + index + 1;
         const judulLagu = item.songs ? `${item.songs.judul} (${item.songs.artis || '-'})` : 'Lagu Tidak Ditemukan';
 
         row.innerHTML = `
-            <td>${index + 1}</td>
+            <td>${nomorBaris}</td>
             <td><strong>${item.kata}</strong></td>
             <td>${item.arti}</td>
             <td><small>${judulLagu}</small></td>
@@ -89,17 +110,97 @@ function renderTabelKosakata(daftar) {
     });
 
     pasangEventTombol();
+    updatePaginationUI(indeksAwal + 1, indeksAkhir, totalData);
 }
 
-// FUNGSI PENCARIAN REAL-TIME
+// 4. MEMPERBARUI TOMBOL DAN TEKS PAGINATION
+function updatePaginationUI(mulai, sampai, total) {
+    const infoText = document.getElementById('paginationInfo');
+    const controlsContainer = document.getElementById('paginationControls');
+
+    if (infoText) {
+        infoText.textContent = `Menampilkan ${mulai}-${sampai} dari ${total.toLocaleString('id-ID')} kosakata`;
+    }
+
+    if (!controlsContainer) return;
+
+    controlsContainer.innerHTML = '';
+    const totalHalaman = Math.ceil(total / itemPerHalaman) || 1;
+
+    // Tombol Prev (<)
+    const btnPrev = document.createElement('button');
+    btnPrev.className = 'page-btn';
+    btnPrev.innerHTML = '&lt;';
+    btnPrev.disabled = halamanAktif === 1;
+    btnPrev.onclick = () => {
+        if (halamanAktif > 1) {
+            halamanAktif--;
+            renderTabelKosakata();
+        }
+    };
+    controlsContainer.appendChild(btnPrev);
+
+    // Generate Angka Halaman
+    const daftarAngka = buatSkemaAngkaHalaman(halamanAktif, totalHalaman);
+
+    daftarAngka.forEach(item => {
+        if (item === '...') {
+            const ellipsis = document.createElement('span');
+            ellipsis.className = 'page-ellipsis';
+            ellipsis.textContent = '...';
+            controlsContainer.appendChild(ellipsis);
+        } else {
+            const btnNum = document.createElement('button');
+            btnNum.className = `page-btn ${item === halamanAktif ? 'active' : ''}`;
+            btnNum.textContent = item;
+            btnNum.onclick = () => {
+                halamanAktif = item;
+                renderTabelKosakata();
+            };
+            controlsContainer.appendChild(btnNum);
+        }
+    });
+
+    // Tombol Next (>)
+    const btnNext = document.createElement('button');
+    btnNext.className = 'page-btn';
+    btnNext.innerHTML = '&gt;';
+    btnNext.disabled = halamanAktif === totalHalaman || total === 0;
+    btnNext.onclick = () => {
+        if (halamanAktif < totalHalaman) {
+            halamanAktif++;
+            renderTabelKosakata();
+        }
+    };
+    controlsContainer.appendChild(btnNext);
+}
+
+// FUNGSI MEMBUAT SKEMA NUMERIK [1, 2, 3, '...', 250]
+function buatSkemaAngkaHalaman(aktif, total) {
+    if (total <= 5) {
+        return Array.from({ length: total }, (_, i) => i + 1);
+    }
+
+    if (aktif <= 3) {
+        return [1, 2, 3, 4, '...', total];
+    }
+
+    if (aktif >= total - 2) {
+        return [1, '...', total - 3, total - 2, total - 1, total];
+    }
+
+    return [1, '...', aktif - 1, aktif, aktif + 1, '...', total];
+}
+
+// 5. FUNGSI PENCARIAN REAL-TIME
 function setupSearchKosakata() {
-    const inputCari = document.getElementById('inputCariKosakata') || document.getElementById('inputCari');
+    const inputCari = document.getElementById('inputCariKosakata') || document.querySelector('.admin-search');
     if (!inputCari) return;
 
     inputCari.addEventListener('input', (e) => {
         const query = e.target.value.toLowerCase().trim();
 
-        const hasilFilter = daftarKosakataGlobal.filter((item) => {
+        daftarKosakataTersaring = daftarKosakataGlobal.filter((item) => {
             const kata = (item.kata || '').toLowerCase();
             const arti = (item.arti || '').toLowerCase();
             const penjelasan = (item.penjelasan || '').toLowerCase();
@@ -113,11 +214,12 @@ function setupSearchKosakata() {
                    artisLagu.includes(query);
         });
 
-        renderTabelKosakata(hasilFilter);
+        halamanAktif = 1; // Reset ke halaman 1 setiap kali mencari
+        renderTabelKosakata();
     });
 }
 
-// 3. PASANG EVENT TOMBOL EDIT & HAPUS
+// 6. PASANG EVENT TOMBOL EDIT & HAPUS
 function pasangEventTombol() {
     document.querySelectorAll('.edit-voca-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -143,7 +245,7 @@ function pasangEventTombol() {
     });
 }
 
-// 4. LOGIKA TAMBAH KOSAKATA
+// 7. LOGIKA TAMBAH KOSAKATA
 function setupModalTambah() {
     const modal = document.getElementById('modalTambahKosakata');
     const btnBuka = document.getElementById('btnBukaModalKosakata');
@@ -182,7 +284,7 @@ function setupModalTambah() {
     }
 }
 
-// 5. LOGIKA EDIT KOSAKATA
+// 8. LOGIKA EDIT KOSAKATA
 function setupModalEdit() {
     const modal = document.getElementById('modalEditKosakata');
     const btnBatal = document.getElementById('btnBatalEditVoca');
@@ -212,7 +314,7 @@ function setupModalEdit() {
     }
 }
 
-// 6. LOGIKA HAPUS KOSAKATA
+// 9. LOGIKA HAPUS KOSAKATA
 function setupModalHapus() {
     const modal = document.getElementById('modalHapusKosakata');
     const btnBatal = document.getElementById('btnBatalHapusVoca');
@@ -233,4 +335,31 @@ function setupModalHapus() {
             }
         };
     }
+}
+
+// TOGGLE SIDEBAR MOBILE
+const btnBurger = document.getElementById('btnBurger');
+const sidebarAdmin = document.querySelector('.admin-sidebar');
+const btnCloseSidebar = document.getElementById('btnCloseSidebar');
+const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+if (btnBurger && sidebarAdmin) {
+    btnBurger.addEventListener('click', () => {
+        sidebarAdmin.classList.add('buka');
+        if (sidebarOverlay) sidebarOverlay.classList.add('aktif');
+    });
+}
+
+if (btnCloseSidebar) {
+    btnCloseSidebar.addEventListener('click', () => {
+        sidebarAdmin.classList.remove('buka');
+        if (sidebarOverlay) sidebarOverlay.classList.remove('aktif');
+    });
+}
+
+if (sidebarOverlay) {
+    sidebarOverlay.addEventListener('click', () => {
+        sidebarAdmin.classList.remove('buka');
+        sidebarOverlay.classList.remove('aktif');
+    });
 }

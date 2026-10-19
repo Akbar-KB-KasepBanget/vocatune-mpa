@@ -4,6 +4,37 @@
 import { db, simpanSkorKeDatabase } from './supabase.js';
 
 // ==========================================
+// FUNGSI POP-UP NOTIFIKASI TOAST (JS BERSIH)
+// ==========================================
+function tampilkanNotifGame(pesan, tipe) {
+    // Gembok Pembungkam Notifikasi jika dimatikan di profil
+    if (localStorage.getItem('vocaTuneNotif') === 'mati') return;
+
+    let container = document.getElementById('toastNotifGame');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toastNotifGame';
+        document.body.appendChild(container);
+    }
+
+    container.classList.remove('muncul');
+
+    if (tipe === 'rekor') {
+        container.style.backgroundColor = '#F59E0B'; // Emas
+        container.innerHTML = '🏆 ' + pesan;
+    } else {
+        container.style.backgroundColor = '#10B981'; // Hijau
+        container.innerHTML = '🔥 ' + pesan;
+    }
+
+    container.style.display = 'block';
+    
+    setTimeout(() => {
+        container.classList.add('muncul');
+    }, 50);
+}
+
+// ==========================================
 // 2. AMBIL MODE & VARIABEL PERMAINAN
 // ==========================================
 let riwayatSoalDimaiankan = [];
@@ -21,7 +52,6 @@ let hitungMundur;
 let sedangMain = false;
 let sedangDiPause = false;
 
-// Audio disiapkan dalam keadaan kosong terlebih dahulu
 const laguSoal = new Audio();
 let detikMulai = 0; 
 let batasBerhenti = 30; 
@@ -31,7 +61,6 @@ let batasBerhenti = 30;
 // ==========================================
 const gameContainer = document.getElementById('game-container');
 
-// Deteksi HP & Atur Ukuran Canvas Adaptif
 const isHp = window.innerWidth <= 768;
 const canvasWidth = isHp ? Math.min(window.innerWidth - 20, 380) : 800;
 const canvasHeight = isHp ? 640 : 580;
@@ -48,7 +77,6 @@ let gameApp = new PIXI.Application({
 });
 gameContainer.appendChild(gameApp.view);
 
-// Ukuran Kartu Background UI
 const kartuHeader = new PIXI.Graphics();
 kartuHeader.beginFill(0xFFFFFF); kartuHeader.lineStyle(2, 0x2b3a4a, 1); 
 kartuHeader.drawRoundedRect(0, 0, cardWidth, 50, 20); kartuHeader.endFill();
@@ -66,7 +94,6 @@ kartuBawah.x = startX; kartuBawah.y = 265; gameApp.stage.addChild(kartuBawah);
 
 if (selectedMode === 'Medium' || selectedMode === 'Hard') { kartuBawah.visible = false; }
 
-// Teks Header UI
 const teksPertanyaanInfo = new PIXI.Text('⏳ Sedang Memuat...', { fontFamily: 'Nunito', fontSize: isHp ? 13 : 16, fill: '#2b3a4a', fontWeight: 'bold' });
 teksPertanyaanInfo.x = startX + 15; teksPertanyaanInfo.y = 35; teksPertanyaanInfo.anchor.set(0, 0.5); gameApp.stage.addChild(teksPertanyaanInfo);
 
@@ -76,7 +103,6 @@ teksSkorInfo.x = gameApp.screen.width / 2; teksSkorInfo.y = 35; teksSkorInfo.anc
 const teksStreakInfo = new PIXI.Text('🔥 Streak: ' + streakSaatIni, { fontFamily: 'Nunito', fontSize: isHp ? 12 : 14, fill: '#F2994A', fontWeight: 'bold' });
 teksStreakInfo.x = startX + cardWidth - 15; teksStreakInfo.y = 35; teksStreakInfo.anchor.set(1, 0.5); gameApp.stage.addChild(teksStreakInfo);
 
-// Teks Soal & Lirik
 const teksTimer = new PIXI.Text('Waktu: 00:00', { fontFamily: 'Nunito', fontSize: isHp ? 14 : 16, fill: '#E74C3C', fontWeight: 'bold' });
 teksTimer.x = gameApp.screen.width / 2; teksTimer.y = 95; teksTimer.anchor.set(0.5); gameApp.stage.addChild(teksTimer);
 
@@ -86,34 +112,70 @@ teksLabelLirik.x = gameApp.screen.width / 2; teksLabelLirik.y = 120; teksLabelLi
 const teksLirik = new PIXI.Text('Tunggu sebentar...', { fontFamily: 'Nunito', fontSize: isHp ? 13 : 16, fill: '#64748b', fontWeight: 'bold' });
 teksLirik.x = gameApp.screen.width / 2; teksLirik.y = 170; teksLirik.anchor.set(0.5); gameApp.stage.addChild(teksLirik);
 
-// Player Audio Visual
-const playX = startX + (isHp ? 35 : 60);
+// ==========================================
+// PLAYER AUDIO VISUAL
+// ==========================================
+const playX = startX + (isHp ? 30 : 45);
+
 const tombolPlayBulat = new PIXI.Graphics();
-tombolPlayBulat.beginFill(0xF4D03F); tombolPlayBulat.lineStyle(2, 0x2b3a4a, 1); tombolPlayBulat.drawCircle(0, 0, 25); tombolPlayBulat.endFill();
-tombolPlayBulat.x = playX; tombolPlayBulat.y = 220; tombolPlayBulat.interactive = true; tombolPlayBulat.cursor = 'pointer'; gameApp.stage.addChild(tombolPlayBulat);
+tombolPlayBulat.beginFill(0xF4D03F); 
+tombolPlayBulat.lineStyle(2, 0x2b3a4a, 1); 
+tombolPlayBulat.drawCircle(0, 0, 25); 
+tombolPlayBulat.endFill();
+tombolPlayBulat.x = playX; 
+tombolPlayBulat.y = 220; 
+tombolPlayBulat.interactive = true; 
+tombolPlayBulat.cursor = 'pointer'; 
+gameApp.stage.addChild(tombolPlayBulat);
 
 const ikonPlay = new PIXI.Text('▶', { fontSize: 20, fill: '#2b3a4a' });
-ikonPlay.anchor.set(0.5); ikonPlay.x = playX; ikonPlay.y = 220; gameApp.stage.addChild(ikonPlay);
+ikonPlay.anchor.set(0.5); 
+ikonPlay.x = playX; 
+ikonPlay.y = 220; 
+gameApp.stage.addChild(ikonPlay);
 
-const ikonReplay = new PIXI.Text('↺', { fontSize: 24, fill: '#64748b', fontWeight: 'bold' });
-ikonReplay.anchor.set(0.5); ikonReplay.x = playX - 45; ikonReplay.y = 220; ikonReplay.interactive = true; ikonReplay.cursor = 'pointer'; gameApp.stage.addChild(ikonReplay);
+const barStartX = playX + (isHp ? 35 : 40);
+const barWidth = isHp ? (cardWidth - 110) : 460;
 
-const barWidth = isHp ? cardWidth - 160 : 480;
 const barAbu = new PIXI.Graphics();
-barAbu.beginFill(0xE2E8F0); barAbu.drawRoundedRect(0, 0, barWidth, 8, 4); barAbu.endFill();
-barAbu.x = playX + 40; barAbu.y = 216; barAbu.interactive = true; barAbu.cursor = 'pointer'; gameApp.stage.addChild(barAbu);
+barAbu.beginFill(0xE2E8F0); 
+barAbu.drawRoundedRect(0, 0, barWidth, 8, 4); 
+barAbu.endFill();
+barAbu.x = barStartX; 
+barAbu.y = 216; 
+barAbu.interactive = true; 
+barAbu.cursor = 'pointer'; 
+gameApp.stage.addChild(barAbu);
 
 const barKuning = new PIXI.Graphics();
-barKuning.beginFill(0xF4D03F); barKuning.drawRoundedRect(0, 0, 0, 8, 4); barKuning.endFill(); barKuning.x = playX + 40; barKuning.y = 216; gameApp.stage.addChild(barKuning);
+barKuning.beginFill(0xF4D03F); 
+barKuning.drawRoundedRect(0, 0, 0, 8, 4); 
+barKuning.endFill(); 
+barKuning.x = barStartX; 
+barKuning.y = 216; 
+gameApp.stage.addChild(barKuning);
+
+const ikonReplay = new PIXI.Text('↺', { fontSize: 24, fill: '#64748b', fontWeight: 'bold' });
+ikonReplay.anchor.set(0.5); 
+ikonReplay.x = barStartX + barWidth + (isHp ? 22 : 28); 
+ikonReplay.y = 220; 
+ikonReplay.interactive = true; 
+ikonReplay.cursor = 'pointer'; 
+gameApp.stage.addChild(ikonReplay);
 
 const teksWaktuBerjalan = new PIXI.Text('0:00', { fontFamily: 'Nunito', fontSize: 12, fill: '#64748b', fontWeight: 'bold' });
-teksWaktuBerjalan.x = playX + 40; teksWaktuBerjalan.y = 235; gameApp.stage.addChild(teksWaktuBerjalan);
+teksWaktuBerjalan.x = barStartX; 
+teksWaktuBerjalan.y = 235; 
+gameApp.stage.addChild(teksWaktuBerjalan);
 
 const teksSisaWaktu = new PIXI.Text('Sisa Waktu: 0:30', { fontFamily: 'Nunito', fontSize: isHp ? 12 : 14, fill: '#2b3a4a', fontWeight: 'bold' });
-teksSisaWaktu.x = startX + cardWidth - 15; teksSisaWaktu.y = 235; teksSisaWaktu.anchor.set(1, 0); gameApp.stage.addChild(teksSisaWaktu);
+teksSisaWaktu.x = barStartX + barWidth; 
+teksSisaWaktu.y = 235; 
+teksSisaWaktu.anchor.set(1, 0); 
+gameApp.stage.addChild(teksSisaWaktu);
 
 // ==========================================
-// EFEK ANIMASI TEKS MELAYANG (FLOATING TEXT)
+// EFEK ANIMASI TEKS MELAYANG
 // ==========================================
 function munculkanTeksMelayang(posisiX, posisiY, teks, warna) {
     const teksMelayang = new PIXI.Text(teks, { fontFamily: 'Nunito', fontSize: 26, fill: warna, fontWeight: '900', dropShadow: true, dropShadowColor: '#000000', dropShadowAlpha: 0.3, dropShadowBlur: 4, dropShadowDistance: 2 });
@@ -128,7 +190,7 @@ function munculkanTeksMelayang(posisiX, posisiY, teks, warna) {
 }
 
 // ==========================================
-// 4. FUNGSI TARIK DATA DARI SUPABASE & INISIALISASI
+// 4. FUNGSI TARIK DATA DARI SUPABASE
 // ==========================================
 let arrayTeksPilihan = []; 
 let arrayKotakPilihan = []; 
@@ -138,18 +200,58 @@ const kotakKetik = document.getElementById('inputJawabanMedium');
 const btnSubmitMedium = document.getElementById('btnSubmitMedium');
 
 async function inisialisasiGame() {
-    // 1. Tarik data lagu dari Supabase
-    const { data, error } = await db.from('songs').select('*, vocabulary(*)');
+    let rawGenre = localStorage.getItem('vocaTuneGenre');
+    let selectedGenres = ['Semua'];
+
+    try {
+        if (rawGenre) {
+            let parsed = JSON.parse(rawGenre);
+            selectedGenres = Array.isArray(parsed) ? parsed : [parsed];
+        }
+    } catch (e) {
+        if (rawGenre) selectedGenres = [rawGenre];
+    }
+
+    let modeDatabase = 'Mudah';
+    if (selectedMode === 'Medium') modeDatabase = 'Sedang';
+    if (selectedMode === 'Hard') modeDatabase = 'Sulit';
+
+    let queryLaguModeIni = db.from('songs').select('*').eq('tingkat_kesulitan', modeDatabase);
     
-    if (error || !data || data.length === 0) {
+    const filterSpesifik = selectedGenres.filter(g => g !== 'Semua');
+    if (filterSpesifik.length > 0) {
+        queryLaguModeIni = queryLaguModeIni.in('genre', filterSpesifik);
+    }
+
+    let { data: dataLagu, error } = await queryLaguModeIni;
+    
+    if (error || !dataLagu || dataLagu.length === 0) {
         teksPertanyaanInfo.text = "❌ Gagal memuat data!";
-        teksLirik.text = "Pastikan tabel 'songs' terisi.";
+        teksLirik.text = `Tidak ada lagu untuk Mode ${selectedMode}!`; 
         return;
     }
 
-    // 2. Mapping Data ke bankSoal
-    bankSoal = data.map(item => {
-        const vocaUtama = (item.vocabulary && item.vocabulary.length > 0) ? item.vocabulary[0] : null;
+    let { data: semuaLaguDenganVoca } = await db.from('songs').select('judul, vocabulary(*)');
+
+    for (let i = dataLagu.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [dataLagu[i], dataLagu[j]] = [dataLagu[j], dataLagu[i]];
+    }
+
+    dataLagu = dataLagu.slice(0, 10);
+
+    bankSoal = dataLagu.map(item => {
+        let kumpulanVoca = [];
+        if (semuaLaguDenganVoca) {
+            semuaLaguDenganVoca.forEach(lagu => {
+                if (lagu.judul.toLowerCase() === item.judul.toLowerCase() && lagu.vocabulary && lagu.vocabulary.length > 0) {
+                    kumpulanVoca = kumpulanVoca.concat(lagu.vocabulary);
+                }
+            });
+        }
+
+        const vocaUtama = kumpulanVoca.length > 0 ? kumpulanVoca[0] : null;
+
         return {
             id: item.id,
             judul: item.judul,
@@ -164,18 +266,14 @@ async function inisialisasiGame() {
                 arti: vocaUtama.arti || '-',
                 penjelasan: vocaUtama.penjelasan || 'Tidak ada penjelasan khusus.'
             } : { kata: '-', arti: '-', penjelasan: 'Tidak ada penjelasan khusus.' },
-            daftarVoca: item.vocabulary || []
+            daftarVoca: kumpulanVoca
         };
     });
 
-    // Reset status soal
     indeksSoal = 0;
     riwayatSoalDimaiankan = [];
-    if (bankSoal.length > 0) {
-        riwayatSoalDimaiankan.push(bankSoal[0]);
-    }
+    if (bankSoal.length > 0) riwayatSoalDimaiankan.push(bankSoal[0]);
 
-    // Masukkan data lagu pertama
     let soalPertama = bankSoal[0];
     teksPertanyaanInfo.text = '🏆 Pertanyaan 1/' + bankSoal.length;
     teksLirik.text = soalPertama.lirik;
@@ -185,19 +283,11 @@ async function inisialisasiGame() {
     batasBerhenti = detikMulai + 30;
     laguSoal.currentTime = detikMulai;
 
-    // Mode Easy: Tampilkan Tombol Pilihan Ganda
     if (selectedMode === 'Easy') {
         if (overlayInput) overlayInput.style.display = 'none';
         
-        teksJudulPilihan = new PIXI.Text('Pilihan Ganda', { 
-            fontFamily: 'Nunito', 
-            fontSize: isHp ? 16 : 18, 
-            fill: '#2b3a4a', 
-            fontWeight: 'bold' 
-        });
-        teksJudulPilihan.anchor.x = 0.5; 
-        teksJudulPilihan.x = gameApp.screen.width / 2; 
-        teksJudulPilihan.y = isHp ? 285 : 295; 
+        teksJudulPilihan = new PIXI.Text('Pilihan Ganda', { fontFamily: 'Nunito', fontSize: isHp ? 16 : 18, fill: '#2b3a4a', fontWeight: 'bold' });
+        teksJudulPilihan.anchor.x = 0.5; teksJudulPilihan.x = gameApp.screen.width / 2; teksJudulPilihan.y = isHp ? 285 : 295; 
         gameApp.stage.addChild(teksJudulPilihan);
 
         let pilihanAwal = soalPertama.pilihan;
@@ -206,121 +296,105 @@ async function inisialisasiGame() {
             let posisiX, posisiY, lebarKotak, tinggiKotak;
 
             if (isHp) {
-                // TAMPILAN HP: 1 Kolom Vertikal
-                lebarKotak = gameApp.screen.width - 40;
-                tinggiKotak = 46;
-                posisiX = (gameApp.screen.width - lebarKotak) / 2;
-                posisiY = 315 + (index * 54);
+                lebarKotak = gameApp.screen.width - 40; tinggiKotak = 46;
+                posisiX = (gameApp.screen.width - lebarKotak) / 2; posisiY = 315 + (index * 54);
             } else {
-                // TAMPILAN DESKTOP: 2 Kolom
-                let kolom = index % 2; 
-                let baris = Math.floor(index / 2); 
-                lebarKotak = 320; 
-                tinggiKotak = 60;
-                posisiX = 70 + (kolom * 340); 
-                posisiY = 335 + (baris * 65);
+                let kolom = index % 2; let baris = Math.floor(index / 2); 
+                lebarKotak = 320; tinggiKotak = 60;
+                posisiX = 70 + (kolom * 340); posisiY = 335 + (baris * 65);
             }
 
             let kotakTombol = new PIXI.Graphics();
-            
             function gambarKotak(warnaIsi) {
-                kotakTombol.clear(); 
-                kotakTombol.beginFill(warnaIsi); 
-                kotakTombol.lineStyle(2, 0x2b3a4a, 1);
-                kotakTombol.drawRoundedRect(0, 0, lebarKotak, tinggiKotak, 30); 
-                kotakTombol.endFill();
+                kotakTombol.clear(); kotakTombol.beginFill(warnaIsi); kotakTombol.lineStyle(2, 0x2b3a4a, 1);
+                kotakTombol.drawRoundedRect(0, 0, lebarKotak, tinggiKotak, 30); kotakTombol.endFill();
             }
             
             gambarKotak(0xFFFFFF); 
-            kotakTombol.x = posisiX; 
-            kotakTombol.y = posisiY; 
-            kotakTombol.interactive = true; 
-            kotakTombol.cursor = 'pointer';
+            kotakTombol.x = posisiX; kotakTombol.y = posisiY; kotakTombol.interactive = true; kotakTombol.cursor = 'pointer';
 
-            let tombolPilihan = new PIXI.Text(teks, { 
-                fontFamily: 'Nunito', 
-                fontSize: isHp ? 14 : 18, 
-                fill: '#2b3a4a', 
-                fontWeight: 'bold' 
-            });
-            tombolPilihan.anchor.set(0.5); 
-            tombolPilihan.x = posisiX + (lebarKotak / 2); 
-            tombolPilihan.y = posisiY + (tinggiKotak / 2);
+            let tombolPilihan = new PIXI.Text(teks, { fontFamily: 'Nunito', fontSize: isHp ? 14 : 18, fill: '#2b3a4a', fontWeight: 'bold' });
+            tombolPilihan.anchor.set(0.5); tombolPilihan.x = posisiX + (lebarKotak / 2); tombolPilihan.y = posisiY + (tinggiKotak / 2);
 
-            arrayKotakPilihan.push(kotakTombol); 
-            arrayTeksPilihan.push(tombolPilihan);
+            arrayKotakPilihan.push(kotakTombol); arrayTeksPilihan.push(tombolPilihan);
 
             kotakTombol.on('pointerdown', () => {
                 arrayKotakPilihan.forEach(kotak => kotak.interactive = false);
                 let jawabanBetul = bankSoal[indeksSoal].jawabanBenar;
                 
                 if (tombolPilihan.text === jawabanBetul) {
-                    jumlahBenar++; 
-                    gambarKotak(0x2ECC71);
-                    let poinDidapat = 100; 
-                    if (streakSaatIni >= 3) poinDidapat += 50;
-                    skorSaatIni += poinDidapat; 
-                    streakSaatIni++;
+                    jumlahBenar++; gambarKotak(0x2ECC71);
+                    let poinDidapat = 100; if (streakSaatIni >= 3) poinDidapat += 50; skorSaatIni += poinDidapat; streakSaatIni++;
                     if (streakSaatIni > streakTertinggi) streakTertinggi = streakSaatIni;
 
                     munculkanTeksMelayang(tombolPilihan.x, tombolPilihan.y - 40, `+${poinDidapat}`, '#2ECC71');
                     if (streakSaatIni >= 3) munculkanTeksMelayang(tombolPilihan.x, tombolPilihan.y - 70, `🔥 COMBO!`, '#F4D03F');
 
-                    teksSkorInfo.text = 'Skor: ' + skorSaatIni; 
-                    teksStreakInfo.text = '🔥 Streak: ' + streakSaatIni;
-                    laguSoal.pause(); 
-                    sedangMain = false; 
-                    setTimeout(() => { lanjutKeSoalBerikutnya(); }, 500);
+                    teksSkorInfo.text = 'Skor: ' + skorSaatIni; teksStreakInfo.text = '🔥 Streak: ' + streakSaatIni;
+                    laguSoal.pause(); sedangMain = false; setTimeout(() => { lanjutKeSoalBerikutnya(); }, 500);
                 } else {
-                    gambarKotak(0xE74C3C); 
-                    tombolPilihan.style.fill = '#FFFFFF'; 
-                    streakSaatIni = 0; 
-                    teksSkorInfo.text = 'Skor: ' + skorSaatIni; 
-                    teksStreakInfo.text = '🔥 Streak: ' + streakSaatIni;
-                    
+                    gambarKotak(0xE74C3C); tombolPilihan.style.fill = '#FFFFFF'; streakSaatIni = 0; 
+                    teksSkorInfo.text = 'Skor: ' + skorSaatIni; teksStreakInfo.text = '🔥 Streak: ' + streakSaatIni;
                     munculkanTeksMelayang(tombolPilihan.x, tombolPilihan.y - 40, `SALAH!`, '#E74C3C');
 
                     let getar = 0; 
                     let animasiGetar = setInterval(() => {
-                        kotakTombol.x += (getar % 2 === 0 ? 10 : -10); 
-                        tombolPilihan.x += (getar % 2 === 0 ? 10 : -10); 
-                        getar++;
+                        kotakTombol.x += (getar % 2 === 0 ? 10 : -10); tombolPilihan.x += (getar % 2 === 0 ? 10 : -10); getar++;
                         if (getar > 5) {
-                            clearInterval(animasiGetar); 
-                            kotakTombol.x = posisiX; 
-                            tombolPilihan.x = posisiX + (lebarKotak / 2);
+                            clearInterval(animasiGetar); kotakTombol.x = posisiX; tombolPilihan.x = posisiX + (lebarKotak / 2);
                             setTimeout(() => {
-                                gambarKotak(0xFFFFFF); 
-                                tombolPilihan.style.fill = '#2b3a4a'; 
-                                laguSoal.pause(); 
-                                sedangMain = false; 
-                                lanjutKeSoalBerikutnya();
+                                gambarKotak(0xFFFFFF); tombolPilihan.style.fill = '#2b3a4a'; 
+                                laguSoal.pause(); sedangMain = false; lanjutKeSoalBerikutnya();
                             }, 500);
                         }
                     }, 50);
                 }
             });
 
-            gameApp.stage.addChild(kotakTombol); 
-            gameApp.stage.addChild(tombolPilihan);
+            gameApp.stage.addChild(kotakTombol); gameApp.stage.addChild(tombolPilihan);
         });
     } else {
         if (overlayInput) overlayInput.style.display = 'block';
         if (kotakKetik) kotakKetik.focus();
     }
 
-    // Jalankan Musik & Timer Game
-    laguSoal.play(); 
+    laguSoal.play(); sedangMain = true; ikonPlay.text = '⏸'; mulaiWaktuBermain();
+}
+// ==========================================
+// 5. EVENT LISTENER AUDIO (SINKRON DENGAN KEYBOARD/HARDWARE)
+// ==========================================
+laguSoal.addEventListener('play', () => { 
     sedangMain = true; 
-    ikonPlay.text = '⏸'; 
-    mulaiWaktuBermain();
+    if (typeof ikonPlay !== 'undefined' && ikonPlay) {
+        ikonPlay.text = '⏸'; 
+    }
+    // Lapor ke OS kalau musik jalan
+    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
+});
+
+laguSoal.addEventListener('pause', () => { 
+    sedangMain = false; 
+    if (typeof ikonPlay !== 'undefined' && ikonPlay) {
+        ikonPlay.text = '▶'; 
+    }
+    // Lapor ke OS kalau musik berhenti
+    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
+});
+
+// ✨ PAKSAAN UI: Ubah ikon seketika saat tombol hardware ditekan
+if ('mediaSession' in navigator) {
+    navigator.mediaSession.setActionHandler('play', () => {
+        laguSoal.play();
+        if (typeof ikonPlay !== 'undefined' && ikonPlay) ikonPlay.text = '⏸';
+        sedangMain = true;
+    });
+    navigator.mediaSession.setActionHandler('pause', () => {
+        laguSoal.pause();
+        if (typeof ikonPlay !== 'undefined' && ikonPlay) ikonPlay.text = '▶';
+        sedangMain = false;
+    });
 }
 
-// ==========================================
-// 5. EVENT LISTENER AUDIO
-// ==========================================
-laguSoal.addEventListener('play', () => { sedangMain = true; ikonPlay.text = '⏸'; });
-laguSoal.addEventListener('pause', () => { sedangMain = false; ikonPlay.text = '▶'; });
 tombolPlayBulat.on('pointerdown', () => { if (!sedangMain) { laguSoal.play(); } else { laguSoal.pause(); } });
 ikonReplay.on('pointerdown', () => { laguSoal.currentTime = detikMulai; laguSoal.play(); });
 
@@ -358,11 +432,15 @@ function cekTypo(kata1, kata2) {
 if (btnSubmitMedium && (selectedMode === 'Medium' || selectedMode === 'Hard')) {
     btnSubmitMedium.addEventListener('click', () => {
         let tebakanPemain = kotakKetik.value.trim().toLowerCase();
-        let jawabanLirik = bankSoal[indeksSoal].voca.kata.toLowerCase();
+        
+        let jawabanMentah = bankSoal[indeksSoal].jawabanBenar || bankSoal[indeksSoal].voca.kata || '';
+        let jawabanLirik = jawabanMentah.trim().toLowerCase();
+        
+        jawabanLirik = jawabanLirik.replace(/[^a-z0-9\s]/g, '').replace(/^[a-d]\s/g, ''); 
+        tebakanPemain = tebakanPemain.replace(/[^a-z0-9\s]/g, '');
+
         let melesetLirik = cekTypo(tebakanPemain, jawabanLirik);
         
-        riwayatSoalDimaiankan.push(bankSoal[indeksSoal]);
-
         if (melesetLirik === 0) {
             kotakKetik.style.borderColor = '#2ECC71'; kotakKetik.style.backgroundColor = '#EAFAF1'; jumlahBenar++;
             if (selectedMode === 'Hard') { totalDetikBermain += 10; updateTampilanTimer(); }
@@ -389,6 +467,7 @@ if (btnSubmitMedium && (selectedMode === 'Medium' || selectedMode === 'Hard')) {
         teksSkorInfo.text = 'Skor: ' + skorSaatIni; teksStreakInfo.text = '🔥 Streak: ' + streakSaatIni;
         laguSoal.pause(); sedangMain = false; setTimeout(() => { resetDanLanjutModeMedium(); }, 1000);
     });
+    
     kotakKetik.addEventListener('keypress', function (e) { if (e.key === 'Enter') { btnSubmitMedium.click(); } });
 }
 
@@ -431,34 +510,67 @@ function lanjutKeSoalBerikutnya() {
         let tinggiKotak = isHp ? 46 : 60;
 
         for (let i = 0; i < 4; i++) {
-            arrayTeksPilihan[i].text = soalBaru.pilihan[i]; 
-            arrayTeksPilihan[i].style.fill = '#2b3a4a'; 
-            arrayKotakPilihan[i].interactive = true; 
-            arrayKotakPilihan[i].clear();
-            arrayKotakPilihan[i].beginFill(0xFFFFFF); 
-            arrayKotakPilihan[i].lineStyle(2, 0x2b3a4a, 1); 
-            arrayKotakPilihan[i].drawRoundedRect(0, 0, lebarKotak, tinggiKotak, 30); 
-            arrayKotakPilihan[i].endFill();
+            arrayTeksPilihan[i].text = soalBaru.pilihan[i]; arrayTeksPilihan[i].style.fill = '#2b3a4a'; 
+            arrayKotakPilihan[i].interactive = true; arrayKotakPilihan[i].clear();
+            arrayKotakPilihan[i].beginFill(0xFFFFFF); arrayKotakPilihan[i].lineStyle(2, 0x2b3a4a, 1); 
+            arrayKotakPilihan[i].drawRoundedRect(0, 0, lebarKotak, tinggiKotak, 30); arrayKotakPilihan[i].endFill();
         }
     } else { if (overlayInput) overlayInput.style.display = 'block'; if (kotakKetik) kotakKetik.focus(); }
     mulaiWaktuBermain();
 }
 
+function dapatkanTanggalLokal(objDate) {
+    const tahun = objDate.getFullYear();
+    const bulan = String(objDate.getMonth() + 1).padStart(2, '0');
+    const tanggal = String(objDate.getDate()).padStart(2, '0');
+    return `${tahun}-${bulan}-${tanggal}`;
+}
+
 // ==========================================
-// 7. AKHIR PERMAINAN (VERSI MPA)
+// 7. AKHIR PERMAINAN
 // ==========================================
 async function akhiriPermainan() {
     clearInterval(hitungMundur); 
-    laguSoal.pause();
-    localStorage.setItem('matchSkorAkhir', skorSaatIni);
-    localStorage.setItem('matchStreak', streakTertinggi);
-    localStorage.setItem('matchBenar', jumlahBenar);
-    localStorage.setItem('matchHampir', jumlahHampirBenar);
-    localStorage.setItem('matchMode', selectedMode);
-    localStorage.setItem('matchRiwayatSoal', JSON.stringify(riwayatSoalDimaiankan));
     
-    await simpanSkorKeDatabase(skorSaatIni, streakTertinggi);
-    window.location.href = 'statistik.html';
+    try {
+        if (laguSoal && !laguSoal.paused) {
+            laguSoal.pause();
+        }
+    } catch (err) {
+        console.log("Audio dihentikan.");
+    }
+    
+    try {
+        const hasil = await simpanSkorKeDatabase(skorSaatIni, streakTertinggi);
+        const skorAkhirPlusBonus = skorSaatIni + (hasil.bonus || 0);
+
+        localStorage.setItem('matchSkorAkhir', skorAkhirPlusBonus);
+        localStorage.setItem('matchStreak', streakTertinggi);
+        localStorage.setItem('matchBenar', jumlahBenar);
+        localStorage.setItem('matchHampir', jumlahHampirBenar);
+        localStorage.setItem('matchMode', selectedMode);
+        localStorage.setItem('matchRiwayatSoal', JSON.stringify(riwayatSoalDimaiankan));
+
+        if (hasil.status === 'aman') {
+            window.tampilkanNotif(`Selamat streak mu aman! +${hasil.bonus} poin`, 'success');
+            setTimeout(() => { window.location.href = 'statistik.html'; }, 3500);
+        } 
+        else if (hasil.status === 'hancur') {
+            window.tampilkanNotif(`Kamu gagal, streak hancur.`, 'peringatan');
+            setTimeout(() => { window.location.href = 'statistik.html'; }, 3500);
+        } 
+        else if (hasil.status === 'baru') {
+            window.tampilkanNotif(`Amankan poin mu hari ini! +${hasil.bonus} poin`, 'success');
+            setTimeout(() => { window.location.href = 'statistik.html'; }, 3500);
+        } 
+        else {
+            window.location.href = 'statistik.html';
+        }
+        
+    } catch (error) {
+        console.error("Gagal saat akhir permainan:", error);
+        window.location.href = 'statistik.html';
+    }
 }
 
 // ==========================================
@@ -509,5 +621,4 @@ if (btnHomeDariPause) {
     });
 }
 
-// Memicu inisialisasi game saat DOM siap
 document.addEventListener('DOMContentLoaded', inisialisasiGame);

@@ -717,6 +717,74 @@ body.admin-mode {
     z-index: 999; /* Berada tepat di bawah sidebar (z-index: 1000) */
 }
 
+/* ==========================================
+   PAGINATION STYLES
+   ========================================== */
+.pagination-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 8px;
+    margin-top: 10px;
+    border-top: 1px solid #e2e8f0;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.pagination-info {
+    font-size: 0.9rem;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.page-btn {
+    min-width: 36px;
+    height: 36px;
+    padding: 0 8px;
+    border: 1px solid #cbd5e1;
+    background-color: #ffffff;
+    color: #334155;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.page-btn:hover:not(:disabled) {
+    background-color: #f1f5f9;
+    border-color: #94a3b8;
+    color: #1e293b;
+}
+
+.page-btn.active {
+    background-color: #2b3a4a;
+    color: #ffffff;
+    border-color: #2b3a4a;
+    box-shadow: 0 2px 6px rgba(43, 58, 74, 0.25);
+}
+
+.page-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background-color: #f8fafc;
+}
+
+.page-ellipsis {
+    padding: 0 4px;
+    color: #94a3b8;
+    font-weight: 800;
+}
+
 @media (max-width: 768px) {
     /* Munculkan tombol burger di HP */
     .burger-btn {
@@ -746,5 +814,70 @@ body.admin-mode {
     .sidebar-overlay.aktif {
         display: block;
     }
+.admin-header {
+        align-items: center !important;
+        padding: 15px !important;
+    }
+    .admin-header p {
+        display: none !important; /* Sembunyikan deskripsi agar tidak menabrak profil */
+    }
+    .admin-header h1 {
+        font-size: 20px !important; /* Kecilkan sedikit judulnya */
+        margin-bottom: 0 !important;
+    }
+    .admin-profile {
+        padding: 8px 12px !important;
+        font-size: 12px !important;
+        border-radius: 20px !important;
+        white-space: nowrap !important;
+    }
 
+    /* 2. Rapikan Toolbar (Susun pencarian & tombol ke bawah) */
+    .admin-toolbar {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    .admin-search,
+    .btn-add, 
+    #btnBukaModal {
+        width: 100% !important;
+        border-radius: 8px !important; /* Kembalikan bentuk kotak */
+        padding: 12px !important;
+        height: auto !important;
+        aspect-ratio: unset !important; /* Hapus rasio jika sebelumnya bulat */
+        box-sizing: border-box !important;
+    }
+
+    /* 3. KHUSUS TABEL YANG BISA DI-SCROLL KE SAMPING */
+    .table-wrapper {
+        width: 100% !important;
+        overflow-x: auto !important; /* Scroll samping hanya bekerja di sini */
+        margin-top: 15px !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* 3. Rapikan Tabel (Bisa di-scroll ke samping) */
+    .admin-content-area,
+    .admin-main {
+        overflow-x: hidden !important;
+        max-width: 100% !important;
+    }
+    .admin-table {
+        min-width: 600px !important; /* Paksa tabel tetap lebar dan bisa di-scroll */
+        display: table !important;
+    }
+    .pagination-wrapper {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .page-btn {
+        min-width: 32px;
+        height: 32px;
+        font-size: 0.8rem;
+    }
 }

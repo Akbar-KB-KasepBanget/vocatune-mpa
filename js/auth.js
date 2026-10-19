@@ -339,3 +339,31 @@ if (authSection) {
         }
     });
 }
+
+// === FUNGSI GLOBAL NOTIFIKASI TOAST ===
+window.tampilkanNotif = function(pesan, jenis = 'info') {
+    const toast = document.getElementById('notifToast');
+    const toastIcon = document.getElementById('toastIcon');
+    const toastMessage = document.getElementById('toastMessage');
+
+    if (!toast || !toastMessage) return;
+
+    if (jenis === 'rekor') {
+        toastIcon.innerText = '🏆';
+    } else if (jenis === 'streak') {
+        toastIcon.innerText = '🔥';
+    } else if (jenis === 'peringatan') {
+        toastIcon.innerText = '⚠️';
+    } else {
+        toastIcon.innerText = '✨';
+    }
+
+    toastMessage.innerText = pesan;
+    toast.classList.remove('toast-sembunyi');
+    toast.classList.add('toast-tampil');
+
+    setTimeout(() => {
+        toast.classList.remove('toast-tampil');
+        toast.classList.add('toast-sembunyi');
+    }, 3000);
+};

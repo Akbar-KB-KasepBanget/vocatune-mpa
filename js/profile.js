@@ -3,7 +3,7 @@ import { db } from './supabase.js';
 // ==========================================
 // 1. FILTER KATA KASAR (PROFANITY FILTER)
 // ==========================================
-const kataTerlarang = ["anjing", "babi", "bangsat", "goblok", "tolol", "jancok", "tai", "bodoh", "prabowo", "presiden", "kontol", "sawit", "nyawit", "pemerintah", "k"];
+const kataTerlarang = ["anjing", "babi", "bangsat", "goblok", "tolol", "jancok", "tai", "bodoh", "prabowo", "presiden", "kontol", "sawit", "nyawit", "pemerintah", "kintil"];
 
 function mengandungKataKasar(nama) {
     const namaKecil = nama.toLowerCase();
@@ -31,7 +31,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ==========================================
     const togglePassword = document.getElementById('togglePassword');
     const inputPassword = document.getElementById('inputPassword');
-    const customPopup = document.getElementById('customPopup');
     const toggleBgm = document.getElementById('toggleBgm');
     const bgmAudio = document.getElementById('bgmAudio');
 
@@ -39,12 +38,35 @@ document.addEventListener('DOMContentLoaded', async () => {
     const avatarPreview = document.getElementById('avatarPreview');
     const inputAvatar = document.getElementById('inputAvatar');
 
-    // Fungsi Pop-up Notifikasi (Toast)
+    // ✨ FUNGSI POP-UP DIPERBARUI: Dibuat otomatis via JS agar pasti muncul
     function tampilkanPopup(pesan, tipe = 'error') {
-        if (!customPopup) return;
-        customPopup.textContent = pesan;
-        customPopup.className = `popup-toast show ${tipe}`;
-        setTimeout(() => { customPopup.className = 'popup-toast'; }, 3000);
+        let popup = document.getElementById('customPopup');
+        if (!popup) {
+            popup = document.createElement('div');
+            popup.id = 'customPopup';
+            document.body.appendChild(popup);
+        }
+        
+        popup.textContent = pesan;
+        // Styling langsung via JS agar terlihat melayang di atas
+        popup.style.display = 'block';
+        popup.style.position = 'fixed';
+        popup.style.top = '20px';
+        popup.style.right = '20px';
+        popup.style.padding = '15px 20px';
+        popup.style.borderRadius = '8px';
+        popup.style.color = '#fff';
+        popup.style.zIndex = '9999';
+        popup.style.fontWeight = 'bold';
+        popup.style.backgroundColor = tipe === 'success' ? '#10B981' : '#E74C3C';
+        popup.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+        popup.style.opacity = '1';
+        popup.style.transition = 'opacity 0.3s ease';
+        
+        setTimeout(() => { 
+            popup.style.opacity = '0';
+            setTimeout(() => popup.style.display = 'none', 300);
+        }, 3000);
     }
 
     // Pratinjau Foto Profil saat user memilih file gambar baru
@@ -66,11 +88,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Fitur Toggle Musik Latar
+    // ==========================================
+    // ✨ FITUR TOGGLE MUSIK LATAR (SINKRON DENGAN KEYBOARD)
+    // ==========================================
     if (toggleBgm && bgmAudio) {
+        // Jika toggle diklik manual oleh user
         toggleBgm.addEventListener('change', (e) => {
             if (e.target.checked) bgmAudio.play();
             else bgmAudio.pause();
+        });
+
+        // Geser toggle otomatis ke "Mati" jika di-pause dari tombol keyboard/OS
+        bgmAudio.addEventListener('pause', () => {
+            toggleBgm.checked = false; 
+        });
+
+        // Geser toggle otomatis ke "Nyala" jika di-play dari tombol keyboard/OS
+        bgmAudio.addEventListener('play', () => {
+            toggleBgm.checked = true; 
         });
     }
 
@@ -194,7 +229,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         // ==========================================
         const btnSimpanProfil = document.getElementById('btnSimpanProfil');
         if (btnSimpanProfil) {
-            btnSimpanProfil.addEventListener('click', async () => {
+            btnSimpanProfil.addEventListener('click', async (e) => {
+                e.preventDefault();
+
                 const namaBaru = document.getElementById('inputUsername').value.trim();
                 const passwordBaru = inputPassword ? inputPassword.value.trim() : "";
                 let isSuccess = true;
@@ -221,7 +258,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 // 2. Upload Foto Profil ke Supabase Storage (jika file dipilih)
                 let avatarUrlBaru = null;
-                const fileAvatar = inputAvatar?.files[0];
+                const fileAvatar = (inputAvatar && inputAvatar.files.length > 0) ? inputAvatar.files[0] : null;
 
                 if (fileAvatar) {
                     btnSimpanProfil.innerText = "Mengunggah foto...";

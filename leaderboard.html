@@ -9,9 +9,7 @@
 </head>
 <body class="bg-light">
 
-    <!-- ==========================================
-         TAMBAHAN: AUDIO BGM
-         ========================================== -->
+    <!-- AUDIO BGM -->
     <audio id="bgmAudio" loop>
         <source src="assets/bgm/s.mp3" type="audio/mpeg">
     </audio>
@@ -19,23 +17,19 @@
     <!-- NAVBAR -->
     <nav class="navbar">
         <div class="logo">
-            <span class="icon">🎙️</span><strong>VocaTune</strong>
+            <span class="icon"><img src="assets/Logo/Logo VocaTune • Crown Link-1.svg" alt=""></span><strong>VocaTune</strong>
         </div>
         <ul class="nav-links">
             <li><a href="index.html">Home</a></li>
-            <li><a href="#" class="active">Leaderboard</a></li>
         </ul>
+        
+        <!-- FIX: Tag auth-button dibetulkan (tidak dobel) -->
         <div class="auth-button">
-    
-   <div class="auth-button">
-    <!-- Tombol Log In tampil secara bawaan -->
-    <button id="btnLogin" class="btn-primary">Log In</button>
-    
-    <!-- 🟢 Tambahkan style="display: none;" di sini biar gak bocor pas baru dibuka -->
-    <div id="btnProfile" class="btn-profile" style="display: none;">
-        👤 Memuat...
-    </div>
-</div>
+            <button id="btnLogin" class="btn-primary">Log In</button>
+            <div id="btnProfile" class="btn-profile" style="display: none;">
+                👤 Memuat...
+            </div>
+        </div>
     </nav>
 
     <!-- KONTEN LEADERBOARD -->
@@ -46,18 +40,12 @@
         </div>
 
         <div class="settings-card">
-            <!-- Wadah kosong ini akan diisi otomatis oleh leaderboard.js -->
             <div id="wadahLeaderboard">
                 <p class="loading-text">Memuat data dari server...</p>
             </div>
             
             <div class="card-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
-                
-                <!-- ==========================================
-                     TAMBAHAN: TOMBOL MUSIC DI BAWAH
-                     ========================================== -->
                 <button id="btnBgm" class="btn-secondary" style="padding: 10px 15px; border-radius: 10px; font-weight: bold; cursor: pointer; border: 2px solid #2b3a4a; background: transparent;">🔊 Music On</button>
-
                 <button onclick="window.location.href='index.html'" class="btn-primary">Main Sekarang</button>
             </div>
         </div>
@@ -65,12 +53,10 @@
 
     <!-- Script Utama -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <!-- ==========================================
-         TAMBAHAN: PANGGIL UI.JS SEBELUM LEADERBOARD.JS
-         ========================================== -->
     <script type="module" src="js/ui.js"></script>
     <script type="module" src="js/leaderboard.js"></script>
-    <script type="moduke" src="js/auth.js"></script>
+    
+    <!-- FIX: Memperbaiki typo type="moduke" menjadi type="module" -->
+    <script type="module" src="js/auth.js"></script>
 </body>
 </html>

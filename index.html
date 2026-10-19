@@ -48,12 +48,12 @@
     <!-- 1. NAVIGATION BAR (NAVBAR) -->
     <nav class="navbar">
         <div class="logo">
-            <span class="icon">🎙️</span>
+            <span class="icon"><img src="assets/Logo/Logo VocaTune • Crown Link-1.svg" alt=""></span>
             <strong>VocaTune</strong>
         </div>
 
         <ul class="nav-links">
-            <li><a href="index.html" id="navHome" class="active">Home</a></li>
+            
             <li><a href="leaderboard.html" id="navLeaderboard">Leaderboard</a></li>
             <!-- TOMBOL PAUSE PRESISI (SVG) -->
             <li>
@@ -112,6 +112,45 @@
                 </div>
             </div>
 
+           <!-- TOMBOL PEMICU POP-UP GENRE -->
+<div style="text-align: center; margin-top: 15px;">
+    <button id="btnOpenGenreModal" type="button" class="btn-genre-trigger">
+        🎧 Pilih Genre Musik
+    </button>
+</div>
+
+<!-- POP-UP MODAL GENRE -->
+<div id="genreModal" class="genre-modal-overlay">
+    <div class="genre-modal-content">
+        <div class="genre-modal-header">
+            <h3>Pilih Genre Musik</h3>
+            <button id="btnCloseGenreModal" type="button" class="btn-close-modal">&times;</button>
+        </div>
+        <p class="genre-modal-sub">Kamu bisa memilih lebih dari satu genre!</p>
+        
+        <div class="genre-options-grid">
+            <label class="genre-chip">
+                <input type="checkbox" class="chk-genre" value="Semua" checked>
+                <span>🎵 Semua Genre</span>
+            </label>
+            <label class="genre-chip">
+                <input type="checkbox" class="chk-genre" value="Pop">
+                <span>🎤 Pop</span>
+            </label>
+            <label class="genre-chip">
+                <input type="checkbox" class="chk-genre" value="Rock">
+                <span>🎸 Rock</span>
+            </label>
+            <label class="genre-chip">
+                <input type="checkbox" class="chk-genre" value="Hip hop">
+                <span>🎧 Hip Hop</span>
+            </label>
+        </div>
+
+        <button id="btnSaveGenre" type="button" class="btn-save-genre">Simpan & Terapkan</button>
+    </div>
+</div>
+
             <p id="mode-message" class="mode-message"></p>
 
             <!-- Pilihan Mode Permainan -->
@@ -122,6 +161,7 @@
             </div>
         </div>
     </main>
+    
 
     <!-- Wadah Tombol Menu Bawah -->
     <div id="dashboard-menu-buttons" style="display: none; justify-content: center; align-items: center; gap: 60px; margin-top: -20px;">
@@ -229,6 +269,12 @@
             <button id="btnKirimReset" class="btn-primary" style="width: 100%;">Kirim Link Reset</button>
         </div>
     </div>
+    <!-- Wadah Notifikasi Toast Dinamis -->
+    <div id="notifToast" class="toast-sembunyi">
+        <span id="toastIcon">✨</span>
+        <span id="toastMessage">Pesan di sini</span>
+    </div>
+
 
     <!-- SCRIPT UNTUK HALAMAN BERANDA -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

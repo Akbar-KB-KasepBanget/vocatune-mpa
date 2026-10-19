@@ -1,8 +1,19 @@
 import { db } from './supabase.js';
 
-let semuaPengguna = []; // Tempat menyimpan seluruh data dari Supabase
+let semuaPengguna = []; 
+let daftarPenggunaTersaring = [];
 let selectedUserId = null;
 let isAvatarRemoved = false;
+let halamanAktif = 1;
+const itemPerHalaman = 5;
+
+document.addEventListener('DOMContentLoaded', () => {
+    muatDaftarPengguna();
+    setupSearchPengguna();
+    setupModalDetail();
+    setupModalHapus();
+    setupModalEdit();
+});
 
 // ==========================================
 // 1. MEMANGGIL DATA PENGGUNA DARI SUPABASE
@@ -10,6 +21,8 @@ let isAvatarRemoved = false;
 async function muatDaftarPengguna() {
     const tabelBody = document.getElementById('tabelPenggunaBody');
     if (!tabelBody) return;
+
+    tabelBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Memuat data pengguna... ⏳</td></tr>';
 
     const { data: players, error } = await db
         .from('players')
@@ -24,28 +37,42 @@ async function muatDaftarPengguna() {
 
     if (!players || players.length === 0) {
         tabelBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Belum ada pengguna terdaftar.</td></tr>`;
+        updatePaginationUI(0, 0, 0);
         return;
     }
 
-    semuaPengguna = players; // Simpan ke variabel global
-    renderTabelPengguna(semuaPengguna); // Tampilkan di tabel
+    semuaPengguna = players;
+    daftarPenggunaTersaring = [...semuaPengguna];
+    halamanAktif = 1;
+    renderTabelPengguna();
 }
 
 // ==========================================
-// FUNGSI RENDER TABEL (PENCARIAN & DISPLAY)
+// 2. RENDER TABEL & PAGINATION
 // ==========================================
-function renderTabelPengguna(daftar) {
+function renderTabelPengguna() {
     const tabelBody = document.getElementById('tabelPenggunaBody');
     if (!tabelBody) return;
 
-    if (daftar.length === 0) {
+    const totalData = daftarPenggunaTersaring.length;
+
+    if (totalData === 0) {
         tabelBody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#64748b; padding: 20px;">Pengguna tidak ditemukan.</td></tr>`;
+        updatePaginationUI(0, 0, 0);
         return;
     }
 
+    const totalHalaman = Math.ceil(totalData / itemPerHalaman);
+    if (halamanAktif > totalHalaman) halamanAktif = totalHalaman;
+
+    const indeksAwal = (halamanAktif - 1) * itemPerHalaman;
+    const indeksAkhir = Math.min(indeksAwal + itemPerHalaman, totalData);
+    const dataHalaman = daftarPenggunaTersaring.slice(indeksAwal, indeksAkhir);
+
     tabelBody.innerHTML = '';
 
-    daftar.forEach((player, index) => {
+    dataHalaman.forEach((player, index) => {
+        const nomorBaris = indeksAwal + index + 1;
         const username = player.username || 'Pengguna';
         const email = player.email || 'Email tidak diset';
         const level = player.title || 'Newbie';
@@ -54,7 +81,7 @@ function renderTabelPengguna(daftar) {
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td>${index + 1}</td>
+            <td>${nomorBaris}</td>
             <td>
                 <strong>${username}</strong><br>
                 <small style="color: #64748b;">${email}</small>
@@ -81,31 +108,114 @@ function renderTabelPengguna(daftar) {
 
         tabelBody.appendChild(tr);
     });
+
+    updatePaginationUI(indeksAwal + 1, indeksAkhir, totalData);
 }
 
 // ==========================================
-// LOGIKA INPUT FITUR SEARCH
+// 3. LOGIKA INPUT FITUR SEARCH
 // ==========================================
 function setupSearchPengguna() {
-    const inputCari = document.getElementById('inputCariPengguna');
+    const inputCari = document.getElementById('inputCariPengguna') || document.querySelector('.admin-search');
     if (!inputCari) return;
 
     inputCari.addEventListener('input', (e) => {
         const kataKunci = e.target.value.toLowerCase().trim();
 
-        const hasilFilter = semuaPengguna.filter((player) => {
+        daftarPenggunaTersaring = semuaPengguna.filter((player) => {
             const username = (player.username || '').toLowerCase();
             const email = (player.email || '').toLowerCase();
             
             return username.includes(kataKunci) || email.includes(kataKunci);
         });
 
-        renderTabelPengguna(hasilFilter);
+        halamanAktif = 1;
+        renderTabelPengguna();
     });
 }
 
 // ==========================================
-// 2. LOGIKA POP-UP DETAIL PENGGUNA
+// 4. UPDATE TOMBOL & INFO PAGINATION
+// ==========================================
+function updatePaginationUI(mulai, sampai, total) {
+    const infoText = document.getElementById('paginationInfo');
+    const controlsContainer = document.getElementById('paginationControls');
+
+    if (infoText) {
+        infoText.textContent = `Menampilkan ${mulai}-${sampai} dari ${total.toLocaleString('id-ID')} pengguna`;
+    }
+
+    if (!controlsContainer) return;
+
+    controlsContainer.innerHTML = '';
+    const totalHalaman = Math.ceil(total / itemPerHalaman) || 1;
+
+    // Tombol Prev (<)
+    const btnPrev = document.createElement('button');
+    btnPrev.className = 'page-btn';
+    btnPrev.innerHTML = '&lt;';
+    btnPrev.disabled = halamanAktif === 1;
+    btnPrev.onclick = () => {
+        if (halamanAktif > 1) {
+            halamanAktif--;
+            renderTabelPengguna();
+        }
+    };
+    controlsContainer.appendChild(btnPrev);
+
+    // Generate Angka Halaman
+    const daftarAngka = buatSkemaAngkaHalaman(halamanAktif, totalHalaman);
+
+    daftarAngka.forEach(item => {
+        if (item === '...') {
+            const ellipsis = document.createElement('span');
+            ellipsis.className = 'page-ellipsis';
+            ellipsis.textContent = '...';
+            controlsContainer.appendChild(ellipsis);
+        } else {
+            const btnNum = document.createElement('button');
+            btnNum.className = `page-btn ${item === halamanAktif ? 'active' : ''}`;
+            btnNum.textContent = item;
+            btnNum.onclick = () => {
+                halamanAktif = item;
+                renderTabelPengguna();
+            };
+            controlsContainer.appendChild(btnNum);
+        }
+    });
+
+    // Tombol Next (>)
+    const btnNext = document.createElement('button');
+    btnNext.className = 'page-btn';
+    btnNext.innerHTML = '&gt;';
+    btnNext.disabled = halamanAktif === totalHalaman || total === 0;
+    btnNext.onclick = () => {
+        if (halamanAktif < totalHalaman) {
+            halamanAktif++;
+            renderTabelPengguna();
+        }
+    };
+    controlsContainer.appendChild(btnNext);
+}
+
+function buatSkemaAngkaHalaman(aktif, total) {
+    if (total <= 5) {
+        return Array.from({ length: total }, (_, i) => i + 1);
+    }
+
+    if (aktif <= 3) {
+        return [1, 2, 3, 4, '...', total];
+    }
+
+    if (aktif >= total - 2) {
+        return [1, '...', total - 3, total - 2, total - 1, total];
+    }
+
+    return [1, '...', aktif - 1, aktif, aktif + 1, '...', total];
+}
+
+// ==========================================
+// 5. LOGIKA POP-UP DETAIL PENGGUNA
 // ==========================================
 function bukaModalDetail(player) {
     const modalDetail = document.getElementById('modalDetailUser');
@@ -149,7 +259,7 @@ function setupModalDetail() {
 }
 
 // ==========================================
-// 3. LOGIKA POP-UP HAPUS PENGGUNA
+// 6. LOGIKA POP-UP HAPUS PENGGUNA
 // ==========================================
 function bukaModalHapus(player) {
     const modalHapus = document.getElementById('modalHapusUser');
@@ -201,7 +311,7 @@ function setupModalHapus() {
 }
 
 // ==========================================
-// 4. LOGIKA POP-UP EDIT MODERASI
+// 7. LOGIKA POP-UP EDIT MODERASI
 // ==========================================
 function bukaModalEdit(player) {
     selectedUserId = player.user_id;
@@ -280,13 +390,29 @@ function setupModalEdit() {
     }
 }
 
-// ==========================================
-// 5. INISIALISASI SAAT HALAMAN SELESAI DIMUAT
-// ==========================================
-document.addEventListener('DOMContentLoaded', () => {
-    muatDaftarPengguna();
-    setupSearchPengguna(); // 👈 Fitur pencarian dinyalakan
-    setupModalDetail();
-    setupModalHapus();
-    setupModalEdit();
-});
+// TOGGLE SIDEBAR MOBILE
+const btnBurger = document.getElementById('btnBurger');
+const sidebarAdmin = document.querySelector('.admin-sidebar');
+const btnCloseSidebar = document.getElementById('btnCloseSidebar');
+const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+if (btnBurger && sidebarAdmin) {
+    btnBurger.addEventListener('click', () => {
+        sidebarAdmin.classList.add('buka');
+        if (sidebarOverlay) sidebarOverlay.classList.add('aktif');
+    });
+}
+
+if (btnCloseSidebar) {
+    btnCloseSidebar.addEventListener('click', () => {
+        sidebarAdmin.classList.remove('buka');
+        if (sidebarOverlay) sidebarOverlay.classList.remove('aktif');
+    });
+}
+
+if (sidebarOverlay) {
+    sidebarOverlay.addEventListener('click', () => {
+        sidebarAdmin.classList.remove('buka');
+        sidebarOverlay.classList.remove('aktif');
+    });
+}
