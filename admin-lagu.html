@@ -11,7 +11,6 @@
     <div id="sidebarOverlay" class="sidebar-overlay"></div>
 
     <!-- SIDEBAR -->
-     
     <aside class="admin-sidebar">
         <button id="btnCloseSidebar" class="close-sidebar-btn">✖</button>
         <div class="admin-logo">
@@ -55,13 +54,11 @@
             </div>
             <div class="table-wrapper">
                 <div class="pagination-wrapper">
-    <div class="pagination-info" id="paginationInfo">
-        Menampilkan 0-0 dari 0 data
-    </div>
-    <div class="pagination-controls" id="paginationControls">
-        <!-- Tombol halaman dimuat dinamis oleh JS -->
-    </div>
-</div>
+                    <div class="pagination-info" id="paginationInfo">
+                        Menampilkan 0-0 dari 0 data
+                    </div>
+                    <div class="pagination-controls" id="paginationControls"></div>
+                </div>
             <table class="admin-table">
                 <thead>
                     <tr>
@@ -69,7 +66,6 @@
                         <th>Judul Lagu</th>
                         <th>Artis</th>
                         <th>Genre</th>
-                        <th>Tingkat Kesulitan</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -82,7 +78,7 @@
     </main>
 
     <!-- ==========================================
-         MODAL POP-UP TAMBAH LAGU (LENGKAP)
+         MODAL POP-UP TAMBAH LAGU (TANPA KESULITAN)
          ========================================== -->
     <div id="modalTambahLagu" class="modal-overlay">
         <div class="modal-content" style="max-height: 85vh; overflow-y: auto;">
@@ -90,66 +86,58 @@
             <form id="formTambahLagu">
                 <div class="form-group">
                     <label for="judulLagu">Judul Lagu</label>
-                    <input type="text" id="judulLagu">
+                    <input type="text" id="judulLagu" required>
                 </div>
                 <div class="form-group">
                     <label for="artisLagu">Nama Artis / Band</label>
-                    <input type="text" id="artisLagu">
+                    <input type="text" id="artisLagu" required>
                 </div>
                 <div class="form-group">
                     <label for="genreLagu">Genre</label>
-                    <input type="text" id="genreLagu">
+                    <input type="text" id="genreLagu" required>
                 </div>
                 <div class="form-group">
-                <label for="kesulitanLagu">Tingkat Kesulitan</label>
-                <select id="kesulitanLagu" required>
-                    <option value="Mudah">Mudah</option>
-                    <option value="Sedang">Sedang</option>
-                    <option value="Sulit">Sulit</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="lirikLagu">Potongan Lirik (Untuk Soal)</label>
-                <textarea id="lirikLagu" required placeholder="“But I ..... completely when you cry”"></textarea>
-            </div>
-            <div class="form-group">
-                <label for="fileMp3">Nama File / URL MP3</label>
-                <input type="file" id="fileMp3" accept="audio/*" class="admin-input" required>
-            </div>
-            <div class="form-group">
-                <label for="detikMulai">Detik Mulai (Angka)</label>
-                <input type="number" id="detikMulai" required placeholder="148">
-            </div>
+                    <label for="lirikLagu">Potongan Lirik (Untuk Soal)</label>
+                    <textarea id="lirikLagu" required placeholder="“But I ..... completely when you cry”"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="fileMp3">Pilih File MP3</label>
+                    <input type="file" id="fileMp3" accept="audio/*" class="admin-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="detikMulai">Detik Mulai (Angka)</label>
+                    <input type="number" id="detikMulai" required placeholder="148">
+                </div>
 
-            <!-- 👇 PEMBUNGKUS PILIHAN GANDA (DIKONTROL OLEH JS) 👇 -->
-            <div id="containerPilihanGanda">
-                <hr style="margin: 20px 0; border: 1px solid #cbd5e1;">
-                <h3 style="color: #2b3a4a; margin-bottom: 15px; font-size: 16px;">Pilihan Ganda (Khusus Mode Mudah)</h3>
+                <!-- PILIHAN GANDA (SELALU MUNCUL UNTUK SEMUA LAGU) -->
+                <div id="containerPilihanGanda">
+                    <hr style="margin: 20px 0; border: 1px solid #cbd5e1;">
+                    <h3 style="color: #2b3a4a; margin-bottom: 15px; font-size: 16px;">Pilihan Ganda (Khusus Mode Mudah)</h3>
 
-                <div class="form-group">
-                    <label for="pilihanA">Pilihan A</label>
-                    <input type="text" id="pilihanA" placeholder="A. Crumple">
+                    <div class="form-group">
+                        <label for="pilihanA">Pilihan A</label>
+                        <input type="text" id="pilihanA" placeholder="A. Crumple">
+                    </div>
+                    <div class="form-group">
+                        <label for="pilihanB">Pilihan B</label>
+                        <input type="text" id="pilihanB" placeholder="B. Crumble">
+                    </div>
+                    <div class="form-group">
+                        <label for="pilihanC">Pilihan C</label>
+                        <input type="text" id="pilihanC" placeholder="C. Grumble">
+                    </div>
+                    <div class="form-group">
+                        <label for="pilihanD">Pilihan D</label>
+                        <input type="text" id="pilihanD" placeholder="D. Gumbal">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="pilihanB">Pilihan B</label>
-                    <input type="text" id="pilihanB" placeholder="B. Crumble">
-                </div>
-                <div class="form-group">
-                    <label for="pilihanC">Pilihan C</label>
-                    <input type="text" id="pilihanC" placeholder="C. Grumble">
-                </div>
-                <div class="form-group">
-                    <label for="pilihanD">Pilihan D</label>
-                    <input type="text" id="pilihanD" placeholder="D. Gumbal">
-                </div>
-            </div> <!-- 👈 PENUTUP CONTAINER PILIHAN GANDA -->
             
-            <!-- ✨ JAWABAN BENAR (SUDAH DI LUAR CONTAINER) ✨ -->
-            <div class="form-group" style="margin-top: 15px; padding-top: 15px; border-top: 2px dashed #cbd5e1;">
-                <label for="jawabanBenar" style="color: #10b981; font-weight: bold;">Jawaban Benar (Wajib Semua Mode)</label>
-                <input type="text" id="jawabanBenar" placeholder="B. Crumble atau Crumble" required>
-            </div>
-            
+                <!-- JAWABAN BENAR -->
+                <div class="form-group" style="margin-top: 15px; padding-top: 15px; border-top: 2px dashed #cbd5e1;">
+                    <label for="jawabanBenar" style="color: #10b981; font-weight: bold;">Jawaban Benar (Wajib Semua Mode)</label>
+                    <input type="text" id="jawabanBenar" placeholder="B. Crumble atau Crumble" required>
+                </div>
+                
                 <div class="modal-actions">
                     <button type="button" id="btnBatalTambah" class="btn-cancel">Batal</button>
                     <button type="submit" class="btn-save">💾 Simpan Lagu</button>
@@ -159,97 +147,87 @@
     </div>
 
     <!-- ==========================================
-     MODAL EDIT LAGU
-     ========================================== -->
-<div id="modalEditLagu" class="modal-overlay">
-    <div class="modal-content" style="max-height: 85vh; overflow-y: auto;">
-        <h2>✏️ Edit Lagu</h2>
-        <form id="formEditLagu">
-            <input type="hidden" id="editLaguId">
-            <div class="form-group">
-                <label for="editJudulLagu">Judul Lagu</label>
-                <input type="text" id="editJudulLagu" required>
-            </div>
-            <div class="form-group">
-                <label for="editArtisLagu">Nama Artis / Band</label>
-                <input type="text" id="editArtisLagu" required>
-            </div>
-            <div class="form-group">
-                <label for="editGenreLagu">Genre</label>
-                <input type="text" id="editGenreLagu" required>
-            </div>
-            <div class="form-group">
-                <label for="editKesulitanLagu">Tingkat Kesulitan</label>
-                <select id="editKesulitanLagu" required>
-                    <option value="Mudah">Mudah</option>
-                    <option value="Sedang">Sedang</option>
-                    <option value="Sulit">Sulit</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="editLirikLagu">Potongan Lirik</label>
-                <textarea id="editLirikLagu" required></textarea>
-            </div>
-            <div class="form-group">
-                <label for="editFileMp3">Nama File / URL MP3</label>
-                <input type="text" id="editFileMp3" required>
-            </div>
-            <div class="form-group">
-                <label for="editDetikMulai">Detik Mulai</label>
-                <input type="number" id="editDetikMulai" required>
-            </div>
+         MODAL EDIT LAGU (TANPA KESULITAN)
+         ========================================== -->
+    <div id="modalEditLagu" class="modal-overlay">
+        <div class="modal-content" style="max-height: 85vh; overflow-y: auto;">
+            <h2>✏️ Edit Lagu</h2>
+            <form id="formEditLagu">
+                <input type="hidden" id="editLaguId">
+                <div class="form-group">
+                    <label for="editJudulLagu">Judul Lagu</label>
+                    <input type="text" id="editJudulLagu" required>
+                </div>
+                <div class="form-group">
+                    <label for="editArtisLagu">Nama Artis / Band</label>
+                    <input type="text" id="editArtisLagu" required>
+                </div>
+                <div class="form-group">
+                    <label for="editGenreLagu">Genre</label>
+                    <input type="text" id="editGenreLagu" required>
+                </div>
+                <div class="form-group">
+                    <label for="editLirikLagu">Potongan Lirik</label>
+                    <textarea id="editLirikLagu" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editFileMp3">Nama File / URL MP3</label>
+                    <input type="text" id="editFileMp3" required>
+                </div>
+                <div class="form-group">
+                    <label for="editDetikMulai">Detik Mulai</label>
+                    <input type="number" id="editDetikMulai" required>
+                </div>
 
-            <!-- CONTAINER PILIHAN GANDA EDIT -->
-            <div id="editContainerPilihanGanda">
+                <!-- CONTAINER PILIHAN GANDA EDIT -->
+                <div id="editContainerPilihanGanda">
+                    <hr style="margin: 20px 0; border: 1px solid #cbd5e1;">
+                    <h3>Pilihan Ganda (Khusus Mode Mudah)</h3>
+                    <div class="form-group">
+                        <label for="editPilihanA">Pilihan A</label>
+                        <input type="text" id="editPilihanA">
+                    </div>
+                    <div class="form-group">
+                        <label for="editPilihanB">Pilihan B</label>
+                        <input type="text" id="editPilihanB">
+                    </div>
+                    <div class="form-group">
+                        <label for="editPilihanC">Pilihan C</label>
+                        <input type="text" id="editPilihanC">
+                    </div>
+                    <div class="form-group">
+                        <label for="editPilihanD">Pilihan D</label>
+                        <input type="text" id="editPilihanD">
+                    </div>
+                </div>
+
+                <!-- JAWABAN BENAR EDIT -->
+                <div class="form-group" style="margin-top: 15px; padding-top: 15px; border-top: 2px dashed #cbd5e1;">
+                    <label for="editJawabanBenar" style="color: #10b981; font-weight: bold;">Jawaban Benar (Wajib Semua Mode)</label>
+                    <input type="text" id="editJawabanBenar" required>
+                </div>
+
                 <hr style="margin: 20px 0; border: 1px solid #cbd5e1;">
-                <h3>Pilihan Ganda (Khusus Mode Mudah)</h3>
-                <div class="form-group">
-                    <label for="editPilihanA">Pilihan A</label>
-                    <input type="text" id="editPilihanA">
+                <div class="modal-actions">
+                    <button type="button" id="btnBatalEdit" class="btn-cancel">Batal</button>
+                    <button type="submit" class="btn-save">💾 Simpan Perubahan</button>
                 </div>
-                <div class="form-group">
-                    <label for="editPilihanB">Pilihan B</label>
-                    <input type="text" id="editPilihanB">
-                </div>
-                <div class="form-group">
-                    <label for="editPilihanC">Pilihan C</label>
-                    <input type="text" id="editPilihanC">
-                </div>
-                <div class="form-group">
-                    <label for="editPilihanD">Pilihan D</label>
-                    <input type="text" id="editPilihanD">
-                </div>
-            </div> <!-- 👈 PENUTUP CONTAINER PILIHAN GANDA EDIT -->
-
-            <!-- ✨ JAWABAN BENAR EDIT (SUDAH DI LUAR CONTAINER) ✨ -->
-            <div class="form-group" style="margin-top: 15px; padding-top: 15px; border-top: 2px dashed #cbd5e1;">
-                <label for="editJawabanBenar" style="color: #10b981; font-weight: bold;">Jawaban Benar (Wajib Semua Mode)</label>
-                <input type="text" id="editJawabanBenar" required>
-            </div>
-
-            <hr style="margin: 20px 0; border: 1px solid #cbd5e1;">
-            <div class="modal-actions">
-                <button type="button" id="btnBatalEdit" class="btn-cancel">Batal</button>
-                <button type="submit" class="btn-save">💾 Simpan Perubahan</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-    <!--==========================================
-     MODAL KONFIRMASI HAPUS
-     ==========================================-->
-<div id="modalHapusLagu" class="modal-overlay">
-    <div class="modal-content" style="max-width: 400px; text-align: center;">
-        <h2 style="color: #e74c3c;">🗑️ Hapus Lagu</h2>
-        <p style="margin: 15px 0; color: #475569;">Apakah kamu yakin ingin menghapus lagu ini? Tindakan ini tidak dapat dibatalkan.</p>
-        <input type="hidden" id="hapusLaguId">
-        <div class="modal-actions" style="justify-content: center;">
-            <button type="button" id="btnBatalHapus" class="btn-cancel">Batal</button>
-            <button type="button" id="btnKonfirmasiHapus" class="btn-save" style="background: #e74c3c;">Hapus</button>
+            </form>
         </div>
     </div>
-</div>
+
+    <!-- MODAL KONFIRMASI HAPUS -->
+    <div id="modalHapusLagu" class="modal-overlay">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <h2 style="color: #e74c3c;">🗑️ Hapus Lagu</h2>
+            <p style="margin: 15px 0; color: #475569;">Apakah kamu yakin ingin menghapus lagu ini? Tindakan ini tidak dapat dibatalkan.</p>
+            <input type="hidden" id="hapusLaguId">
+            <div class="modal-actions" style="justify-content: center;">
+                <button type="button" id="btnBatalHapus" class="btn-cancel">Batal</button>
+                <button type="button" id="btnKonfirmasiHapus" class="btn-save" style="background: #e74c3c;">Hapus</button>
+            </div>
+        </div>
+    </div>
 
     <!-- SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

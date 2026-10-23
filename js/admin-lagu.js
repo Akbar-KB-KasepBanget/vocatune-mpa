@@ -1,14 +1,10 @@
 import { db } from './supabase.js';
 
-// Variabel penampung data & pagination
 let daftarLaguGlobal = [];
 let daftarLaguTersaring = [];
 let halamanAktif = 1;
 const itemPerHalaman = 5;
 
-// ==========================================
-// FUNGSI POP-UP NOTIFIKASI
-// ==========================================
 function tampilkanNotifikasi(pesan, tipe = 'sukses') {
     let container = document.getElementById('notifPopup');
     if (!container) {
@@ -55,17 +51,17 @@ async function memuatDataLagu() {
     const tableBody = document.getElementById('tableBodyLagu');
     if (!tableBody) return;
 
-    tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Memuat data... ⏳</td></tr>';
+    tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Memuat data... ⏳</td></tr>';
 
     const { data, error } = await db.from('songs').select('*').order('id', { ascending: true });
 
     if (error) {
-        tableBody.innerHTML = `<tr><td colspan="6" style="color:red; text-align:center;">Gagal memuat: ${error.message}</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="5" style="color:red; text-align:center;">Gagal memuat: ${error.message}</td></tr>`;
         return;
     }
 
     if (!data || data.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Belum ada data lagu.</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Belum ada data lagu.</td></tr>';
         updatePaginationUI(0, 0, 0);
         return;
     }
@@ -86,7 +82,7 @@ function renderTabelLagu() {
     const totalData = daftarLaguTersaring.length;
 
     if (totalData === 0) {
-        tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#64748b; padding:20px;">Lagu tidak ditemukan.</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#64748b; padding:20px;">Lagu tidak ditemukan.</td></tr>';
         updatePaginationUI(0, 0, 0);
         return;
     }
@@ -109,7 +105,6 @@ function renderTabelLagu() {
             <td><strong>${item.judul}</strong></td>
             <td>${item.artis || '-'}</td>
             <td>${item.genre || '-'}</td>
-            <td><span class="badge ${item.tingkat_kesulitan ? item.tingkat_kesulitan.toLowerCase() : 'mudah'}">${item.tingkat_kesulitan || 'Mudah'}</span></td>
             <td>
                 <div class="action-btns">
                     <button class="btn-icon edit-btn" data-id="${item.id}">✏️</button>
@@ -138,9 +133,8 @@ function setupSearchLagu() {
             const judul = (item.judul || '').toLowerCase();
             const artis = (item.artis || '').toLowerCase();
             const genre = (item.genre || '').toLowerCase();
-            const kesulitan = (item.tingkat_kesulitan || '').toLowerCase(); // Menambahkan filter tingkat kesulitan
 
-            return judul.includes(query) || artis.includes(query) || genre.includes(query) || kesulitan.includes(query);
+            return judul.includes(query) || artis.includes(query) || genre.includes(query);
         });
 
         halamanAktif = 1;
@@ -152,7 +146,6 @@ function setupSearchLagu() {
 // 4. PASANG KLIK KE TOMBOL ✏️ DAN 🗑️
 // ==========================================
 function pasangEventTombolAksi() {
-    // Tombol Edit
     document.querySelectorAll('.edit-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const id = e.currentTarget.getAttribute('data-id');
@@ -164,7 +157,6 @@ function pasangEventTombolAksi() {
             document.getElementById('editJudulLagu').value = data.judul || '';
             document.getElementById('editArtisLagu').value = data.artis || '';
             document.getElementById('editGenreLagu').value = data.genre || '';
-            document.getElementById('editKesulitanLagu').value = data.tingkat_kesulitan || 'Mudah';
             document.getElementById('editLirikLagu').value = data.lirik || '';
             document.getElementById('editFileMp3').value = data.file_mp3 || '';
             document.getElementById('editDetikMulai').value = data.detik_mulai || 0;
@@ -175,17 +167,10 @@ function pasangEventTombolAksi() {
             if (document.getElementById('editPilihanD')) document.getElementById('editPilihanD').value = data.pilihan_d || '';
             if (document.getElementById('editJawabanBenar')) document.getElementById('editJawabanBenar').value = data.jawaban_benar || '';
 
-            const editContainerPG = document.getElementById('editContainerPilihanGanda');
-            if (editContainerPG) {
-                // Perbaikan: Hanya menyembunyikan Pilihan Ganda (A, B, C, D)
-                editContainerPG.style.display = (data.tingkat_kesulitan === 'Sedang' || data.tingkat_kesulitan === 'Sulit') ? 'none' : 'block';
-            }
-
             document.getElementById('modalEditLagu').style.display = 'flex';
         });
     });
 
-    // Tombol Hapus
     document.querySelectorAll('.delete-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const id = e.currentTarget.getAttribute('data-id');
@@ -211,7 +196,6 @@ function updatePaginationUI(mulai, sampai, total) {
     controlsContainer.innerHTML = '';
     const totalHalaman = Math.ceil(total / itemPerHalaman) || 1;
 
-    // Tombol Prev (<)
     const btnPrev = document.createElement('button');
     btnPrev.className = 'page-btn';
     btnPrev.innerHTML = '&lt;';
@@ -224,7 +208,6 @@ function updatePaginationUI(mulai, sampai, total) {
     };
     controlsContainer.appendChild(btnPrev);
 
-    // Generate Angka Halaman
     const daftarAngka = buatSkemaAngkaHalaman(halamanAktif, totalHalaman);
 
     daftarAngka.forEach(item => {
@@ -245,7 +228,6 @@ function updatePaginationUI(mulai, sampai, total) {
         }
     });
 
-    // Tombol Next (>)
     const btnNext = document.createElement('button');
     btnNext.className = 'page-btn';
     btnNext.innerHTML = '&gt;';
@@ -260,18 +242,9 @@ function updatePaginationUI(mulai, sampai, total) {
 }
 
 function buatSkemaAngkaHalaman(aktif, total) {
-    if (total <= 5) {
-        return Array.from({ length: total }, (_, i) => i + 1);
-    }
-
-    if (aktif <= 3) {
-        return [1, 2, 3, 4, '...', total];
-    }
-
-    if (aktif >= total - 2) {
-        return [1, '...', total - 3, total - 2, total - 1, total];
-    }
-
+    if (total <= 5) return Array.from({ length: total }, (_, i) => i + 1);
+    if (aktif <= 3) return [1, 2, 3, 4, '...', total];
+    if (aktif >= total - 2) return [1, '...', total - 3, total - 2, total - 1, total];
     return [1, '...', aktif - 1, aktif, aktif + 1, '...', total];
 }
 
@@ -336,18 +309,8 @@ function setupModalEdit() {
         });
     }
 
-    const editKesulitan = document.getElementById('editKesulitanLagu');
-    const editContainerPG = document.getElementById('editContainerPilihanGanda');
-    if (editKesulitan && editContainerPG) {
-        editKesulitan.addEventListener('change', (e) => {
-            // Perbaikan: Hanya menyembunyikan Pilihan Ganda (A, B, C, D)
-            editContainerPG.style.display = (e.target.value === 'Sedang' || e.target.value === 'Sulit') ? 'none' : 'block';
-        });
-    }
-
     if (formEdit) {
         const btnSimpan = formEdit.querySelector('.btn-save');
-        
         if(btnSimpan) {
             btnSimpan.addEventListener('click', async (e) => {
                 e.preventDefault(); 
@@ -361,7 +324,6 @@ function setupModalEdit() {
                     judul: document.getElementById('editJudulLagu').value,
                     artis: document.getElementById('editArtisLagu').value,
                     genre: document.getElementById('editGenreLagu').value,
-                    tingkat_kesulitan: document.getElementById('editKesulitanLagu').value,
                     lirik: document.getElementById('editLirikLagu').value,
                     file_mp3: document.getElementById('editFileMp3').value,
                     detik_mulai: parseInt(document.getElementById('editDetikMulai').value) || 0,
@@ -377,14 +339,12 @@ function setupModalEdit() {
 
                     if (error) {
                         tampilkanNotifikasi('Gagal mengedit lagu: ' + error.message, 'error');
-                        console.error("Error update Supabase:", error);
                     } else {
                         modalEdit.style.display = 'none';
                         tampilkanNotifikasi('Data lagu berhasil diperbarui!', 'sukses');
                         memuatDataLagu();
                     }
                 } catch (err) {
-                    console.error("Terjadi kesalahan jaringan/sistem:", err);
                     tampilkanNotifikasi('Terjadi kesalahan tidak terduga.', 'error');
                 } finally {
                     btnSimpan.innerText = '💾 Simpan Perubahan';
@@ -403,8 +363,6 @@ function setupModalTambah() {
     const btnBuka = document.getElementById('btnBukaModal');
     const btnBatal = document.getElementById('btnBatalTambah');
     const formTambah = document.getElementById('formTambahLagu');
-    const selectKesulitan = document.getElementById('kesulitanLagu');
-    const containerPG = document.getElementById('containerPilihanGanda');
 
     if (btnBuka && modalTambah) btnBuka.addEventListener('click', () => modalTambah.style.display = 'flex');
     if (btnBatal && modalTambah) btnBatal.addEventListener('click', () => modalTambah.style.display = 'none');
@@ -415,16 +373,8 @@ function setupModalTambah() {
         });
     }
 
-    if (selectKesulitan && containerPG) {
-        selectKesulitan.addEventListener('change', (e) => {
-            // Perbaikan: Hanya menyembunyikan Pilihan Ganda (A, B, C, D)
-            containerPG.style.display = (e.target.value === 'Sedang' || e.target.value === 'Sulit') ? 'none' : 'block';
-        });
-    }
-
     if (formTambah) {
         const btnSimpan = formTambah.querySelector('.btn-save');
-        
         if(btnSimpan) {
             btnSimpan.addEventListener('click', async (e) => {
                 e.preventDefault();
@@ -461,7 +411,6 @@ function setupModalTambah() {
                         judul: document.getElementById('judulLagu').value,
                         artis: document.getElementById('artisLagu').value,
                         genre: document.getElementById('genreLagu').value,
-                        tingkat_kesulitan: document.getElementById('kesulitanLagu').value,
                         lirik: document.getElementById('lirikLagu').value,
                         file_mp3: audioUrl,
                         detik_mulai: parseInt(document.getElementById('detikMulai').value) || 0,
@@ -482,7 +431,6 @@ function setupModalTambah() {
                     memuatDataLagu();
 
                 } catch (err) {
-                    console.error("Gagal menambah lagu:", err);
                     tampilkanNotifikasi('Terjadi kesalahan: ' + err.message, 'error');
                 } finally {
                     btnSimpan.innerText = '💾 Simpan Lagu';

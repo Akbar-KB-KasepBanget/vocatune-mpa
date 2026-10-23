@@ -12,17 +12,20 @@
 <body class="bg-light">
 
     <!-- ================= NAVBAR ================= -->
-    <nav class="navbar">
+    <nav class="navbar" style="position: relative; margin-bottom: 20px;">
         <div class="logo">
-            <span class="icon">🎙️</span>
+            <span class="icon"><img src="assets/Logo/Logo VocaTune • Crown Link-1.svg" alt=""></span>
             <strong>VocaTune</strong>
         </div>
         <ul class="nav-links">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="leaderboard.html">Leaderboard</a></li>
+            <li><a href="index.html" id="navHome">Home</a></li>
+            <li><a href="leaderboard.html" id="navLeaderboard">Leaderboard</a></li>
         </ul>
-        <div id="btnProfileNav" class="btn-profile">
-            👤 Memuat...
+       <div class="auth-button">
+            <button id="btnLogin" class="btn-primary" style="display: none;">Log In</button>
+            <div id="btnProfileNav" class="btn-profile">
+                👤 Memuat...
+            </div>
         </div>
     </nav>
 
@@ -126,9 +129,7 @@
                         <h4 style="margin: 0; color: #2b3a4a; font-family: 'Nunito', sans-serif;">Tentang VocaTune</h4>
                     </div>
                     <p style="font-size: 13px; color: #64748b; line-height: 1.6; margin: 0; text-align: justify;">
-                        VocaTune adalah platform permainan tebak lirik interaktif yang dirancang untuk melatih
-                        pendengaran (listening) dan memperkaya kosakata bahasa Inggrismu lewat lagu-lagu pilihan. Dibuat
-                        dengan 💻 dan ☕.
+                       Saya mengambil data terjemahan di <a href="https://dictionary.cambridge.org/">cambridge dictionary</a>. 
                     </p>
                 </div>
 

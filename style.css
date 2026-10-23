@@ -72,7 +72,7 @@ body {
 
 .nav-links a {
     text-decoration: none;
-    color: #64748b;
+    color: #000000;
     font-size: 16px;
     font-weight: bold;
     transition: color 0.3s ease;
@@ -83,7 +83,7 @@ body {
 }
 
 .nav-links a.active {
-    color: #0369A1;
+    color: #000000;
 }
 
 .btn-primary {
@@ -1148,19 +1148,21 @@ body {
 
 .chart-container {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around; /* Jarak merata antar hari */
     align-items: flex-end;
-    height: 250px;
-    padding-bottom: 20px;
+    height: 200px; /* ✨ Kurangi tingginya sedikit agar pas dengan wrapper */
+    padding-bottom: 10px;
     border-bottom: 2px solid #2b3a4a;
 }
 
 .bar-wrapper {
     display: flex;
     flex-direction: column;
+    justify-content: flex-end; /* Memaksa batang tumbuh dari bawah ke atas */
     align-items: center;
     gap: 10px;
     width: 40px;
+    height: 150px; /* ✨ TAMBAHKAN INI: Menentukan tinggi arena diagram */
 }
 
 .bar-value {
@@ -2502,6 +2504,92 @@ input:checked+.slider:before {
     display: none !important;
 }
 
+/* ==========================================
+   KARTU KOSAKATA DINAMIS (STATISTIK)
+   ========================================== */
+.kosa-card-container {
+    background: #ffffff;
+    padding: 18px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    text-align: left;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+
+.kosa-header {
+    font-size: 13px;
+    font-weight: 800;
+    color: #e74c3c;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.kosa-header span { 
+    color: #64748b; 
+    font-weight: 700; 
+}
+
+.kosa-word-group {
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.kosa-tag {
+    background: #3b82f6;
+    color: white;
+    font-size: 10px;
+    font-weight: 900;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.kosa-word { 
+    font-size: 16px; 
+    color: #1e293b; 
+    font-weight: 900; 
+}
+
+.kosa-section { 
+    margin-bottom: 8px; 
+}
+
+.kosa-label { 
+    font-size: 12px; 
+    color: #64748b; 
+    font-weight: 700; 
+}
+
+.kosa-meaning { 
+    font-weight: 900; 
+    font-size: 15px; 
+    color: #F39C12; 
+}
+
+/* Tautan Genius */
+.kosa-link {
+    display: inline-block;
+    margin-top: 6px;
+    font-size: 12px;
+    color: #2563eb;
+    text-decoration: underline;
+    font-weight: 800;
+    transition: color 0.2s ease;
+}
+
+.kosa-link:hover { 
+    color: #1d4ed8; 
+}
+
+.kosa-desc {
+    font-size: 12px;
+    color: #64748b;
+    line-height: 1.4;
+    font-style: italic;
+}
 
 /* ==========================================
    RESPONSIVE MOBILE (UNTUK HP & TABLET)
@@ -2510,27 +2598,43 @@ input:checked+.slider:before {
 /* --- BREAKPOINT UTAMA (MAX 768PX) --- */
 @media (max-width: 768px) {
 
-    /* 1. NAVBAR */
-   .navbar {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 16px;
-    gap: 10px;
-}
+    /* 1. FIX NAVBAR (LOGO KIRI, PROFIL KANAN, MENU DI TENGAH BAWAH) */
+    .navbar {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        padding: 12px 16px !important;
+    }
+    .navbar .logo { 
+        order: 1 !important; 
+        margin-right: auto !important; /* Paksa logo mentok ke kiri */
+    }
+    .navbar .auth-button { 
+        order: 2 !important; 
+        margin-left: auto !important; /* Paksa tombol login/profil mentok ke kanan */
+    }
+    .navbar .nav-links {
+        order: 3 !important;
+        width: 100% !important;
+        justify-content: center !important;
+        gap: 20px !important;
+        margin-top: 10px !important;
+        font-size: 14px !important;
+    }
 
-    .logo { order: 1; font-size: 18px; }
-    .auth-button { order: 2; }
+    /* FIX TOMBOL LOGOUT TERPOTONG & UKURAN TOMBOL PROFIL */
     .auth-button .btn-primary,
-    .auth-button .btn-profile { padding: 6px 14px; font-size: 13px; }
-    .nav-links {
-        order: 3;
-        width: 100%;
-        justify-content: center;
-        gap: 20px;
-        margin-top: 4px;
-        font-size: 14px;
+    .auth-button .btn-profile { 
+        padding: 6px 14px !important; 
+        font-size: 13px !important; 
+    }
+    .settings-card button,
+    .btn-warning {
+        white-space: nowrap !important; /* Mencegah teks turun jadi 'Logo ut' */
+        padding: 8px 14px !important;
+        font-size: 13px !important;
+        min-width: max-content !important; 
     }
 
     /* 2. HERO SECTION & TOMBOL DASHBOARD ADMIN */
@@ -2568,17 +2672,17 @@ input:checked+.slider:before {
     }
 
     /* 4. KARTU STATISTIK HP (HANYA AKTIF SAAT LOGIN) */
-#dashboard-menu-buttons.is-active,
-.stats-container,
-.home-stats {
-    display: flex !important;
-    flex-direction: row !important;
-    justify-content: center !important;
-    align-items: stretch !important;
-    gap: 10px !important;
-    padding: 0 10px !important;
-    margin-top: 15px !important;
-}
+    #dashboard-menu-buttons.is-active,
+    .stats-container,
+    .home-stats {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: center !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+        padding: 0 10px !important;
+        margin-top: 15px !important;
+    }
 
     .home-stat-card,
     .stat-card {
@@ -2610,17 +2714,20 @@ input:checked+.slider:before {
         line-height: 1.2 !important;
     }
 
-    /* 5. TOMBOL MUSIC ON (ANTI MENIMPA ELEMEN LAIN) */
+    /* ==========================================
+       5. FIX TOMBOL MUSIC ON (TIDAK MENGAPUNG)
+       ========================================== */
     #btnBgm,
     .btn-bgm {
-        position: relative !important;
+        position: relative !important; 
         display: block !important;
-        margin: 25px auto 15px auto !important;
+        margin: 40px 20px 20px auto !important; /* Duduk manis di sudut kanan bawah dokumen */
         top: auto !important;
         bottom: auto !important;
         left: auto !important;
-        transform: none !important;
+        right: auto !important;
         z-index: 10 !important;
+        transform: none !important;
     }
 
     /* 6. SETTINGS & MODAL AUTH */
@@ -2637,7 +2744,77 @@ input:checked+.slider:before {
         box-sizing: border-box;
     }
 
-    /* 7. ARENA GAME & PILIHAN GANDA AUTO-FIT */
+    /* ==========================================
+       7. FIX HALAMAN RUNTUNAN & LENCANA 7 HARI
+       ========================================== */
+    /* Merapikan Judul Runtunan Harian & Api */
+    .runtunan-header-flex {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 12px !important;
+    }
+    
+    /* Mengecilkan Lingkaran Ceklis Agar Muat 7 Hari */
+    .days-row {
+        padding: 0 !important;
+        gap: 4px !important;
+        justify-content: space-between !important;
+    }
+    .day-circle {
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 16px !important;
+    }
+    .day-label { font-size: 10px !important; }
+
+    /* ✨ DESAIN LENCANA (BADGE) "7 HARI TERAKHIR" */
+    .card-header-flex {
+        display: flex !important;
+        flex-direction: row !important; /* Paksa menyamping */
+        justify-content: space-between !important; /* Renggang kiri & kanan */
+        align-items: center !important;
+        gap: 10px !important;
+        flex-wrap: wrap !important;
+    }
+    
+    .card-title h3 {
+        font-size: 16px !important;
+        line-height: 1.3 !important;
+        white-space: normal !important; 
+        margin: 0 !important;
+    }
+    
+    /* Mengubah span teks biasa menjadi bentuk pil/lencana abu-abu */
+    .card-header-flex > span {
+        background-color: #f1f5f9 !important;
+        color: #475569 !important;
+        padding: 4px 10px !important;
+        border-radius: 12px !important;
+        font-size: 11px !important;
+        font-weight: 800 !important;
+        border: 1px solid #cbd5e1 !important;
+        white-space: nowrap !important;
+    }
+
+    /* Kembalikan Rangkuman Kinerja (Jawaban Benar) Menyamping */
+    .kinerja-item {
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 5px !important;
+    }
+    .kinerja-item h3 {
+        font-size: 16px !important;
+        line-height: 1.3 !important;
+        white-space: normal !important; 
+    }
+    .kinerja-item span {
+        font-size: 12px !important;
+        align-self: center !important; 
+        margin-top: 0 !important;
+    }
+
+    /* 8. ARENA GAME & PILIHAN GANDA AUTO-FIT */
     [class*="game"], 
     [class*="quiz"], 
     [class*="question"], 
@@ -2691,130 +2868,22 @@ input:checked+.slider:before {
         display: block;
         margin: 0 auto !important;
     }
-
-    /* 8. NOTIFIKASI TOAST */
-    #notifToast {
-        right: 20px;
-        left: 20px;
-        bottom: 30px;
-        justify-content: center;
-        text-align: center;
-    }
-
-    .toast-sembunyi {
-        transform: translateY(150%);
-        opacity: 0;
-    }
-
-    .toast-muncul {
-        transform: translateY(0);
-        opacity: 1;
-    }
+    /* ✨ MENGHILANGKAN EFEK KILATAN BIRU SAAT TOMBOL DIKETUK DI HP */
+button, 
+a, 
+input, 
+div, 
+span {
+    -webkit-tap-highlight-color: transparent !important;
+    outline: none !important;
 }
 
-/* --- BREAKPOINT TABLET / HP SEDANG (MAX 720PX) --- */
-@media (max-width: 720px) {
-    .genre-modal-content {
-        width: 85%;
-        max-width: 380px;
-        padding: 20px;
-        border-radius: 16px;
-    }
-
-    .genre-modal-header h3 {
-        font-size: 1.15rem;
-    }
-
-    .genre-options-grid {
-        display: grid !important;
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 8px !important;
-    }
-
-    .genre-chip {
-        padding: 10px;
-        font-size: 0.85rem;
-    }
-
-    .btn-genre-trigger {
-        padding: 10px 18px;
-        font-size: 0.9rem;
-    }
+/* Mencegah kotak fokus bawaan browser pada elemen interaktif */
+button:focus, 
+input:focus, 
+select:focus, 
+textarea:focus {
+    outline: none !important;
+    box-shadow: none !important;
 }
-
-/* --- BREAKPOINT HP KECIL (MAX 480PX) --- */
-@media (max-width: 480px) {
-    .genre-modal-content {
-        padding: 18px;
-        width: 92%;
-    }
-
-    .genre-options-grid {
-        display: grid !important;
-        grid-template-columns: 1fr !important;
-        gap: 8px !important;
-    }
-
-    .btn-genre-trigger {
-        width: 100%;
-        max-width: 280px;
-        justify-content: center;
-    }
-    /* Kunci ukuran logo SVG VocaTune di HP */
-.logo .icon img,
-.icon img {
-    width: 32px !important;
-    height: 32px !important;
-    object-fit: contain !important;
-}
-
-/* ==========================================
-   PERBAIKAN TAMPILAN GAME MODE MEDIUM & HARD (MOBILE)
-   ========================================== */
-/* 1. Kunci body agar layar tidak bisa goyang/geser ke kanan-kiri */
-body, html {
-    overflow-x: hidden !important;
-    max-width: 100vw !important;
-}
-
-/* 2. Pastikan kartu game dan wadahnya tidak melebihi layar HP */
-.game-container, .game-card, .game-wrapper {
-    width: 100% !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-    overflow-x: hidden !important;
-}
-
-/* 3. Paksa kotak input jawaban manual agar mengecil mengikuti layar */
-input[type="text"], 
-textarea, 
-.input-jawaban-manual, 
-#inputJawaban,
-#jawabanManual {
-    width: 100% !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-    font-size: 16px !important; /* Mencegah auto-zoom di iPhone/Android saat mengetik */
-}
-
-/* 4. Pastikan teks panjang seperti "TEBAK LIRIK..." tidak memecah layout */
-.game-header h2, 
-.tebak-lirik-title {
-    white-space: normal !important;
-    word-wrap: break-word !important;
-    text-align: center !important;
-}
-
-
-   #medium-input-overlay {
-        position: absolute !important;
-        top: 300px !important; /* Angka diperkecil agar kotaknya naik merapat ke atas */
-        left: 50% !important;
-        transform: translateX(-50%) !important;
-        width: 90% !important;
-        max-width: 360px !important;
-        z-index: 10 !important;
-        background: transparent !important;
-    }
-
 }

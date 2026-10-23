@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +8,37 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
-    <section style="display: block; padding: 40px 20px;">
+    <!-- ==========================================
+         1. NAVIGATION BAR (MENGGUNAKAN DESAIN DARI INDEX)
+         ========================================== -->
+    <nav class="navbar" style="position: relative; margin-bottom: 20px;">
+        <div class="logo">
+            <span class="icon"><img src="assets/Logo/Logo VocaTune • Crown Link-1.svg" alt=""></span>
+            <strong>VocaTune</strong>
+        </div>
+
+        <ul class="nav-links">
+             <li><a href="index.html">Home</a></li>
+            <li><a href="leaderboard.html" id="navLeaderboard">Leaderboard</a></li>
+           
+            <!-- TOMBOL PAUSE DIHILANGKAN KARENA BUKAN HALAMAN GAME -->
+        </ul>
+
+        <!-- WADAH TOMBOL AUTH -->
+        <div class="auth-button">
+            <button id="btnLogin" class="btn-primary" style="display: none;">Log In</button>
+            <div id="btnProfile" class="btn-profile">
+                👤 Memuat...
+            </div>
+        </div>
+    </nav>
+
+    
+
+    <!-- ==========================================
+         2. KONTEN HALAMAN STATISTIK
+         ========================================== -->
+    <section style="display: block; padding: 20px 20px 60px;">
         <div class="statistik-container" style="max-width: 800px; margin: 0 auto;">
             <div class="statistik-header">
                 <h2>KOSAKATA BARU & STATISTIK BELAJAR</h2>
@@ -18,7 +48,7 @@
             <!-- Kartu Rekap Pertandingan Terakhir -->
             <div class="stat-card-wide">
                 <div class="stat-card-header">
-                    <span class="icon-bookmark">🔖</span>
+                    <span class="icon-bookmark">📑</span>
                     <h3>Statistik Kuis Terakhir</h3>
                 </div>
                 <div class="stat-info-row">
@@ -32,16 +62,18 @@
             <!-- Kartu Kosakata Baru -->
             <div class="stat-card-wide">
                 <div class="stat-card-header">
-                    <span class="icon-bookmark">🔖</span>
+                    <span class="icon-bookmark">📑</span>
                     <h3>Kosakata Baru</h3>
                     <span class="badge-total">Total Kata</span>
                 </div>
                 <p class="stat-subtitle">Berikut adalah beberapa istilah yang berhasil kamu pelajari dalam kuis terakhirmu.</p>
+                
+                <!-- JavaScript akan menyuntikkan kosa-card-container ke dalam div ini -->
                 <div id="daftarKosakata" class="kosakata-grid"></div>
             </div>
 
             <div style="margin-top: 30px; text-align: center;">
-                <button id="btnMainLagi" class="btn-primary">🔄 Main Lagi</button>
+                <button id="btnMainLagi" class="btn-primary">🎮 Main Lagi</button>
                 <button id="btnKembaliHome" class="btn-primary" style="margin-left: 15px;">🏠 Ke Beranda</button>
             </div>
         </div>
@@ -50,15 +82,17 @@
     <!-- Elemen Audio & Tombol BGM -->
     <button id="btnBgm" class="btn-bgm">🔊 Music On</button>
     <audio id="bgmAudio" loop autoplay><source src="assets/bgm/s.mp3" type="audio/mpeg"></audio>
-      </div>
+      
     <!-- Wadah Notifikasi Toast Dinamis -->
     <div id="notifToast" class="toast-sembunyi">
         <span id="toastIcon">✨</span>
         <span id="toastMessage">Pesan di sini</span>
     </div>
-</body> <!-- Ini tag penutup body bawaan HTML-mu -->
+
+    <!-- Script wajib diletakkan sebelum tag penutup body -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script type="module" src="js/supabase.js"></script>
-    <script type="module" src="js/statistik.js"></script> <!-- Script khusus rekap game -->
+    <script type="module" src="js/auth.js"></script> <!-- ✨ WAJIB DITAMBAHKAN AGAR NAVBAR BISA MENARIK FOTO PROFIL -->
+    <script type="module" src="js/statistik.js"></script> 
 </body>
 </html>

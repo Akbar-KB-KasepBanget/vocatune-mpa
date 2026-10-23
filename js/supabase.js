@@ -1,7 +1,7 @@
 // ==========================================
 // 1. FUNGSI PENENTU GELAR (TITLE - SINKRON DENGAN PROFIL & LEADERBOARD)
 // ==========================================
-function tentukanGelar(skor) {
+export function tentukanGelar(skor) {
     if (skor <= 999) return "Newbie";
     if (skor <= 4999) return "Rookie";
     if (skor <= 9999) return "Pro";
@@ -16,17 +16,18 @@ function tentukanGelar(skor) {
 // ==========================================
 // 2. FUNGSI SIMPAN SKOR & HITUNG STREAK (SATU PINTU)
 // ==========================================
-export async function simpanSkorKeDatabase(skorBaru, streakRondeIni) {
+// ✨ PERHATIAN: Ada tambahan parameter 'jumlahLaguRondeIni' dan 'jumlahBenarRondeIni'
+export async function simpanSkorKeDatabase(skorBaru, streakRondeIni, jumlahLaguRondeIni = 0, jumlahBenarRondeIni = 0) {
     const { data: { session } } = await db.auth.getSession();
     if (!session) return { status: 'error', bonus: 0, streak: 0 }; 
 
     const userId = session.user.id;
 
     try {
-        // 1. Ambil data lama pemain dari Supabase
+        // 1. Ambil data lama pemain dari Supabase (termasuk kolom total lagu dan benar)
         const { data: playerData, error: fetchError } = await db
             .from('players')
-            .select('highest_score, total_score, daily_streak, last_play_date, highest_combo, total_days_played')
+            .select('highest_score, total_score, daily_streak, last_play_date, highest_combo, total_days_played, total_songs_played, correct_answers')
             .eq('user_id', userId)
             .single();
 
@@ -55,14 +56,21 @@ export async function simpanSkorKeDatabase(skorBaru, streakRondeIni) {
         if (lastPlayStr === hariIniStr) {
             // Sudah pernah main hari ini -> tidak ada notifikasi bonus
             statusNotif = 'sudah_main';
+            bonusSkor = 0; 
         } else if (lastPlayStr === kemarinStr) {
             // Kemarin main -> Streak AMAN!
             streakBaru += 1;
             totalHariBaru += 1;
-            bonusSkor = (streakBaru * 200) - 100;
             statusNotif = 'aman';
+            
+            // ✨ BERIKAN BONUS 100 XP HANYA TEPAT DI HARI KE-3
+            if (streakBaru === 3) {
+                bonusSkor = 100;
+            } else {
+                bonusSkor = 0;
+            }
         } else {
-            // Kemarin TIDAK main
+            // Kemarin TIDAK main (atau pembuatan akun baru)
             if ((playerData?.daily_streak || 0) > 1) {
                 statusNotif = 'hancur'; // Punya streak > 1 tapi kemarin bolong
             } else {
@@ -70,19 +78,21 @@ export async function simpanSkorKeDatabase(skorBaru, streakRondeIni) {
             }
             streakBaru = 1;
             totalHariBaru += 1;
-            bonusSkor = (streakBaru * 200) - 100;
+            bonusSkor = 0; 
         }
 
-        // Skor Ronde Ini Ditambah Bonus Streak
+        // Kalkulasi Rekor Skor
         const skorTotalRondeIni = skorBaru + bonusSkor;
-
-        // Kalkulasi Rekor
         let skorTertinggiBaru = Math.max(playerData?.highest_score || 0, skorTotalRondeIni);
         let totalSkorBaru = (playerData?.total_score || 0) + skorTotalRondeIni;
         let comboTertinggiBaru = Math.max(playerData?.highest_combo || 0, streakRondeIni);
         let gelarBaru = tentukanGelar(skorTertinggiBaru);
 
-        // 4. Update HANYA SATU KALI ke Supabase
+        // ✨ Kalkulasi Total Lagu dan Jawaban Benar
+        let totalLaguBaru = (playerData?.total_songs_played || 0) + jumlahLaguRondeIni;
+        let totalBenarBaru = (playerData?.correct_answers || 0) + jumlahBenarRondeIni;
+
+        // 4. Update HANYA SATU KALI ke Supabase (tabel players)
         const { error: updateError } = await db
             .from('players')
             .update({
@@ -91,12 +101,29 @@ export async function simpanSkorKeDatabase(skorBaru, streakRondeIni) {
                 highest_combo: comboTertinggiBaru,
                 daily_streak: streakBaru,
                 total_days_played: totalHariBaru,
+                total_songs_played: totalLaguBaru,       // ✨ Menyimpan akumulasi lagu
+                correct_answers: totalBenarBaru,         // ✨ Menyimpan akumulasi jawaban benar
                 title: gelarBaru,
                 last_play_date: new Date().toISOString()
             })
             .eq('user_id', userId);
 
         if (updateError) throw updateError;
+
+        // 5. CATAT RIWAYAT SKOR HARIAN KE TABEL score_logs
+        const { error: logError } = await db
+            .from('score_logs')
+            .insert([
+                {
+                    user_id: userId,
+                    skor_tambahan: skorTotalRondeIni,
+                    // created_at akan terisi otomatis oleh Supabase
+                }
+            ]);
+
+        if (logError) {
+            console.error("Gagal mencatat riwayat harian:", logError.message);
+        }
 
         return {
             status: statusNotif,

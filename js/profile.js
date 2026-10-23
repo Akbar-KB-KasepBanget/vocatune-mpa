@@ -3,7 +3,7 @@ import { db } from './supabase.js';
 // ==========================================
 // 1. FILTER KATA KASAR (PROFANITY FILTER)
 // ==========================================
-const kataTerlarang = ["anjing", "babi", "bangsat", "goblok", "tolol", "jancok", "tai", "bodoh", "prabowo", "presiden", "kontol", "sawit", "nyawit", "pemerintah", "kintil"];
+const kataTerlarang = ["anjing", "babi", "bangsat", "goblok", "tolol", "jancok", "tai", "bodoh", "prabowo", "presiden", "kontol", "sawit", "nyawit", "pemerintah", "kintil", "titit", "gay"];
 
 function mengandungKataKasar(nama) {
     const namaKecil = nama.toLowerCase();
@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const inputPassword = document.getElementById('inputPassword');
     const toggleBgm = document.getElementById('toggleBgm');
     const bgmAudio = document.getElementById('bgmAudio');
+    const toggleNotif = document.getElementById('toggleNotif'); // ✨ Elemen Toggle Notif
 
     // Elemen Foto Profil
     const avatarPreview = document.getElementById('avatarPreview');
@@ -110,6 +111,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // ==========================================
+    // ✨ FITUR TOGGLE NOTIFIKASI STREAK
+    // ==========================================
+    if (toggleNotif) {
+        // Setel posisi awal tombol saat halaman dimuat
+        toggleNotif.checked = localStorage.getItem('vocaTuneNotif') !== 'mati';
+
+        // Dengarkan saat user mengklik toggle
+        toggleNotif.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                localStorage.setItem('vocaTuneNotif', 'nyala');
+                tampilkanPopup("Notifikasi Streak Dihidupkan", "success");
+            } else {
+                localStorage.setItem('vocaTuneNotif', 'mati');
+                tampilkanPopup("Notifikasi Streak Dimatikan", "error");
+            }
+        });
+    }
+
+    // ==========================================
     // 4. KODE DATABASE SUPABASE
     // ==========================================
     try {
@@ -132,7 +152,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             // Isi Profil & Form
             if (document.getElementById('playerTitleDisplay')) {
-                document.getElementById('playerTitleDisplay').innerText = getPlayerTitle(totalSkor);
+                // PANGKAT SEKARANG DIHITUNG DARI SKOR TERTINGGI
+                document.getElementById('playerTitleDisplay').innerText = getPlayerTitle(data.highest_score || 0);
             }
             if (document.getElementById('inputUsername')) {
                 document.getElementById('inputUsername').value = namaPemain;

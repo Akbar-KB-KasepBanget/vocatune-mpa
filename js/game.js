@@ -7,7 +7,6 @@ import { db, simpanSkorKeDatabase } from './supabase.js';
 // FUNGSI POP-UP NOTIFIKASI TOAST (JS BERSIH)
 // ==========================================
 function tampilkanNotifGame(pesan, tipe) {
-    // Gembok Pembungkam Notifikasi jika dimatikan di profil
     if (localStorage.getItem('vocaTuneNotif') === 'mati') return;
 
     let container = document.getElementById('toastNotifGame');
@@ -17,20 +16,36 @@ function tampilkanNotifGame(pesan, tipe) {
         document.body.appendChild(container);
     }
 
-    container.classList.remove('muncul');
+    container.style.position = 'fixed';
+    container.style.top = '40px';
+    container.style.left = '50%';
+    container.style.transform = 'translate(-50%, -20px)';
+    container.style.padding = '15px 25px';
+    container.style.borderRadius = '50px';
+    container.style.color = '#ffffff';
+    container.style.fontWeight = 'bold';
+    container.style.zIndex = '999999';
+    container.style.boxShadow = '0 10px 25px rgba(0,0,0,0.3)';
+    container.style.transition = 'all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+    container.style.opacity = '0';
+    container.style.pointerEvents = 'none';
 
     if (tipe === 'rekor') {
-        container.style.backgroundColor = '#F59E0B'; // Emas
+        container.style.backgroundColor = '#F59E0B';
         container.innerHTML = '🏆 ' + pesan;
+    } else if (tipe === 'peringatan') {
+        container.style.backgroundColor = '#E74C3C';
+        container.innerHTML = '⚠️ ' + pesan;
     } else {
-        container.style.backgroundColor = '#10B981'; // Hijau
-        container.innerHTML = '🔥 ' + pesan;
+        container.style.backgroundColor = '#10B981';
+        container.innerHTML = '✨ ' + pesan;
     }
 
     container.style.display = 'block';
     
     setTimeout(() => {
-        container.classList.add('muncul');
+        container.style.opacity = '1';
+        container.style.transform = 'translate(-50%, 0)';
     }, 50);
 }
 
@@ -211,12 +226,8 @@ async function inisialisasiGame() {
     } catch (e) {
         if (rawGenre) selectedGenres = [rawGenre];
     }
-
-    let modeDatabase = 'Mudah';
-    if (selectedMode === 'Medium') modeDatabase = 'Sedang';
-    if (selectedMode === 'Hard') modeDatabase = 'Sulit';
-
-    let queryLaguModeIni = db.from('songs').select('*').eq('tingkat_kesulitan', modeDatabase);
+    
+    let queryLaguModeIni = db.from('songs').select('*');
     
     const filterSpesifik = selectedGenres.filter(g => g !== 'Semua');
     if (filterSpesifik.length > 0) {
@@ -238,7 +249,9 @@ async function inisialisasiGame() {
         [dataLagu[i], dataLagu[j]] = [dataLagu[j], dataLagu[i]];
     }
 
-    dataLagu = dataLagu.slice(0, 10);
+    if (selectedMode !== 'Hard') {
+        dataLagu = dataLagu.slice(0, 10);
+    }
 
     bankSoal = dataLagu.map(item => {
         let kumpulanVoca = [];
@@ -275,7 +288,8 @@ async function inisialisasiGame() {
     if (bankSoal.length > 0) riwayatSoalDimaiankan.push(bankSoal[0]);
 
     let soalPertama = bankSoal[0];
-    teksPertanyaanInfo.text = '🏆 Pertanyaan 1/' + bankSoal.length;
+    teksPertanyaanInfo.text = '🏆 Pertanyaan ' + (indeksSoal + 1);
+    
     teksLirik.text = soalPertama.lirik;
     teksLirik.style.fill = '#2b3a4a';
     laguSoal.src = soalPertama.lagu;
@@ -360,28 +374,22 @@ async function inisialisasiGame() {
 
     laguSoal.play(); sedangMain = true; ikonPlay.text = '⏸'; mulaiWaktuBermain();
 }
+
 // ==========================================
-// 5. EVENT LISTENER AUDIO (SINKRON DENGAN KEYBOARD/HARDWARE)
+// 5. EVENT LISTENER AUDIO
 // ==========================================
 laguSoal.addEventListener('play', () => { 
     sedangMain = true; 
-    if (typeof ikonPlay !== 'undefined' && ikonPlay) {
-        ikonPlay.text = '⏸'; 
-    }
-    // Lapor ke OS kalau musik jalan
+    if (typeof ikonPlay !== 'undefined' && ikonPlay) ikonPlay.text = '⏸'; 
     if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
 });
 
 laguSoal.addEventListener('pause', () => { 
     sedangMain = false; 
-    if (typeof ikonPlay !== 'undefined' && ikonPlay) {
-        ikonPlay.text = '▶'; 
-    }
-    // Lapor ke OS kalau musik berhenti
+    if (typeof ikonPlay !== 'undefined' && ikonPlay) ikonPlay.text = '▶'; 
     if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
 });
 
-// ✨ PAKSAAN UI: Ubah ikon seketika saat tombol hardware ditekan
 if ('mediaSession' in navigator) {
     navigator.mediaSession.setActionHandler('play', () => {
         laguSoal.play();
@@ -496,12 +504,20 @@ function mulaiWaktuBermain() {
 }
 
 function lanjutKeSoalBerikutnya() {
-    indeksSoal++; if (indeksSoal >= bankSoal.length) { akhiriPermainan(); return; }
+    indeksSoal++; 
+    
+    // ✨ JIKA SOAL HABIS, LANGSUNG AKHIRI PERMAINAN (TIDAK DIULANG/KOKOC ULANG)
+    if (indeksSoal >= bankSoal.length) {
+        akhiriPermainan(); 
+        return;
+    }
 
     riwayatSoalDimaiankan.push(bankSoal[indeksSoal]);
 
     let soalBaru = bankSoal[indeksSoal];
-    teksPertanyaanInfo.text = '🏆 Pertanyaan ' + (indeksSoal + 1) + '/' + bankSoal.length; teksLirik.text = soalBaru.lirik;
+    teksPertanyaanInfo.text = '🏆 Pertanyaan ' + (indeksSoal + 1);
+    
+    teksLirik.text = soalBaru.lirik;
     laguSoal.src = soalBaru.lagu; detikMulai = soalBaru.detikMulai; batasBerhenti = detikMulai + 30;
     laguSoal.currentTime = detikMulai; laguSoal.play(); sedangMain = true; ikonPlay.text = '⏸';
 
@@ -541,7 +557,8 @@ async function akhiriPermainan() {
     }
     
     try {
-        const hasil = await simpanSkorKeDatabase(skorSaatIni, streakTertinggi);
+        const hasil = await simpanSkorKeDatabase(skorSaatIni, streakTertinggi, riwayatSoalDimaiankan.length, jumlahBenar);
+        
         const skorAkhirPlusBonus = skorSaatIni + (hasil.bonus || 0);
 
         localStorage.setItem('matchSkorAkhir', skorAkhirPlusBonus);
@@ -551,18 +568,26 @@ async function akhiriPermainan() {
         localStorage.setItem('matchMode', selectedMode);
         localStorage.setItem('matchRiwayatSoal', JSON.stringify(riwayatSoalDimaiankan));
 
+        const isNotifMati = localStorage.getItem('vocaTuneNotif') === 'mati';
+        const waktuTunggu = isNotifMati ? 0 : 3500; 
+        const waktuTungguCepat = isNotifMati ? 0 : 3000;
+
         if (hasil.status === 'aman') {
-            window.tampilkanNotif(`Selamat streak mu aman! +${hasil.bonus} poin`, 'success');
-            setTimeout(() => { window.location.href = 'statistik.html'; }, 3500);
+            tampilkanNotifGame(`Selamat streak mu aman! +${hasil.bonus} poin`, 'success');
+            setTimeout(() => { window.location.href = 'statistik.html'; }, waktuTunggu);
         } 
         else if (hasil.status === 'hancur') {
-            window.tampilkanNotif(`Kamu gagal, streak hancur.`, 'peringatan');
-            setTimeout(() => { window.location.href = 'statistik.html'; }, 3500);
+            tampilkanNotifGame(`Kamu gagal, streak hancur.`, 'peringatan');
+            setTimeout(() => { window.location.href = 'statistik.html'; }, waktuTunggu);
         } 
         else if (hasil.status === 'baru') {
-            window.tampilkanNotif(`Amankan poin mu hari ini! +${hasil.bonus} poin`, 'success');
-            setTimeout(() => { window.location.href = 'statistik.html'; }, 3500);
+            tampilkanNotifGame(`Amankan poin mu hari ini! +${hasil.bonus} poin`, 'success');
+            setTimeout(() => { window.location.href = 'statistik.html'; }, waktuTunggu);
         } 
+        else if (hasil.status === 'sudah_main') {
+            tampilkanNotifGame(`Kuis selesai! Skor berhasil disimpan.`, 'success');
+            setTimeout(() => { window.location.href = 'statistik.html'; }, waktuTungguCepat);
+        }
         else {
             window.location.href = 'statistik.html';
         }

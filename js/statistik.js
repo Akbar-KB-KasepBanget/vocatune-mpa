@@ -17,11 +17,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (teksSkorAkhir) teksSkorAkhir.innerText = skor;
     if (teksStreakAkhir) teksStreakAkhir.innerText = streak;
-    if (teksJumlahBenar) teksJumlahBenar.innerText = benar + "/" + daftarSoalMain.length;
+    if (teksJumlahBenar) teksJumlahBenar.innerText = benar;
     
     if (teksJumlahHampirBenar) {
         teksJumlahHampirBenar.innerText = hampir;
-        // SEMBUNYIKAN WADAH HAMPIR BENAR JIKA MODE EASY
         const containerHampir = teksJumlahHampirBenar.closest('.stat-item');
         if (containerHampir) {
             containerHampir.style.display = (modePlay === 'Easy') ? 'none' : 'inline-block';
@@ -39,7 +38,6 @@ document.addEventListener('DOMContentLoaded', () => {
             wadahKosakata.innerHTML = '<p style="text-align: center; color: #64748b; font-style: italic; grid-column: 1/-1;">Belum ada riwayat soal pada sesi ini.</p>';
             if (badgeTotalKata) badgeTotalKata.innerText = '0 Kata';
         } else {
-            // A. Filter kata agar tidak muncul ganda (Deduplikasi)
             const kosakataUnik = [];
             const kataTerdaftar = new Set();
 
@@ -63,32 +61,39 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             });
 
-            // B. Update angka di badge "Total Kata"
             if (badgeTotalKata) {
                 badgeTotalKata.innerText = `${kosakataUnik.length} Kata`;
             }
 
-            // C. Render kartu kosakata ke dalam wadah
             kosakataUnik.forEach((item) => {
                 const cardKosakata = document.createElement('div');
-                cardKosakata.className = 'kosakata-item'; 
-                cardKosakata.style.cssText = 'background: #ffffff; padding: 18px; border-radius: 12px; border: 1px solid #e2e8f0; text-align: left; box-shadow: 0 2px 8px rgba(0,0,0,0.03);';
+                cardKosakata.className = 'kosakata-item kosa-card-container'; 
                 
+                // ✨ LOGIKA MENEBAK LINK LANGSUNG GENIUS ✨
+                const formatGenius = (item.artis + " " + item.judul)
+                    .toLowerCase()
+                    .replace(/[^a-z0-9\s]/g, '')
+                    .trim()
+                    .replace(/\s+/g, '-') + '-lyrics';
+                
+                const linkGeniusLangsung = `https://genius.com/${formatGenius}`;
+
                 cardKosakata.innerHTML = `
-                    <div style="font-size: 13px; font-weight: 800; color: #e74c3c; margin-bottom: 8px; display: flex; align-items: center; gap: 4px;">
-                        🎵 <strong style="color: #e74c3c;">${item.judul}</strong> — <span style="color: #64748b; font-weight: 700;">${item.artis}</span>
+                    <div class="kosa-header">
+                        🎵 <strong>${item.judul}</strong> — <span>${item.artis}</span>
                     </div>
-                    <div style="margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
-                        <span style="background: #3b82f6; color: white; font-size: 10px; font-weight: 900; padding: 2px 6px; border-radius: 4px;">abc</span>
-                        <strong style="font-size: 16px; color: #1e293b; font-weight: 900;">${item.kata}</strong>
+                    <div class="kosa-word-group">
+                        <span class="kosa-tag">abc</span>
+                        <strong class="kosa-word">${item.kata}</strong>
                     </div>
-                    <div style="margin-bottom: 8px;">
-                        <div style="font-size: 12px; color: #64748b; font-weight: 700;">📖 Arti:</div>
-                        <div style="font-weight: 900; font-size: 15px; color: #F39C12;">${item.arti}</div>
+                    <div class="kosa-section">
+                        <div class="kosa-label">📖 Arti:</div>
+                        <div class="kosa-meaning">${item.arti}</div>
+                        <a href="${linkGeniusLangsung}" target="_blank" class="kosa-link">📝 Lirik & Makna di Genius ↗</a>
                     </div>
                     <div>
-                        <div style="font-size: 12px; color: #64748b; font-weight: 700;">💡 Penjelasan:</div>
-                        <div style="font-size: 12px; color: #64748b; line-height: 1.4; font-style: italic;">${item.penjelasan}</div>
+                        <div class="kosa-label">💡 Penjelasan:</div>
+                        <div class="kosa-desc">${item.penjelasan}</div>
                     </div>
                 `;
                 

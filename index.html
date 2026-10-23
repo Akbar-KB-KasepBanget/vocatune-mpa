@@ -231,7 +231,7 @@
             <p class="auth-footer-text">Belum punya akun? <span id="linkToSignUp" class="auth-link">Sign Up di sini</span></p>
         </div>
 
-        <!-- KOTAK FORM SIGN UP -->
+       <!-- KOTAK FORM SIGN UP -->
         <div id="form-signup" class="auth-card">
             <button type="button" class="btn-close-auth" id="btnCloseSignup">&times;</button>
             <h2>Buat Akun Baru</h2>
@@ -239,7 +239,17 @@
 
             <input type="text" id="signupUsername" class="auth-input" placeholder="Buat Username..." required>
             <input type="email" id="signupGmail" class="auth-input" placeholder="Masukkan Gmail..." required>
-            <input type="password" id="signupPassword" class="auth-input" placeholder="Buat Password..." required>
+            
+            <!-- ✨ KOTAK PASSWORD HARUS DIBUNGKUS DIV INI ✨ -->
+            <div class="auth-password-wrapper">
+                <input type="password" id="signupPassword" class="auth-input auth-password-input" placeholder="Buat Password..." required>
+                <span id="toggleSignupPassword" class="auth-password-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye preview-icon">
+                        <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                </span>
+            </div>
             
             <button id="btnSubmitSignup" class="btn-primary auth-submit-btn">Sign Up</button>
 

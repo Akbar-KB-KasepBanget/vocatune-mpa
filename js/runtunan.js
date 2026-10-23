@@ -28,9 +28,9 @@ document.addEventListener('DOMContentLoaded', () => {
         let sudahMainHariIni = false;
 
         if (session) {
-            // PERBAIKAN 1: Tarik juga last_play_date dari Supabase
+            // Tarik data profil dan statistik pemain dari Supabase
             const { data } = await db.from('players')
-                .select('daily_streak, last_play_date, username, avatar_url') 
+                .select('daily_streak, last_play_date, username, avatar_url, total_songs_played, correct_answers') 
                 .eq('user_id', session.user.id)
                 .single();
                 
@@ -50,6 +50,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (badgeStreak) badgeStreak.innerText = streak;
                 if (textStreakDays) textStreakDays.innerText = streak;
 
+                // Masukkan data ke Rangkuman Kinerja (Total Lagu & Jawaban Benar)
+                const elemenTotalLagu = document.getElementById('totalLaguDitebak'); 
+                const elemenBenar = document.getElementById('jawabanBenar'); 
+                
+                if (elemenTotalLagu) elemenTotalLagu.innerText = `${data.total_songs_played || 0} Lagu`;
+                if (elemenBenar) elemenBenar.innerText = `${data.correct_answers || 0} Kali`;
+
                 if (btnProfileNav) {
                     const username = data.username || 'Player';
                     const fotoUrl = data.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(username)}`;
@@ -64,45 +71,63 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // ==========================================
-        // PERBAIKAN 2: LOGIKA LINGKARAN MINGGUAN (ANTI MELESET)
+        // MENARIK DATA ASLI DARI score_logs (Mulai Senin)
         // ==========================================
         const hariIni = new Date().getDay(); 
         const indexHariIni = hariIni === 0 ? 6 : hariIni - 1; // Senin=0, Minggu=6
-
         const namaHari = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
-        const skorMock = [650, 890, 1120, 450, 950, 1250, 1300]; 
 
-        // Siapkan array 7 hari, default belum dicentang (false)
+        let skorHarianAsli = new Array(7).fill(0);
+
+        let tglSekarang = new Date();
+        let selisihKeSenin = tglSekarang.getDay() === 0 ? 6 : tglSekarang.getDay() - 1;
+        
+        let awalMinggu = new Date(tglSekarang);
+        awalMinggu.setDate(tglSekarang.getDate() - selisihKeSenin);
+        awalMinggu.setHours(0, 0, 0, 0); 
+        let awalMingguISO = awalMinggu.toISOString();
+
+        const { data: logsData, error: logsError } = await db
+            .from('score_logs')
+            .select('skor_tambahan, created_at')
+            .eq('user_id', session.user.id)
+            .gte('created_at', awalMingguISO);
+
+        if (!logsError && logsData) {
+            logsData.forEach(log => {
+                let tanggalMain = new Date(log.created_at);
+                let hariMain = tanggalMain.getDay() === 0 ? 6 : tanggalMain.getDay() - 1;
+                skorHarianAsli[hariMain] += log.skor_tambahan; 
+            });
+        }
+
+        // ==========================================
+        // STATUS LINGKARAN HARI (CEKLIS BERDASARKAN SKOR)
+        // ==========================================
         let hariDone = [false, false, false, false, false, false, false];
-        let sisaStreak = streak;
         
-        // Jika belum main hari ini, mundurkan perhitungan centang dimulai dari kemarin
-        let pointer = sudahMainHariIni ? indexHariIni : indexHariIni - 1;
-        
-        // Centang hari mundur ke belakang sesuai dengan sisa angka streak
-        while (sisaStreak > 0 && pointer >= 0) {
-            hariDone[pointer] = true;
-            sisaStreak--;
-            pointer--;
+        // ✨ PERBAIKAN: Lingkaran otomatis diceklis jika grafik batang hari itu memiliki skor
+        for (let i = 0; i < 7; i++) {
+            if (skorHarianAsli[i] > 0) {
+                hariDone[i] = true;
+            }
         }
 
         let dataMingguIni = [];
 
-        // Rakit status visual CSS-nya
         for (let i = 0; i < 7; i++) {
             let statusHari = 'empty';
 
             if (i === indexHariIni) {
-                // Khusus Hari Ini: beri ring menyala (active), tambah centang (done) kalau sudah main
+                // Jika hari ini, tambahkan class active (bulatan biru)
                 statusHari = hariDone[i] ? 'active done' : 'active';
             } else if (hariDone[i]) {
-                // Hari-hari sebelumnya yang masuk dalam hitungan streak
                 statusHari = 'done';
             }
 
             dataMingguIni.push({
                 hari: namaHari[i],
-                skor: skorMock[i], 
+                skor: skorHarianAsli[i], 
                 status: statusHari
             });
         }
@@ -127,10 +152,17 @@ document.addEventListener('DOMContentLoaded', () => {
         // Render Diagram Batang
         if (chartContainer) {
             chartContainer.innerHTML = ''; 
-            const maxSkor = 1500; 
+
+            const skorTertinggi = Math.max(...dataMingguIni.map(item => item.skor));
+            const maxSkor = skorTertinggi > 100 ? skorTertinggi + 100 : 100;
 
             dataMingguIni.forEach((item, index) => {
-                const tinggiPersen = (index <= indexHariIni) ? (item.skor / maxSkor) * 100 : 0;
+                let tinggiPersen = (index <= indexHariIni) ? (item.skor / maxSkor) * 100 : 0;
+                
+                if ((index <= indexHariIni) && item.skor > 0 && tinggiPersen < 2) {
+                    tinggiPersen = 2;
+                }
+
                 const nilaiSkor = (index <= indexHariIni) ? item.skor : '';
 
                 const barHtml = `
@@ -142,6 +174,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
                 chartContainer.innerHTML += barHtml;
             });
+
+            // Update Teks Info Skor Tertinggi Mingguan
+            const elemenInfoSkor = document.getElementById('infoSkorMingguan');
+            if (elemenInfoSkor) {
+                const skorMaxMingguan = Math.max(...skorHarianAsli);
+                
+                if (skorMaxMingguan > 0) {
+                    const indexHariMax = skorHarianAsli.indexOf(skorMaxMingguan);
+                    const hariMax = namaHari[indexHariMax];
+                    
+                    elemenInfoSkor.innerHTML = `ℹ Skor tertinggi kamu dalam seminggu terakhir tercapai di hari <strong>${hariMax}</strong> dengan perolehan <strong>${skorMaxMingguan.toLocaleString()} XP</strong>. Keren!`;
+                } else {
+                    elemenInfoSkor.innerHTML = `ℹ Kamu belum mendapatkan skor minggu ini. Ayo mainkan lagunya sekarang!`;
+                }
+            }
         }
     }
 
