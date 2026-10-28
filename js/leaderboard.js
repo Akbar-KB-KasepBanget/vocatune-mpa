@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const { data, error } = await db
                 .from('players')
                 .select('username, highest_score, highest_combo, daily_streak, avatar_url')
-                .gt('highest_score', 0) // ✨ FILTER: Hanya tampilkan pemain yang skor tertingginya di atas 0
+                .gt('highest_score', 0) 
                 .order('highest_score', { ascending: false });
 
             if (error) throw error;
